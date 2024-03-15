@@ -8235,6 +8235,7 @@ var beepbox = (function (exports) {
 				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
 				--instrument-copy-symbol: url("theme_resources/icon-copy.png");
 				--instrument-paste-symbol: url("theme_resources/icon-paste.png");
+				--corrupt-symbol: url("theme_resources/icon-play.png");
 				--play-symbol: url("theme_resources/icon-play.png");
 				--pause-symbol: url("theme_resources/icon-pause.png");
 				--record-symbol: url("theme_resources/icon-record.png");
@@ -9514,6 +9515,45 @@ var beepbox = (function (exports) {
     transition-delay: 0.35s;
 }
 
+
+.corruption-song-settings {
+	pointer-events: none;
+    opacity: 0;
+    -webkit-transition: opacity 0.5s ease-in;
+    -moz-transition: opacity 0.5s ease-in;
+    -o-transition: opacity 0.5s ease-in;
+    -ms-transition: opacity 0.5s ease-in;
+    transition: opacity 0.5s ease-in;
+    transition-delay: 0.35s;
+}
+
+.spawn {
+	pointer-events: unset;
+}
+
+.corruption-surprise {
+	height: 0em;
+    -webkit-transition: height 0.5s ease-in-out;
+    -moz-transition: height 0.5s ease-in-out;
+    -o-transition: height 0.5s ease-in-out;
+    -ms-transition: height 0.5s ease-in-out;
+    transition: height 0.5s ease-in-out;
+    transition-delay: 0.35s;
+}
+
+.corruption-surprise-anim {
+	height: 219px;
+}
+
+.finish {
+	height: fit-content;
+}
+
+.disabled-dropdown-group {
+	opacity: 0.5;
+}
+
+
 .instrument-settings-area {
     opacity: 0;
     -webkit-transition: opacity 0.5s ease-in;
@@ -10302,6 +10342,16 @@ var beepbox = (function (exports) {
 	grid-column-gap: 4px;
 }
 
+.beepboxEditor button .corruptButtonIcon {
+	flex-shrink: 0;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	width: var(--button-size);
+	height: var(--button-size);
+}
 .beepboxEditor button.playButton::before {
 	content: "";
 	flex-shrink: 0;
@@ -10698,6 +10748,12 @@ var beepbox = (function (exports) {
 }
 
 .beepboxEditor .editor-controls {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.beepboxEditor .editor-corruption-controls {
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
@@ -23749,47 +23805,140 @@ li.select2-results__option[role=group] > strong:hover {
     const shuffle = (array) => {
         array.sort(() => Math.random() - 0.5);
     };
+    const getRandomItem = (array) => {
+        return array[Math.floor(Math.random() * array.length)];
+    };
     class ChangeCorruptionBlast extends ChangeGroup {
-        constructor(doc, domains) {
+        constructor(doc, options, skipFirstChannel = false) {
             super();
             this._doc = doc;
             this._channels = doc.song.channels;
-            const shuffledPiano = Array.from(Array(Config.maxPitch).keys());
+            const domains = options.domains;
+            const maxPitch = Config.maxPitch;
+            const maxPitchDrums = 12;
+            const shuffledPiano = Array.from(Array(maxPitch + 1).keys());
+            const shuffledDrums = Array.from(Array(maxPitchDrums).keys());
             shuffle(shuffledPiano);
-            console.log(this._doc);
-            function corruptNotes(channel, maxPitch) {
+            shuffle(shuffledDrums);
+            console.log('==================================================================');
+            function selectWeightedRandom(entries) {
+                let total = 0;
+                for (const entry of entries) {
+                    total += entry.weight;
+                }
+                let random = Math.random() * total;
+                for (const entry of entries) {
+                    random -= entry.weight;
+                    if (random <= 0.0)
+                        return entry.item;
+                }
+                return entries[(Math.random() * entries.length) | 0].item;
+            }
+            function selectCurvedDistribution(min, max, peak, width) {
+                const entries = [];
+                for (let i = min; i <= max; i++) {
+                    entries.push({ item: i, weight: 1.0 / (Math.pow((i - peak) / width, 2.0) + 1.0) });
+                }
+                return selectWeightedRandom(entries);
+            }
+            function corruptInstrument(instrument) {
+                const opt = options.instrumentOptions;
+                if (opt.volume)
+                    instrument.volume = Math.floor(Math.random() * Config.volumeRange) - 25;
+                if (opt.pan)
+                    instrument.pan = Math.floor(Math.random() * Config.panMax);
+                if (opt.transition) {
+                    instrument.effects |= 1 << 10;
+                    instrument.transition = Config.transitions.dictionary[selectWeightedRandom([
+                        { item: "normal", weight: 1 },
+                        { item: "interrupt", weight: 1 },
+                        { item: "slide", weight: 1 },
+                    ])].index;
+                }
+                if (opt.distortion) {
+                    instrument.effects |= 1 << 3;
+                    instrument.distortion = selectCurvedDistribution(0, Config.distortionRange - 1, 0, 2);
+                }
+                if (opt.vibrato) {
+                    instrument.effects |= 1 << 9;
+                    instrument.vibrato = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
+                    instrument.vibrato = Config.vibratos.dictionary[selectWeightedRandom([
+                        { item: "none", weight: 1 },
+                        { item: "light", weight: 1 },
+                        { item: "delayed", weight: 1 },
+                        { item: "heavy", weight: 1 },
+                        { item: "shaky", weight: 1 },
+                    ])].index;
+                }
+                if (opt.detune) {
+                    instrument.effects |= 1 << 8;
+                    instrument.detune = Math.floor(Math.random() * Config.detuneMax);
+                }
+                return instrument;
+            }
+            function corruptNotes(channel, maxPitch, shuffledPitches) {
                 for (let p = 0; p < channel.patterns.length; p++) {
                     const pattern = channel.patterns[p];
                     for (let n = 0; n < pattern.notes.length; n++) {
                         if (pattern.notes[n].pitches) {
                             let _oldPitches = pattern.notes[n].pitches;
-                            const _newPitches = _oldPitches.map((pitch) => (shuffledPiano[pitch] ));
+                            const _newPitches = _oldPitches.map((pitch) => {
+                                console.log(pitch);
+                                return options.keepPitch ? shuffledPitches[pitch] : Math.floor(Math.random() * maxPitch);
+                            });
                             channel.patterns[p].notes[n].pitches = _newPitches;
                         }
                     }
                 }
             }
             for (let c = 0; c < this._channels.length; c++) {
+                if (skipFirstChannel) {
+                    skipFirstChannel = false;
+                    continue;
+                }
+                if (this._channels[c].muted) {
+                    continue;
+                }
                 const channel = this._channels[c];
-                {
+                const isDrum = this._doc.song.getChannelIsNoise(c);
+                const isMod = this._doc.song.getChannelIsMod(c);
+                if (domains.instrument && !isMod) {
+                    console.log(channel);
+                    for (let instruments_id = 0; instruments_id < channel.instruments.length; instruments_id++) {
+                        console.log(channel);
+                        const instrument = channel.instruments[instruments_id];
+                        this._channels[c].instruments[instruments_id] = corruptInstrument(instrument);
+                    }
+                }
+                if (domains.pattern) {
+                    let patternsWithNotes = [];
+                    if (!options.includeNotelessPatterns) {
+                        for (let p = 0; p < channel.patterns.length; p++) {
+                            const pattern = channel.patterns[p];
+                            if (pattern.notes.length !== 0)
+                                patternsWithNotes.push(p + 1);
+                        }
+                    }
                     for (let b = 0; b < channel.bars.length; b++) {
                         const bar = channel.bars[b];
-                        if (bar) {
+                        if (options.includeNotelessPatterns) {
+                            this._channels[c].bars[b] = Math.floor(Math.random() * this._channels[c].patterns.length);
+                        }
+                        else if (bar) {
                             const hasNotes = this._channels[c].patterns[bar - 1].notes.length !== 0;
                             if (hasNotes)
-                                this._channels[c].bars[b] = Math.floor(Math.random() * (this._channels[c].patterns.length) - 1) + 1;
+                                this._channels[c].bars[b] = getRandomItem(patternsWithNotes);
                         }
                     }
                 }
-                if (!doc.song.getChannelIsMod(c)) {
-                    console.log('is noise?: ', doc.song.getChannelIsNoise(c));
-                    if (!(doc.song.getChannelIsNoise(c)) && domains.pitch) {
-                        console.log('corrupting pitch: ', doc.song.getChannelIsNoise(c));
-                        corruptNotes(channel, Config.maxPitch);
+                if (!isMod) {
+                    console.log('is noise?: ', isDrum);
+                    console.log('corrupting: ', channel);
+                    if (!isDrum) {
+                        corruptNotes(channel, maxPitch, shuffledPiano);
                     }
-                    else if (doc.song.getChannelIsNoise(c) && domains.noise) {
-                        console.log('corrupting noise: ', channel);
-                        corruptNotes(channel);
+                    else {
+                        corruptNotes(channel, maxPitchDrums, shuffledDrums);
                     }
                 }
             }
@@ -40944,12 +41093,87 @@ You should be redirected to the song at:<br /><br />
         constructor(_doc) {
             this._doc = _doc;
             this.prompt = null;
-            this.corruptDomains = { pitch: false, noise: false, pattern: false };
-            this._corruptButton = button({ class: "corruptButton", type: "button", title: "Play (Space)" }, span("Corrupt"));
-            this._corruptDomainPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: -6em;" });
-            this._corruptDomainPitchRow = div({ class: "selectRow" }, this._corruptDomainPitchBox, span({ class: "tip", onclick: () => this._openPrompt("backwards") }, "Pitch "), div({ style: "width: 2em;" }));
-            this._corruptDomainNoiseBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: -6em;" });
-            this._corruptDomainNoiseRow = div({ class: "selectRow" }, this._corruptDomainNoiseBox, span({ class: "tip", onclick: () => this._openPrompt("backwards") }, "Noise "), div({ style: "width: 2em;" }));
+            this.corruptDomains = { pitch: false, pattern: false, instrument: false };
+            this.corruptInstrumentOpt = {
+                volume: true,
+                pan: true,
+                distortion: true,
+                transition: true,
+                vibrato: true,
+                detune: true,
+            };
+            this.corruptOptions = {
+                keepPitch: false,
+                includeNotelessPatterns: false,
+                intensity: 0,
+                domains: this.corruptDomains,
+                instrumentOptions: this.corruptInstrumentOpt
+            };
+            this.firstAccessLocalStorage = "firstAccessToBariBox";
+            this.showFakeErrorMessageLocalStorage = "showedFakeErrorMessage";
+            this.isFirstAccessToBariBox = JSON.parse(getLocalStorageItem(this.firstAccessLocalStorage, "true"));
+            this.showFakeErrorMessage = JSON.parse(getLocalStorageItem(this.showFakeErrorMessageLocalStorage, "true"));
+            this.bariboxFirstLoad = () => {
+                this._corruptInstrumentVolumeBox.checked = true;
+                this._corruptInstrumentPanBox.checked = true;
+                this._corruptInstrumentDistortionBox.checked = true;
+                this._corruptInstrumentTransitionBox.checked = true;
+                this._corruptInstrumentVibratoBox.checked = true;
+                this._corruptInstrumentDetuneBox.checked = true;
+                this.corruptDomains.instrument
+                    ? this._corruptInstrumentDropdownGroup.classList.remove("disabled-dropdown-group")
+                    : this._corruptInstrumentDropdownGroup.classList.add("disabled-dropdown-group");
+                if (JSON.parse(getLocalStorageItem("firstAccessToBariBox", "true"))) {
+                    this.corruptDomains.pitch = true;
+                    this.corruptOptions.keepPitch = true;
+                    this._corruptDomainPitchBox.checked = this.corruptDomains.pitch ? true : false;
+                    this._corruptOptionKeepPitchBox.checked = this.corruptOptions.keepPitch ? true : false;
+                    this._corruptBeep();
+                }
+                else {
+                    this.spawnCorruptionSettings(750);
+                }
+            };
+            this.spawnCorruptionSettings = (delay) => {
+                this.mainLayer.getElementsByClassName("corruption-surprise")[0].className += " corruption-surprise-anim";
+                setTimeout(() => {
+                    this.mainLayer.getElementsByClassName("corruption-song-settings")[0].className += " load";
+                    this.mainLayer.getElementsByClassName("corruption-song-settings")[0].className += " spawn";
+                    this.mainLayer.getElementsByClassName("corruption-surprise-anim")[0].className += " finish";
+                }, delay);
+            };
+            this._corruptionIcon = SVG.svg({ class: "corruptButtonIcon", viewBox: "-35 -35 270 270" }, [
+                SVG.path({ fill: "currentColor", d: "M90 155 l0 -45 -45 0 c-25 0 -45 -4 -45 -10 0 -5 20 -10 45 -10 l45 0 0 -45 c0 -25 5 -45 10 -45 6 0 10 20 10 45 l0 45 45 0 c25 0 45 5 45 10 0 6 -20 10 -45 10 l -45 0 0 45 c0 25 -4 45 -10 45 -5 0 -10 -20 -10 -45z" }),
+                SVG.path({ fill: "currentColor", d: "M42 158 c-15 -15 -16 -38 -2 -38 6 0 10 7 10 15 0 8 7 15 15 15 8 0 15 5 15 10 0 14 -23 13 -38 -2z" }),
+                SVG.path({ fill: "currentColor", d: "M120 160 c0 -5 7 -10 15 -10 8 0 15 -7 15 -15 0 -8 5 -15 10 -15 14 0 13 23 -2 38 -15 15 -38 16 -38 2z" }),
+                SVG.path({ fill: "currentColor", d: "M32 58 c3 -23 48 -40 48 -19 0 6 -7 11 -15 11 -8 0 -15 7 -15 15 0 8 -5 15 -11 15 -6 0 -9 -10 -7 -22z" }),
+                SVG.path({ fill: "currentColor", d: "M150 65 c0 -8 -7 -15 -15 -15 -8 0 -15 -4 -15 -10 0 -14 23 -13 38 2 15 15 16 38 2 38 -5 0 -10 -7 -10 -15z" })
+            ]);
+            this._corruptButton = button({ class: "corruptButton", type: "button", style: "width: 100%;", title: "Play (Space)" }, this._corruptionIcon, span("Corrupt"));
+            this._corruptOptionKeepPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;" });
+            this._corruptOptionKeepPitchRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("backwards") }, "Keep Pitch: "), this._corruptOptionKeepPitchBox);
+            this._corruptOptionIncludeNullPatternsBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;" });
+            this._corruptOptionIncludeNullPatternsRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("backwards") }, "Include noteless patterns: "), this._corruptOptionIncludeNullPatternsBox);
+            this._corruptDomainPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
+            this._corruptDomainPitchRow = div({ class: "selectRow", style: "justify-content: unset" }, this._corruptDomainPitchBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Notes"));
+            this._corruptDomainPatternBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
+            this._corruptDomainPatternRow = div({ class: "selectRow", style: "justify-content: unset" }, this._corruptDomainPatternBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Pattern"));
+            this._corruptInstrumentVolumeBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+            this._corruptInstrumentVolumeRow = div({ class: "selectRow dropFader", style: "justify-content: unset" }, this._corruptInstrumentVolumeBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Volume"));
+            this._corruptInstrumentPanBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+            this._corruptInstrumentPanRow = div({ class: "selectRow dropFader", style: "justify-content: unset" }, this._corruptInstrumentPanBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Pan"));
+            this._corruptInstrumentTransitionBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+            this._corruptInstrumentTransitionRow = div({ class: "selectRow dropFader", style: "justify-content: unset" }, this._corruptInstrumentTransitionBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Transition"));
+            this._corruptInstrumentDistortionBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+            this._corruptInstrumentDistortionRow = div({ class: "selectRow dropFader", style: "justify-content: unset" }, this._corruptInstrumentDistortionBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Distortion"));
+            this._corruptInstrumentVibratoBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+            this._corruptInstrumentVibratoRow = div({ class: "selectRow dropFader", style: "justify-content: unset" }, this._corruptInstrumentVibratoBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Vibrato"));
+            this._corruptInstrumentDetuneBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+            this._corruptInstrumentDetuneRow = div({ class: "selectRow dropFader", style: "justify-content: unset" }, this._corruptInstrumentDetuneBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Detune"));
+            this._corruptInstrumentDropdown = button({ style: "margin-left:1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(8) }, "▼");
+            this._corruptInstrumentDropdownGroup = div({ class: "editor-corruption-controls", style: "display: none;" }, this._corruptInstrumentVolumeRow, this._corruptInstrumentPanRow, this._corruptInstrumentTransitionRow, this._corruptInstrumentDistortionRow, this._corruptInstrumentVibratoRow, this._corruptInstrumentDetuneRow);
+            this._corruptDomainInstrumentBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
+            this._corruptDomainInstrumentRow = div({ class: "selectRow", style: "justify-content: unset" }, this._corruptDomainInstrumentBox, span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Instrument"), this._corruptInstrumentDropdown);
             this._keyboardLayout = new KeyboardLayout(this._doc);
             this._patternEditorPrev = new PatternEditor(this._doc, false, -1);
             this._patternEditor = new PatternEditor(this._doc, true, 0);
@@ -41218,7 +41442,7 @@ You should be redirected to the song at:<br /><br />
             this._sampleLoadingBar = div({ style: `width: 0%; height: 100%; background-color: ${ColorConfig.indicatorPrimary};` });
             this._sampleLoadingBarContainer = div({ style: `width: 80%; height: 4px; overflow: hidden; margin-left: auto; margin-right: auto; margin-top: 0.5em; cursor: pointer; background-color: ${ColorConfig.indicatorSecondary};` }, this._sampleLoadingBar);
             this._sampleLoadingStatusContainer = div({ style: "cursor: pointer;" }, div({ style: `margin-top: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};` }, "Sample Loading Status"), div({ class: "selectRow", style: "height: 6px; margin-bottom: 0.5em;" }, this._sampleLoadingBarContainer));
-            this._songSettingsArea = div({ class: "song-settings-area" }, div({ class: "editor-controls" }, div({ class: "editor-song-settings" }, div({ style: "margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" }, div({ class: "tip", style: "flex-shrink: 0; position:absolute; left: 0; top: 0; width: 12px; height: 12px", onclick: () => this._openPrompt("usedPattern") }, SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 0; pointer-events: none;", width: "12px", height: "12px", "margin-right": "0.5em", viewBox: "-6 -6 12 12" }, this._usedPatternIndicator)), div({ class: "tip", style: "flex-shrink: 0; position: absolute; left: 14px; top: 0; width: 12px; height: 12px", onclick: () => this._openPrompt("usedInstrument") }, SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 0; pointer-events: none;", width: "12px", height: "12px", "margin-right": "1em", viewBox: "-6 -6 12 12" }, this._usedInstrumentIndicator)), "Song Settings", div({ style: "width: 100%; left: 0; top: -1px; position:absolute; overflow-x:clip;" }, this._jumpToModIndicator))), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("scale") }, "Scale: "), div({ class: "selectContainer" }, this._scaleSelect)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("key") }, "Key: "), div({ class: "selectContainer" }, this._keySelect)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("key_octave") }, "Octave: "), this._octaveStepper), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("tempo") }, "Tempo: "), span({ style: "display: flex;" }, this._tempoSlider.container, this._tempoStepper)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("rhythm") }, "Rhythm: "), div({ class: "selectContainer" }, this._rhythmSelect)), div({ class: "editor-song-settings" }, div({ style: "margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" }, "Corruption Settings")), this._corruptButton, div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("tempo") }, "Intensity: "), span({ style: "display: flex;" }, this._tempoSlider.container, this._tempoStepper)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("tempo") }, "Domains: ")), this._corruptDomainPitchRow, this._corruptDomainNoiseRow));
+            this._songSettingsArea = div({ class: "song-settings-area" }, div({ class: "editor-controls" }, div({ class: "editor-song-settings" }, div({ style: "margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" }, div({ class: "tip", style: "flex-shrink: 0; position:absolute; left: 0; top: 0; width: 12px; height: 12px", onclick: () => this._openPrompt("usedPattern") }, SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 0; pointer-events: none;", width: "12px", height: "12px", "margin-right": "0.5em", viewBox: "-6 -6 12 12" }, this._usedPatternIndicator)), div({ class: "tip", style: "flex-shrink: 0; position: absolute; left: 14px; top: 0; width: 12px; height: 12px", onclick: () => this._openPrompt("usedInstrument") }, SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 0; pointer-events: none;", width: "12px", height: "12px", "margin-right": "1em", viewBox: "-6 -6 12 12" }, this._usedInstrumentIndicator)), "Song Settings", div({ style: "width: 100%; left: 0; top: -1px; position:absolute; overflow-x:clip;" }, this._jumpToModIndicator))), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("scale") }, "Scale: "), div({ class: "selectContainer" }, this._scaleSelect)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("key") }, "Key: "), div({ class: "selectContainer" }, this._keySelect)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("key_octave") }, "Octave: "), this._octaveStepper), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("tempo") }, "Tempo: "), span({ style: "display: flex;" }, this._tempoSlider.container, this._tempoStepper)), div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("rhythm") }, "Rhythm: "), div({ class: "selectContainer" }, this._rhythmSelect)), div({ class: "corruption-surprise" }, div({ class: "corruption-song-settings" }, div({ style: "margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" }, "Corruption Settings"), this._corruptButton, this._corruptOptionKeepPitchRow, this._corruptOptionIncludeNullPatternsRow, div({ class: "selectRow", style: "justify-content: center;" }, span({ class: "tip", style: "width: unset", onclick: () => this._openPrompt("tempo") }, "Domains ")), this._corruptDomainPitchRow, this._corruptDomainPatternRow, this._corruptDomainInstrumentRow, this._corruptInstrumentDropdownGroup))));
             this._instrumentSettingsArea = div({ class: "instrument-settings-area" }, this._instrumentSettingsGroup, this._modulatorGroup);
             this._settingsArea = div({ class: "settings-area noSelection" }, div({ class: "version-area" }, div({ style: `text-align: center; margin: 3px 0; color: ${ColorConfig.secondaryText};` }, this._songTitleInputBox.input)), div({ class: "play-pause-area" }, this._volumeBarBox, div({ class: "playback-bar-controls" }, this._playButton, this._pauseButton, this._recordButton, this._stopButton, this._prevBarButton, this._nextBarButton), div({ class: "playback-volume-controls" }, span({ class: "volume-speaker" }), this._volumeSlider.container), this._globalOscscopeContainer), this._menuArea, this._songSettingsArea, this._instrumentSettingsArea);
             this.mainLayer = div({ class: "beepboxEditor", tabIndex: "0" }, this._patternArea, this._trackArea, this._settingsArea, this._promptContainer);
@@ -41256,6 +41480,7 @@ You should be redirected to the song at:<br /><br />
             this._openOperatorDropdowns = [];
             this._openPulseWidthDropdown = false;
             this._openUnisonDropdown = false;
+            this._openCorruptInstrumentOptionsDropdown = false;
             this.outVolumeHistoricTimer = 0;
             this.outVolumeHistoricCap = 0;
             this.lastOutVolumeCap = 0;
@@ -43203,14 +43428,21 @@ You should be redirected to the song at:<br /><br />
                 }
                 this._barScrollBar.animatePlayhead();
             };
+            this.firstPause = false;
             this.togglePlay = () => {
                 if (this._doc.synth.playing) {
                     this._doc.performance.pause();
                     this.outVolumeHistoricCap = 0;
+                    this.firstPause = true;
                 }
                 else {
                     this._doc.synth.snapToBar();
                     this._doc.performance.play();
+                }
+                if (this.isFirstAccessToBariBox && this.firstPause) {
+                    this.spawnCorruptionSettings(1000);
+                    window.localStorage.setItem(this.firstAccessLocalStorage, JSON.stringify(false));
+                    this.isFirstAccessToBariBox = false;
                 }
             };
             this._toggleRecord = () => {
@@ -43480,8 +43712,7 @@ You should be redirected to the song at:<br /><br />
                 this._doc.record(new ChangeNoiseWave(this._doc, this._chipNoiseSelect.selectedIndex));
             };
             this._corruptBeep = () => {
-                console.log(this.corruptDomains);
-                this._doc.record(new ChangeCorruptionBlast(this._doc, this.corruptDomains));
+                this._doc.record(new ChangeCorruptionBlast(this._doc, this.corruptOptions, this.isFirstAccessToBariBox));
             };
             this._whenSetTransition = () => {
                 this._doc.record(new ChangeTransition(this._doc, this._transitionSelect.selectedIndex));
@@ -43875,9 +44106,31 @@ You should be redirected to the song at:<br /><br />
             this._chordSelect.addEventListener("change", this._whenSetChord);
             this._vibratoSelect.addEventListener("change", this._whenSetVibrato);
             this._vibratoTypeSelect.addEventListener("change", this._whenSetVibratoType);
-            this._corruptButton.addEventListener("click", this._corruptBeep);
+            this._corruptButton.addEventListener("click", () => {
+                if (this.showFakeErrorMessage && (Math.random() < 0.2)) {
+                    errorAlert(`Oh noooooooooooooo :(`);
+                    this.showFakeErrorMessage = false;
+                    window.localStorage.setItem(this.showFakeErrorMessageLocalStorage, JSON.stringify(false));
+                }
+                this._corruptBeep();
+            });
+            this._corruptOptionKeepPitchBox.addEventListener("input", () => { this.corruptOptions.keepPitch = !this.corruptOptions.keepPitch; });
+            this._corruptOptionIncludeNullPatternsBox.addEventListener("input", () => { this.corruptOptions.includeNotelessPatterns = !this.corruptOptions.includeNotelessPatterns; });
             this._corruptDomainPitchBox.addEventListener("input", () => { this.corruptDomains.pitch = !this.corruptDomains.pitch; });
-            this._corruptDomainNoiseBox.addEventListener("input", () => { this.corruptDomains.noise = !this.corruptDomains.noise; });
+            this._corruptDomainPatternBox.addEventListener("input", () => { this.corruptDomains.pattern = !this.corruptDomains.pattern; });
+            this._corruptDomainInstrumentBox.addEventListener("input", () => {
+                this.corruptDomains.instrument = !this.corruptDomains.instrument;
+                this.corruptDomains.instrument
+                    ? this._corruptInstrumentDropdownGroup.classList.remove("disabled-dropdown-group")
+                    : this._corruptInstrumentDropdownGroup.classList.add("disabled-dropdown-group");
+                console.log('============== GUN LEAN MAN: ', this._corruptInstrumentDropdownGroup.classList);
+            });
+            this._corruptInstrumentVolumeBox.addEventListener("input", () => { this.corruptInstrumentOpt.volume = !this.corruptInstrumentOpt.volume; });
+            this._corruptInstrumentPanBox.addEventListener("input", () => { this.corruptInstrumentOpt.pan = !this.corruptInstrumentOpt.pan; });
+            this._corruptInstrumentTransitionBox.addEventListener("input", () => { this.corruptInstrumentOpt.transition = !this.corruptInstrumentOpt.transition; });
+            this._corruptInstrumentDistortionBox.addEventListener("input", () => { this.corruptInstrumentOpt.distortion = !this.corruptInstrumentOpt.distortion; });
+            this._corruptInstrumentVibratoBox.addEventListener("input", () => { this.corruptInstrumentOpt.vibrato = !this.corruptInstrumentOpt.vibrato; });
+            this._corruptInstrumentDetuneBox.addEventListener("input", () => { this.corruptInstrumentOpt.detune = !this.corruptInstrumentOpt.detune; });
             this._playButton.addEventListener("click", this.togglePlay);
             this._pauseButton.addEventListener("click", this.togglePlay);
             this._recordButton.addEventListener("click", this._toggleRecord);
@@ -44039,6 +44292,11 @@ You should be redirected to the song at:<br /><br />
                     target = this._unisonDropdown;
                     this._openUnisonDropdown = this._openUnisonDropdown ? false : true;
                     group = this._unisonDropdownGroup;
+                    break;
+                case 8:
+                    target = this._corruptInstrumentDropdown;
+                    this._openCorruptInstrumentOptionsDropdown = this._openCorruptInstrumentOptionsDropdown ? false : true;
+                    group = this._corruptInstrumentDropdownGroup;
                     break;
             }
             if (target.textContent == "▼") {
@@ -46420,6 +46678,7 @@ You should be redirected to the song at:<br /><br />
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/service_worker.js", { updateViaCache: "all", scope: "/" }).catch(() => { });
     }
+    editor.bariboxFirstLoad();
 
     exports.ChangePreset = ChangePreset;
     exports.Channel = Channel;

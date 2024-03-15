@@ -7891,6 +7891,7 @@ var beepbox = (function (exports) {
 				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
 				--instrument-copy-symbol: url("theme_resources/icon-copy.png");
 				--instrument-paste-symbol: url("theme_resources/icon-paste.png");
+				--corrupt-symbol: url("theme_resources/icon-play.png");
 				--play-symbol: url("theme_resources/icon-play.png");
 				--pause-symbol: url("theme_resources/icon-pause.png");
 				--record-symbol: url("theme_resources/icon-record.png");
