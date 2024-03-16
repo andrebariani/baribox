@@ -22,6 +22,15 @@ var beepbox = (function (exports) {
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     */
+    var __awaiter = (exports && exports.__awaiter) || function (thisArg, _arguments, P, generator) {
+        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
     const TypePresets = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "pulse width", "picked string", "supersaw", "chip (custom)", "mod", "FM (6-op)"];
     class SampleLoadingState {
         constructor() {
@@ -46,48 +55,55 @@ var beepbox = (function (exports) {
     }
     const sampleLoadEvents = new SampleLoadEvents();
     function startLoadingSample(url, chipWaveIndex, presetSettings, rawLoopOptions, customSampleRate) {
-        const sampleLoaderAudioContext = new AudioContext({ sampleRate: customSampleRate });
-        let closedSampleLoaderAudioContext = false;
-        const chipWave = Config.chipWaves[chipWaveIndex];
-        const rawChipWave = Config.rawChipWaves[chipWaveIndex];
-        const rawRawChipWave = Config.rawRawChipWaves[chipWaveIndex];
-        if (url.slice(0, 5) === "file:")
-            url = "http://" + window.location.host + "/" + url.slice(5);
-        fetch(url).then((response) => {
-            if (!response.ok) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sampleLoaderAudioContext = new AudioContext({ sampleRate: customSampleRate });
+            let closedSampleLoaderAudioContext = false;
+            const chipWave = Config.chipWaves[chipWaveIndex];
+            const rawChipWave = Config.rawChipWaves[chipWaveIndex];
+            const rawRawChipWave = Config.rawRawChipWaves[chipWaveIndex];
+            if (OFFLINE) {
+                if (url.slice(0, 5) === "file:") {
+                    const dirname = yield getDirname();
+                    const joined = yield pathJoin(dirname, url.slice(5));
+                    url = joined;
+                }
+            }
+            fetch(url).then((response) => {
+                if (!response.ok) {
+                    sampleLoadingState.statusTable[chipWaveIndex] = 2;
+                    return Promise.reject(new Error("Couldn't load sample"));
+                }
+                return response.arrayBuffer();
+            }).then((arrayBuffer) => {
+                return sampleLoaderAudioContext.decodeAudioData(arrayBuffer);
+            }).then((audioBuffer) => {
+                const samples = centerWave(Array.from(audioBuffer.getChannelData(0)));
+                const integratedSamples = performIntegral(samples);
+                chipWave.samples = integratedSamples;
+                rawChipWave.samples = samples;
+                rawRawChipWave.samples = samples;
+                if (rawLoopOptions["isUsingAdvancedLoopControls"]) {
+                    presetSettings["chipWaveLoopStart"] = rawLoopOptions["chipWaveLoopStart"] != null ? rawLoopOptions["chipWaveLoopStart"] : 0;
+                    presetSettings["chipWaveLoopEnd"] = rawLoopOptions["chipWaveLoopEnd"] != null ? rawLoopOptions["chipWaveLoopEnd"] : samples.length - 1;
+                    presetSettings["chipWaveLoopMode"] = rawLoopOptions["chipWaveLoopMode"] != null ? rawLoopOptions["chipWaveLoopMode"] : 0;
+                    presetSettings["chipWavePlayBackwards"] = rawLoopOptions["chipWavePlayBackwards"];
+                    presetSettings["chipWaveStartOffset"] = rawLoopOptions["chipWaveStartOffset"] != null ? rawLoopOptions["chipWaveStartOffset"] : 0;
+                }
+                sampleLoadingState.samplesLoaded++;
+                sampleLoadingState.statusTable[chipWaveIndex] = 1;
+                sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
+                if (!closedSampleLoaderAudioContext) {
+                    closedSampleLoaderAudioContext = true;
+                    sampleLoaderAudioContext.close();
+                }
+            }).catch((error) => {
                 sampleLoadingState.statusTable[chipWaveIndex] = 2;
-                return Promise.reject(new Error("Couldn't load sample"));
-            }
-            return response.arrayBuffer();
-        }).then((arrayBuffer) => {
-            return sampleLoaderAudioContext.decodeAudioData(arrayBuffer);
-        }).then((audioBuffer) => {
-            const samples = centerWave(Array.from(audioBuffer.getChannelData(0)));
-            const integratedSamples = performIntegral(samples);
-            chipWave.samples = integratedSamples;
-            rawChipWave.samples = samples;
-            rawRawChipWave.samples = samples;
-            if (rawLoopOptions["isUsingAdvancedLoopControls"]) {
-                presetSettings["chipWaveLoopStart"] = rawLoopOptions["chipWaveLoopStart"] != null ? rawLoopOptions["chipWaveLoopStart"] : 0;
-                presetSettings["chipWaveLoopEnd"] = rawLoopOptions["chipWaveLoopEnd"] != null ? rawLoopOptions["chipWaveLoopEnd"] : samples.length - 1;
-                presetSettings["chipWaveLoopMode"] = rawLoopOptions["chipWaveLoopMode"] != null ? rawLoopOptions["chipWaveLoopMode"] : 0;
-                presetSettings["chipWavePlayBackwards"] = rawLoopOptions["chipWavePlayBackwards"];
-                presetSettings["chipWaveStartOffset"] = rawLoopOptions["chipWaveStartOffset"] != null ? rawLoopOptions["chipWaveStartOffset"] : 0;
-            }
-            sampleLoadingState.samplesLoaded++;
-            sampleLoadingState.statusTable[chipWaveIndex] = 1;
-            sampleLoadEvents.dispatchEvent(new SampleLoadedEvent(sampleLoadingState.totalSamples, sampleLoadingState.samplesLoaded));
-            if (!closedSampleLoaderAudioContext) {
-                closedSampleLoaderAudioContext = true;
-                sampleLoaderAudioContext.close();
-            }
-        }).catch((error) => {
-            sampleLoadingState.statusTable[chipWaveIndex] = 2;
-            alert("Failed to load " + url + ":\n" + error);
-            if (!closedSampleLoaderAudioContext) {
-                closedSampleLoaderAudioContext = true;
-                sampleLoaderAudioContext.close();
-            }
+                alert("Failed to load " + url + ":\n" + error);
+                if (!closedSampleLoaderAudioContext) {
+                    closedSampleLoaderAudioContext = true;
+                    sampleLoaderAudioContext.close();
+                }
+            });
         });
     }
     function loadScript(url) {
@@ -7891,7 +7907,6 @@ var beepbox = (function (exports) {
 				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
 				--instrument-copy-symbol: url("theme_resources/icon-copy.png");
 				--instrument-paste-symbol: url("theme_resources/icon-paste.png");
-				--corrupt-symbol: url("theme_resources/icon-play.png");
 				--play-symbol: url("theme_resources/icon-play.png");
 				--pause-symbol: url("theme_resources/icon-pause.png");
 				--record-symbol: url("theme_resources/icon-record.png");
@@ -14792,7 +14807,12 @@ var beepbox = (function (exports) {
         }
         static _isProperUrl(string) {
             try {
-                return Boolean(new URL(string));
+                if (OFFLINE) {
+                    return Boolean(string);
+                }
+                else {
+                    return Boolean(new URL(string));
+                }
             }
             catch (x) {
                 return false;
@@ -14870,7 +14890,12 @@ var beepbox = (function (exports) {
             }
             let parsedUrl = null;
             if (Song._isProperUrl(urlSliced)) {
-                parsedUrl = new URL(urlSliced);
+                if (OFFLINE) {
+                    parsedUrl = urlSliced;
+                }
+                else {
+                    parsedUrl = new URL(urlSliced);
+                }
             }
             else {
                 alert(url + " is not a valid url");
@@ -14880,17 +14905,32 @@ var beepbox = (function (exports) {
                 if (!parsedSampleOptions && parsedUrl != null) {
                     if (url.indexOf("@") != -1) {
                         urlSliced = url.replaceAll("@", "");
-                        parsedUrl = new URL(urlSliced);
+                        if (OFFLINE) {
+                            parsedUrl = urlSliced;
+                        }
+                        else {
+                            parsedUrl = new URL(urlSliced);
+                        }
                         isCustomPercussive = true;
                     }
                     function sliceForSampleRate() {
                         urlSliced = url.slice(0, url.indexOf(","));
-                        parsedUrl = new URL(urlSliced);
+                        if (OFFLINE) {
+                            parsedUrl = urlSliced;
+                        }
+                        else {
+                            parsedUrl = new URL(urlSliced);
+                        }
                         customSampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(url.slice(url.indexOf(",") + 1), 44100));
                     }
                     function sliceForRootKey() {
                         urlSliced = url.slice(0, url.indexOf("!"));
-                        parsedUrl = new URL(urlSliced);
+                        if (OFFLINE) {
+                            parsedUrl = urlSliced;
+                        }
+                        else {
+                            parsedUrl = new URL(urlSliced);
+                        }
                         customRootKey = parseFloatWithDefault(url.slice(url.indexOf("!") + 1), 60);
                     }
                     if (url.indexOf(",") != -1 && url.indexOf("!") != -1) {
@@ -14938,7 +14978,13 @@ var beepbox = (function (exports) {
                     urlWithNamedOptions = "!" + namedOptions.join(",") + "!" + urlSliced;
                 }
                 customSampleUrls[customSampleUrlIndex] = urlWithNamedOptions;
-                const name = decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
+                let name;
+                if (OFFLINE) {
+                    name = decodeURIComponent(parsedUrl.replace(/^([^\/]*\/)+/, ""));
+                }
+                else {
+                    name = decodeURIComponent(parsedUrl.pathname.replace(/^([^\/]*\/)+/, ""));
+                }
                 const expression = 1.0;
                 Config.chipWaves[chipWaveIndex] = {
                     name: name,
@@ -21425,23 +21471,6 @@ var beepbox = (function (exports) {
 		padding-right: 6px;
 	}
 	.playButton::before {
-		content: "";
-		position: absolute;
-		left: 6px;
-		top: 50%;
-		margin-top: -6px;
-		width: 12px;
-		height: 12px;
-		pointer-events: none;
-		background: ${ColorConfig.primaryText};
-		-webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="-6 -6 12 12"><path d="M 6 0 L -5 6 L -5 -6 z" fill="gray"/></svg>');
-		-webkit-mask-repeat: no-repeat;
-		-webkit-mask-position: center;
-		mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="-6 -6 12 12"><path d="M 6 0 L -5 6 L -5 -6 z" fill="gray"/></svg>');
-		mask-repeat: no-repeat;
-		mask-position: center;
-	}
-	.corruptButton::before {
 		content: "";
 		position: absolute;
 		left: 6px;
