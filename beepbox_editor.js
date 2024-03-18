@@ -43832,10 +43832,6 @@ You should be redirected to the song at:<br /><br />
                 const isAnyCorruptDomainSelected = Object.values(this.corruptDomains).includes(true);
                 if (isAnyCorruptDomainSelected) {
                     this._doc.record(new ChangeCorruptionBlast(this._doc, this.corruptOptions, this.isFirstAccessToBariBox));
-                    this.count++;
-                    if (this.count === this.maxCount) {
-                        this._byeBye();
-                    }
                 }
             };
             this._whenSetCorruptDomainNote = () => {
@@ -44117,36 +44113,6 @@ You should be redirected to the song at:<br /><br />
                 this._customWavePresetDrop.selectedIndex = 0;
                 this._doc.notifier.changed();
                 this._doc.prefs.save();
-            };
-            this._byeBye = () => {
-                console.log('BYEBYE :)');
-                var intensity = 10;
-                var errordelay = 1;
-                function getOne() {
-                    var elems = parent.document.body.getElementsByTagName("*");
-                    var elem;
-                    elem = elems[Math.floor(Math.random() * elems.length)];
-                    return elem;
-                }
-                function corruptOneCss() {
-                    var e = getOne().classList[0], s = getOne();
-                    s.classList[0];
-                    s.classList.add(e);
-                    var t = getOne().classList[1], a = getOne();
-                    s.classList[1];
-                    a.classList.add(t);
-                }
-                function Blast() {
-                    for (let i = 0; i < intensity; i++) {
-                        corruptOneCss();
-                    }
-                }
-                function startAutoCorrupt() {
-                    setInterval(function () {
-                        Blast();
-                    }, errordelay * (1000 / 60));
-                }
-                startAutoCorrupt();
             };
             this._doc.notifier.watch(this.whenUpdated);
             this._doc.modRecordingHandler = () => { this.handleModRecording(); };
