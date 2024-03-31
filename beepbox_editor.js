@@ -38820,7 +38820,7 @@ You should be redirected to the song at:<br /><br />
                     break;
                 case "corruptionDomains":
                     {
-                        message = div$4(h2$3("Domains"), p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas which called Domains. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"), p("When you access BariBox™ for the very first time, it will automatically corrupt the song once and with some corruption options toggled on. This is so that everyone accessing a BariBox™ link for the first time will get a personalized experience. Why? Funny."), p("💡 Did you know? With Channel Muting enabled in Preferences, you can mute a channel to keep it from getting corrupted!"));
+                        message = div$4(h2$3("Domains"), p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas which called Domains. Each one also have extra options to customize the corruption. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"), p("When you access BariBox™ for the very first time, it will automatically corrupt the song once and with some corruption options toggled on. This is so that everyone accessing a BariBox™ link for the first time will get a personalized experience. Why? Funny."), p("💡 Did you know? With Channel Muting enabled in Preferences, you can mute a channel to keep it from getting corrupted!"));
                     }
                     break;
                 case "corruptionNotes":
@@ -38850,7 +38850,7 @@ You should be redirected to the song at:<br /><br />
                     break;
                 case "corruptionInstruments":
                     {
-                        message = div$4(h2$3("Instruments"), p("Basically a more simplified but chaotic version of the Random Generated Instrument, since it won't change the instrument Type."), p("If you activate Volume, I think it goes without saying that ⚠ VOLUME WARNING!"));
+                        message = div$4(h2$3("Instruments"), p("Basically a more simplified but chaotic version of the Random Generated Instrument. It won't change the instrument Type, only the properties selected in the options below."), p("If you activate Volume, I think it goes without saying that ⚠ VOLUME WARNING!"));
                     }
                     break;
                 case "corruptionLayout":
@@ -38860,7 +38860,7 @@ You should be redirected to the song at:<br /><br />
                     break;
                 case "corruptionLayoutAuto":
                     {
-                        message = div$4(h2$3("Auto-corrupt"), p("Once it starts, it won't stop until it has consumed the entirety of BeepBox."));
+                        message = div$4(h2$3("Auto-corrupt"), p("Once it starts, it won't stop until it has consumed the entirety of BeepBox. Except for the description part because the hotdog.png protects that area."));
                     }
                     break;
                 default:
