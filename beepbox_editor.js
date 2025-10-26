@@ -447,6 +447,7 @@ var beepbox = (function (exports) {
         { name: "Harmonic Major", realName: "harmonic major", flags: [true, false, true, false, true, true, false, true, true, false, false, true] },
         { name: "Harmonic Minor", realName: "harmonic minor", flags: [true, false, true, true, false, true, false, true, true, false, false, true] },
         { name: "Melodic Minor", realName: "melodic minor", flags: [true, false, true, true, false, true, false, true, false, true, false, true] },
+        { name: "Blues Major", realName: "blues major", flags: [true, false, true, true, true, false, false, true, false, true, false, false] },
         { name: "Blues", realName: "blues", flags: [true, false, false, true, false, true, true, true, false, false, true, false] },
         { name: "Altered", realName: "altered", flags: [true, true, false, true, true, false, true, false, true, false, true, false] },
         { name: "Major Pentatonic", realName: "major pentatonic", flags: [true, false, true, false, true, false, false, true, false, true, false, false] },
@@ -454,11 +455,9 @@ var beepbox = (function (exports) {
         { name: "Whole Tone", realName: "whole tone", flags: [true, false, true, false, true, false, true, false, true, false, true, false] },
         { name: "Octatonic", realName: "octatonic", flags: [true, false, true, true, false, true, true, false, true, true, false, true] },
         { name: "Hexatonic", realName: "hexatonic", flags: [true, false, false, true, true, false, false, true, true, false, false, true] },
-        { name: "No Dabbing", realName: "no dabbing", flags: [true, true, false, true, true, true, true, true, true, false, true, false] },
-        { name: "Jacked Toad", realName: "jacked toad", flags: [true, false, true, true, false, true, true, true, true, false, true, true] },
-        { name: "Dumb", realName: "Originally named, currently named, and will always be named 'dumb.'", flags: [true, false, false, false, false, true, true, true, true, false, false, true] },
-        { name: "Test Scale", realName: "**t", flags: [true, true, false, false, false, true, true, false, false, true, true, false] },
-        { name: "die", realName: "death", flags: [true, false, false, false, false, false, false, false, true, false, false, false] },
+        { name: "No Dabbing (MB)", realName: "no dabbing", flags: [true, true, false, true, true, true, true, true, true, false, true, false] },
+        { name: "Jacked Toad (TB)", realName: "jacked toad", flags: [true, false, true, true, false, true, true, true, true, false, true, true] },
+        { name: "Test Scale (TB)", realName: "**t", flags: [true, true, false, false, false, true, true, false, false, true, true, false] },
         { name: "Custom", realName: "custom", flags: [true, false, true, true, false, false, false, true, true, false, true, true] },
     ]);
     Config.keys = toNameMap([
@@ -502,13 +501,11 @@ var beepbox = (function (exports) {
     Config.ticksPerArpeggio = 3;
     Config.arpeggioPatterns = [[0], [0, 1], [0, 1, 2, 1], [0, 1, 2, 3], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7]];
     Config.rhythms = toNameMap([
-        { name: "÷1 (whole notes)", stepsPerBeat: 1, roundUpThresholds: [3] },
-        { name: "÷2 (half notes)", stepsPerBeat: 2, roundUpThresholds: [3, 9] },
         { name: "÷3 (triplets)", stepsPerBeat: 3, roundUpThresholds: [5, 12, 18] },
         { name: "÷4 (standard)", stepsPerBeat: 4, roundUpThresholds: [3, 9, 17, 21] },
-        { name: "÷6 (sextuplets)", stepsPerBeat: 6, roundUpThresholds: null },
-        { name: "÷8 (eighth notes)", stepsPerBeat: 8, roundUpThresholds: null },
-        { name: "÷12 (twelfth notes)", stepsPerBeat: 12, roundUpThresholds: null },
+        { name: "÷6", stepsPerBeat: 6, roundUpThresholds: null },
+        { name: "÷8", stepsPerBeat: 8, roundUpThresholds: null },
+        { name: "÷12", stepsPerBeat: 12, roundUpThresholds: null },
         { name: "freehand", stepsPerBeat: 24, roundUpThresholds: null },
     ]);
     Config.instrumentTypeNames = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "PWM", "Picked String", "supersaw", "custom chip", "mod", "FM6op"];
@@ -957,9 +954,9 @@ var beepbox = (function (exports) {
     Config.pitchChannelCountMin = 1;
     Config.pitchChannelCountMax = 60;
     Config.noiseChannelCountMin = 0;
-    Config.noiseChannelCountMax = 32;
+    Config.noiseChannelCountMax = 60;
     Config.modChannelCountMin = 0;
-    Config.modChannelCountMax = 24;
+    Config.modChannelCountMax = 60;
     Config.noiseInterval = 6;
     Config.pitchesPerOctave = 12;
     Config.drumCount = 12;
@@ -975,6 +972,16 @@ var beepbox = (function (exports) {
     Config.detuneMin = 0;
     Config.songDetuneMin = 0;
     Config.songDetuneMax = 500;
+    Config.unisonVoicesMin = 1;
+    Config.unisonVoicesMax = 2;
+    Config.unisonSpreadMin = -96;
+    Config.unisonSpreadMax = 96;
+    Config.unisonOffsetMin = -96;
+    Config.unisonOffsetMax = 96;
+    Config.unisonExpressionMin = -2;
+    Config.unisonExpressionMax = 2;
+    Config.unisonSignMin = -2;
+    Config.unisonSignMax = 2;
     Config.sineWaveLength = 1 << 8;
     Config.sineWaveMask = Config.sineWaveLength - 1;
     Config.sineWave = generateSineWave();
@@ -997,7 +1004,7 @@ var beepbox = (function (exports) {
         { name: "noteVolume", computeIndex: 0, displayName: "note volume", interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: null },
         { name: "pulseWidth", computeIndex: 2, displayName: "pulse width", interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [6, 8] },
         { name: "stringSustain", computeIndex: 3, displayName: "sustain", interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [7] },
-        { name: "unison", computeIndex: 4, displayName: "unison", interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [0, 5, 7, 9] },
+        { name: "unison", computeIndex: 4, displayName: "unison", interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [0, 5, 7, 9, 6, 2, 3] },
         { name: "operatorFrequency", computeIndex: 5, displayName: "fm# freq", interleave: true, isFilter: false, maxCount: Config.operatorCount + 2, effect: null, compatibleInstruments: [1, 11] },
         { name: "operatorAmplitude", computeIndex: 11, displayName: "fm# volume", interleave: false, isFilter: false, maxCount: Config.operatorCount + 2, effect: null, compatibleInstruments: [1, 11] },
         { name: "feedbackAmplitude", computeIndex: 17, displayName: "fm feedback", interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [1, 11] },
@@ -1018,7 +1025,7 @@ var beepbox = (function (exports) {
         { name: "sawtooth", samples: generateSawWave() },
         { name: "ramp", samples: generateSawWave(true) },
         { name: "trapezoid", samples: generateTrapezoidWave(2) },
-        { name: "rounded", samples: generateRoundedSineWave() },
+        { name: "quasi-sine", samples: generateQuasiSineWave() },
     ]);
     Config.pwmOperatorWaves = toNameMap([
         { name: "1%", samples: generateSquareWave(0.01) },
@@ -1115,7 +1122,7 @@ var beepbox = (function (exports) {
             promptName: "FM Slider 5", promptDesc: ["This setting affects the strength of the fifth FM slider, just like the corresponding slider on your instrument.", "It works in a multiplicative way, so at $HI your slider will sound the same is its default value, and at $LO it will sound like it has been moved all the way to the left.", "For the full range of control with this mod, move your underlying slider all the way to the right.", "[MULTIPLICATIVE] [$LO - $HI] [%]"] },
         { name: "fm slider 6", pianoName: "FM 6", maxRawVol: 15, newNoteVol: 15, forSong: false, convertRealFactor: 0, associatedEffect: 12,
             promptName: "FM Slider 6", promptDesc: ["This setting affects the strength of the sixth FM slider, just like the corresponding slider on your instrument.", "It works in a multiplicative way, so at $HI your slider will sound the same is its default value, and at $LO it will sound like it has been moved all the way to the left.", "For the full range of control with this mod, move your underlying slider all the way to the right.", "[MULTIPLICATIVE] [$LO - $HI] [%]"] },
-        { name: "decimal offset", pianoName: "Decimal Offset", maxRawVol: 99, newNoteVol: 0, forSong: false, convertRealFactor: 0, optionalModify: "invert-0to99", associatedEffect: 12,
+        { name: "decimal offset", pianoName: "Decimal Offset", maxRawVol: 99, newNoteVol: 0, forSong: false, convertRealFactor: 0, invertSliderIndicator: true, associatedEffect: 12,
             promptName: "Decimal Offset", promptDesc: ["This setting controls the decimal offset that is subtracted from the pulse width; use this for creating values like 12.5 or 6.25.", "[$LO - $HI]"] },
         { name: "envelope speed", pianoName: "EnvelopeSpd", maxRawVol: 50, newNoteVol: 12, forSong: false, convertRealFactor: 0, associatedEffect: 12,
             promptName: "Envelope Speed", promptDesc: ["This setting controls how fast all of the envelopes for the instrument play.", "At $LO, your instrument's envelopes will be frozen, and at values near there they will change very slowly. At 12, the envelopes will work as usual, performing at normal speed. This increases up to $HI, where the envelopes will change very quickly. The speeds are given below:",
@@ -1249,7 +1256,7 @@ var beepbox = (function (exports) {
             }
             else if (index == 8) {
                 var drumBuffer = 1;
-                for (var i = 0; i < 32768; i++) {
+                for (var i = 0; i < Config.chipNoiseLength; i++) {
                     wave[i] = (drumBuffer & 1) / 2.0 - 0.5;
                     var newBuffer = drumBuffer >> 1;
                     if (((drumBuffer + newBuffer) & 1) == 1) {
@@ -1276,7 +1283,7 @@ var beepbox = (function (exports) {
             }
             else if (index == 11) {
                 var drumBuffer = 1;
-                for (var i = 0; i < 32768; i++) {
+                for (var i = 0; i < Config.chipNoiseLength; i++) {
                     wave[i] = Math.round((drumBuffer & 1));
                     var newBuffer = drumBuffer >> 1;
                     if (((drumBuffer + newBuffer) & 1) == 1) {
@@ -1380,7 +1387,7 @@ var beepbox = (function (exports) {
         }
         return wave;
     }
-    function generateRoundedSineWave() {
+    function generateQuasiSineWave() {
         const wave = new Float32Array(Config.sineWaveLength + 1);
         for (let i = 0; i < Config.sineWaveLength + 1; i++) {
             wave[i] = Math.round(Math.sin(i * Math.PI * 2.0 / Config.sineWaveLength));
@@ -1501,7 +1508,7 @@ var beepbox = (function (exports) {
             return (_a = EditorConfig.presetCategories[0].presets.dictionary) === null || _a === void 0 ? void 0 : _a[TypePresets === null || TypePresets === void 0 ? void 0 : TypePresets[instrument]];
         }
     }
-    EditorConfig.version = "2.2.4";
+    EditorConfig.version = "2.2.15";
     EditorConfig.versionDisplayName = "BariBox™ " + EditorConfig.version;
     EditorConfig.releaseNotesURL = "./patch_notes.html";
     EditorConfig.isOnMac = /^Mac/i.test(navigator.platform) || /Mac OS X/i.test(navigator.userAgent) || /^(iPhone|iPad|iPod)/i.test(navigator.platform) || /(iPhone|iPad|iPod)/i.test(navigator.userAgent);
@@ -1536,7 +1543,7 @@ var beepbox = (function (exports) {
                 { name: "FM bass", midiProgram: 36, settings: { "type": "FM", "eqFilter": [], "effects": [], "transition": "normal", "fadeInSeconds": 0, "fadeOutTicks": -3, "chord": "custom interval", "algorithm": "1←(2 3←4)", "feedbackType": "1⟲", "feedbackAmplitude": 0, "operators": [{ "frequency": "2×", "amplitude": 11 }, { "frequency": "1×", "amplitude": 7 }, { "frequency": "1×", "amplitude": 9 }, { "frequency": "20×", "amplitude": 3 }], "envelopes": [{ "target": "operatorAmplitude", "envelope": "twang 2", "index": 1 }, { "target": "operatorAmplitude", "envelope": "twang 3", "index": 2 }, { "target": "operatorAmplitude", "envelope": "twang 2", "index": 3 }] } },
                 { name: "FM flute", midiProgram: 73, settings: { "type": "FM", "eqFilter": [], "effects": [], "transition": "normal", "fadeInSeconds": 0.0263, "fadeOutTicks": -3, "chord": "simultaneous", "algorithm": "1←(2 3 4)", "feedbackType": "1⟲", "feedbackAmplitude": 0, "operators": [{ "frequency": "1×", "amplitude": 15 }, { "frequency": "1×", "amplitude": 6 }, { "frequency": "1×", "amplitude": 0 }, { "frequency": "1×", "amplitude": 0 }], "envelopes": [{ "target": "operatorAmplitude", "envelope": "twang 2", "index": 1 }] } },
                 { name: "FM organ", midiProgram: 16, settings: { "type": "FM", "eqFilter": [], "effects": ["vibrato"], "vibrato": "delayed", "transition": "normal", "fadeInSeconds": 0.0263, "fadeOutTicks": -3, "chord": "custom interval", "algorithm": "1←3 2←4", "feedbackType": "1⟲ 2⟲", "feedbackAmplitude": 0, "operators": [{ "frequency": "1×", "amplitude": 14 }, { "frequency": "2×", "amplitude": 14 }, { "frequency": "1×", "amplitude": 11 }, { "frequency": "2×", "amplitude": 11 }], "envelopes": [] } },
-                { name: "FM sine", midiProgram: 55, settings: { "type": "FM", "transition": "seemless", "effects": "none", "chord": "harmony", "filterCutoffHz": 8000, "filterResonance": 0, "filterEnvelope": "steady", "vibrato": "none", "algorithm": "1←(2 3 4)", "feedbackType": "1⟲", "feedbackAmplitude": 0, "feedbackEnvelope": "steady", "operators": [{ "frequency": "1×", "amplitude": 15, "envelope": "steady" }, { "frequency": "1×", "amplitude": 0, "envelope": "steady" }, { "frequency": "1×", "amplitude": 0, "envelope": "steady" }, { "frequency": "1×", "amplitude": 0, "envelope": "steady" }] } },
+                { name: "FM sine", midiProgram: 55, settings: { "type": "FM", "eqFilter": [], "eqFilterType": true, "eqSimpleCut": 10, "eqSimplePeak": 0, "envelopeSpeed": 12, "discreteEnvelope": false, "effects": [], "panDelay": 10, "fadeInSeconds": 0, "fadeOutTicks": -1, "algorithm": "1 2 3 4", "feedbackType": "1⟲", "feedbackAmplitude": 0, "operators": [{ "frequency": "1×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 0, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 0, "waveform": "sine" }, { "frequency": "1×", "amplitude": 0, "waveform": "sine" }, { "frequency": "1×", "amplitude": 0, "waveform": "sine" }, { "frequency": "1×", "amplitude": 0, "waveform": "sine" }], "envelopes": [] } },
                 { name: "NES Pulse", midiProgram: 80, settings: { "type": "custom chip", "effects": ["aliasing"], "transition": "normal", "fadeInSeconds": 0, "fadeOutTicks": -3, "chord": "arpeggio", "eqFilter": [{ "type": "low-pass", "cutoffHz": 8000, "linearGain": 0.5 }], "unison": "none", "vibrato": "none", "envelopes": [], "customChipWave": [-24, -24, -24, -24, -23, -23, -23, -23, -22, -22, -22, -22, -21, -21, -21, -21, -20, -20, -20, -20, -19, -19, -19, -19, -18, -18, -18, -18, -17, -17, -17, -17, 24, 24, 24, 24, 23, 23, 23, 23, 22, 22, 22, 22, 21, 21, 21, 21, 20, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18, 17, 17, 17, 17] } },
                 { name: "Gameboy Pulse", midiProgram: 80, settings: { "type": "custom chip", "effects": ["aliasing"], "transition": "normal", "fadeInSeconds": 0, "fadeOutTicks": -3, "chord": "arpeggio", "eqFilter": [{ "type": "low-pass", "cutoffHz": 8000, "linearGain": 0.5 }], "unison": "none", "envelopes": [], "customChipWave": [-24, -20, -17, -15, -13, -13, -11, -11, -11, -9, -9, -9, -9, -7, -7, -7, -7, -7, -5, -5, -5, -5, -5, -5, -3, -3, -3, -3, -3, -3, -3, -3, 24, 20, 17, 15, 13, 13, 11, 11, 11, 9, 9, 9, 9, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3] } },
                 { name: "VRC6 Sawtooth", midiProgram: 81, settings: { "type": "custom chip", "effects": ["aliasing"], "transition": "normal", "fadeInSeconds": 0, "fadeOutTicks": -3, "chord": "arpeggio", "eqFilter": [{ "type": "low-pass", "cutoffHz": 8000, "linearGain": 0.5 }], "unison": "none", "envelopes": [], "customChipWave": [-24, -20, -16, -13, -10, -8, -6, -5, -4, -4, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 12, 12, 12, 12, 12, 16, 16, 16, 16, 16, 16, 16, 16, 20, 20, 20, 20, 20, 20, 20, 20, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24] } },
@@ -1779,7 +1786,7 @@ var beepbox = (function (exports) {
                 { name: "nes white", midiProgram: 116, generalMidi: true, isNoise: true, settings: { "type": "noise", "eqFilter": [], "eqFilterType": false, "eqSimpleCut": 8, "eqSimplePeak": 0, "eqSubFilters1": [], "effects": ["panning"], "pan": 0, "panDelay": 10, "fadeInSeconds": 0, "fadeOutTicks": 0, "wave": "1-bit white", "envelopes": [] } },
                 { name: "nes ping", midiProgram: 116, generalMidi: true, isNoise: true, settings: { "type": "noise", "eqFilter": [], "eqFilterType": false, "eqSimpleCut": 8, "eqSimplePeak": 0, "eqSubFilters1": [], "effects": ["panning"], "pan": 0, "panDelay": 10, "fadeInSeconds": 0, "fadeOutTicks": 0, "wave": "1-bit metallic", "envelopes": [] } },
                 { name: "distorted pulse vocal", generalMidi: false, settings: { "type": "chip", "eqFilter": [{ "type": "low-pass", "cutoffHz": 19027.31, "linearGain": 0.0884 }], "eqFilterType": false, "eqSimpleCut": 10, "eqSimplePeak": 0, "eqSubFilters0": [{ "type": "low-pass", "cutoffHz": 19027.31, "linearGain": 0.0884 }], "effects": ["panning", "transition type", "pitch shift", "vibrato", "note filter", "bitcrusher", "echo", "reverb"], "transition": "normal", "clicklessTransition": false, "pitchShiftSemitones": 0, "vibrato": "delayed", "vibratoDepth": 0.3, "vibratoDelay": 18.5, "vibratoSpeed": 10, "vibratoType": 0, "noteFilterType": false, "noteSimpleCut": 10, "noteSimplePeak": 0, "noteFilter": [{ "type": "high-pass", "cutoffHz": 840.9, "linearGain": 11.3137 }, { "type": "low-pass", "cutoffHz": 297.3, "linearGain": 8 }, { "type": "peak", "cutoffHz": 500, "linearGain": 11.3137 }, { "type": "high-pass", "cutoffHz": 62.5, "linearGain": 1.4142 }, { "type": "peak", "cutoffHz": 176.78, "linearGain": 11.3137 }, { "type": "high-pass", "cutoffHz": 250, "linearGain": 11.3137 }], "noteSubFilters0": [{ "type": "high-pass", "cutoffHz": 840.9, "linearGain": 11.3137 }, { "type": "low-pass", "cutoffHz": 297.3, "linearGain": 8 }, { "type": "peak", "cutoffHz": 500, "linearGain": 11.3137 }, { "type": "high-pass", "cutoffHz": 62.5, "linearGain": 1.4142 }, { "type": "peak", "cutoffHz": 176.78, "linearGain": 11.3137 }, { "type": "high-pass", "cutoffHz": 250, "linearGain": 11.3137 }], "bitcrusherOctave": 6.5, "bitcrusherQuantization": 71, "pan": 0, "panDelay": 10, "echoSustain": 14, "echoDelayBeats": 0.167, "reverb": 0, "fadeInSeconds": 0, "fadeOutTicks": -3, "wave": "1/8 pulse", "unison": "none", "envelopes": [] } },
-                { name: "dubsteb bwah", generalMidi: false, settings: { "type": "FM", "eqFilter": [{ "type": "low-pass", "cutoffHz": 19027.31, "linearGain": 0.7071 }], "eqFilterType": true, "eqSimpleCut": 10, "eqSimplePeak": 0, "eqSubFilters1": [], "effects": ["panning", "transition type", "chord type"], "transition": "interrupt", "clicklessTransition": false, "chord": "custom interval", "fastTwoNoteArp": false, "arpeggioSpeed": 12, "pan": 0, "panDelay": 10, "fadeInSeconds": 0, "fadeOutTicks": -1, "algorithm": "1←(2 3 4)", "feedbackType": "1⟲", "feedbackAmplitude": 10, "operators": [{ "frequency": "2×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "4×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 11, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 13, "waveform": "sine", "pulseWidth": 5 }], "envelopes": [{ "target": "noteVolume", "envelope": "note size" }, { "target": "operatorAmplitude", "envelope": "swell 2", "index": 1 }, { "target": "operatorAmplitude", "envelope": "punch", "index": 2 }, { "target": "operatorAmplitude", "envelope": "note size", "index": 3 }] } },
+                { name: "dubstep bwah", generalMidi: false, settings: { "type": "FM", "eqFilter": [{ "type": "low-pass", "cutoffHz": 19027.31, "linearGain": 0.7071 }], "eqFilterType": true, "eqSimpleCut": 10, "eqSimplePeak": 0, "eqSubFilters1": [], "effects": ["panning", "transition type", "chord type"], "transition": "interrupt", "clicklessTransition": false, "chord": "custom interval", "fastTwoNoteArp": false, "arpeggioSpeed": 12, "pan": 0, "panDelay": 10, "fadeInSeconds": 0, "fadeOutTicks": -1, "algorithm": "1←(2 3 4)", "feedbackType": "1⟲", "feedbackAmplitude": 10, "operators": [{ "frequency": "2×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "4×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 11, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 13, "waveform": "sine", "pulseWidth": 5 }], "envelopes": [{ "target": "noteVolume", "envelope": "note size" }, { "target": "operatorAmplitude", "envelope": "swell 2", "index": 1 }, { "target": "operatorAmplitude", "envelope": "punch", "index": 2 }, { "target": "operatorAmplitude", "envelope": "note size", "index": 3 }] } },
                 { name: "FM cool bass", generalMidi: false, settings: { "type": "FM", "eqFilter": [{ "type": "low-pass", "cutoffHz": 6727.17, "linearGain": 1 }, { "type": "high-pass", "cutoffHz": 88.39, "linearGain": 1 }, { "type": "peak", "cutoffHz": 1000, "linearGain": 0.7071 }], "eqFilterType": false, "eqSimpleCut": 10, "eqSimplePeak": 0, "eqSubFilters0": [{ "type": "low-pass", "cutoffHz": 6727.17, "linearGain": 1 }, { "type": "high-pass", "cutoffHz": 88.39, "linearGain": 1 }, { "type": "peak", "cutoffHz": 1000, "linearGain": 0.7071 }], "effects": ["panning", "transition type", "note filter", "reverb"], "transition": "interrupt", "clicklessTransition": false, "noteFilterType": true, "noteSimpleCut": 9, "noteSimplePeak": 2, "noteFilter": [{ "type": "low-pass", "cutoffHz": 7231.23, "linearGain": 1 }], "noteSubFilters1": [{ "type": "low-pass", "cutoffHz": 7231.23, "linearGain": 1 }], "pan": 0, "panDelay": 10, "reverb": 0, "fadeInSeconds": 0, "fadeOutTicks": -1, "algorithm": "1←(2 3←4)", "feedbackType": "1⟲", "feedbackAmplitude": 0, "operators": [{ "frequency": "2×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 8, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 7, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "13×", "amplitude": 11, "waveform": "sine", "pulseWidth": 5 }], "envelopes": [{ "target": "noteFilterAllFreqs", "envelope": "punch" }, { "target": "operatorAmplitude", "envelope": "twang 2", "index": 1 }, { "target": "operatorAmplitude", "envelope": "twang 3", "index": 2 }, { "target": "operatorAmplitude", "envelope": "twang 2", "index": 3 }] } },
                 { name: "FM funky bass", generalMidi: false, settings: { "type": "FM", "eqFilter": [{ "type": "low-pass", "cutoffHz": 9513.66, "linearGain": 0.1768 }], "eqFilterType": true, "eqSimpleCut": 5, "eqSimplePeak": 0, "eqSubFilters1": [], "effects": ["panning", "transition type", "reverb"], "transition": "normal", "clicklessTransition": false, "pan": 0, "panDelay": 10, "reverb": 0, "fadeInSeconds": 0, "fadeOutTicks": -3, "algorithm": "1←(2 3 4)", "feedbackType": "1⟲", "feedbackAmplitude": 0, "operators": [{ "frequency": "1×", "amplitude": 15, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "~1×", "amplitude": 8, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 0, "waveform": "sine", "pulseWidth": 5 }, { "frequency": "1×", "amplitude": 0, "waveform": "sine", "pulseWidth": 5 }], "envelopes": [{ "target": "noteVolume", "envelope": "punch" }, { "target": "noteVolume", "envelope": "note size" }] } },
                 { name: "talking bass", generalMidi: false, settings: { "type": "FM", "eqFilter": [], "effects": ["chord type"], "chord": "custom interval", "fadeInSeconds": 0, "fadeOutTicks": -3, "algorithm": "1←(2 3)←4", "feedbackType": "1⟲", "feedbackAmplitude": 15, "operators": [{ "frequency": "1×", "amplitude": 15 }, { "frequency": "2×", "amplitude": 8 }, { "frequency": "2×", "amplitude": 5 }, { "frequency": "1×", "amplitude": 12 }], "envelopes": [{ "target": "operatorAmplitude", "envelope": "note size", "index": 2 }, { "target": "operatorAmplitude", "envelope": "note size", "index": 3 }, { "target": "feedbackAmplitude", "envelope": "note size" }] } },
@@ -2021,63 +2028,57 @@ var beepbox = (function (exports) {
                 let base;
                 switch (type) {
                     case ("noise"): {
-                        base = ColorConfig.getComputed("--noise-channel-limit") == ""
-                            ? ColorConfig.noiseChannels[channel % ColorConfig.noiseChannels.length]
-                            : ColorConfig.noiseChannels[channel % (Number(ColorConfig.getComputed("--noise-channel-limit")) % ColorConfig.noiseChannels.length)];
+                        base = ColorConfig.noiseChannels[(channel % this.c_noiseLimit) % ColorConfig.noiseChannels.length];
                         break;
                     }
                     case ("mod"): {
-                        base = ColorConfig.getComputed("--mod-channel-limit") == ""
-                            ? ColorConfig.modChannels[channel % ColorConfig.modChannels.length]
-                            : ColorConfig.modChannels[channel % (Number(ColorConfig.getComputed("--mod-channel-limit")) % ColorConfig.modChannels.length)];
+                        base = ColorConfig.modChannels[(channel % this.c_modLimit) % ColorConfig.modChannels.length];
                         break;
                     }
                     case ("pitch"):
                     default: {
-                        base = ColorConfig.getComputed("--pitch-channel-limit") == ""
-                            ? ColorConfig.pitchChannels[channel % ColorConfig.pitchChannels.length]
-                            : ColorConfig.pitchChannels[channel % (Number(ColorConfig.getComputed("--pitch-channel-limit")) % ColorConfig.pitchChannels.length)];
+                        base = ColorConfig.pitchChannels[(channel % this.c_pitchLimit) % ColorConfig.pitchChannels.length];
                         break;
                     }
                 }
-                var regex = /\(([^)]+)\)/;
+                var regex = /\(([^\,)]+)/;
                 let newChannelSecondary = ColorConfig.getComputed(regex.exec(base.secondaryChannel)[1]);
                 let newChannelPrimary = ColorConfig.getComputed(regex.exec(base.primaryChannel)[1]);
                 let newNoteSecondary = ColorConfig.getComputed(regex.exec(base.secondaryNote)[1]);
                 let newNotePrimary = ColorConfig.getComputed(regex.exec(base.primaryNote)[1]);
                 return { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
             }
-            let colorFormulaPitchLimit = ColorConfig.getComputed("--formula-pitch-channel-limit") == "" ? 360 : Number(ColorConfig.getComputed("--formula-pitch-channel-limit"));
-            let colorFormulaNoiseLimit = ColorConfig.getComputed("--formula-noise-channel-limit") == "" ? 360 : Number(ColorConfig.getComputed("--formula-noise-channel-limit"));
-            let colorFormulaModLimit = ColorConfig.getComputed("--formula-mod-channel-limit") == "" ? 360 : Number(ColorConfig.getComputed("--formula-mod-channel-limit"));
+            let colorFormulaPitchLimit = this.c_colorFormulaPitchLimit;
+            let colorFormulaNoiseLimit = this.c_colorFormulaNoiseLimit;
+            let colorFormulaModLimit = this.c_colorFormulaModLimit;
             switch (type) {
                 case ("noise"): {
-                    let newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + ((channel * this.c_noiseSecondaryChannelHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                    let newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + ((channel * this.c_noiseSecondaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noiseSecondaryChannelSat + channel * this.c_noiseSecondaryChannelSatScale) + "%,"
                         + (this.c_noiseSecondaryChannelLum + channel * this.c_noiseSecondaryChannelLumScale) + "%)";
-                    let newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + ((channel * this.c_noisePrimaryChannelHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                    let newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + ((channel * this.c_noisePrimaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noisePrimaryChannelSat + channel * this.c_noisePrimaryChannelSatScale) + "%,"
                         + (this.c_noisePrimaryChannelLum + channel * this.c_noisePrimaryChannelLumScale) + "%)";
-                    let newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + ((channel * this.c_noiseSecondaryNoteHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                    let newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + ((channel * this.c_noiseSecondaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noiseSecondaryNoteSat + channel * this.c_noiseSecondaryNoteSatScale) + "%,"
                         + (this.c_noiseSecondaryNoteLum + channel * this.c_noiseSecondaryNoteLumScale) + "%)";
-                    let newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + ((channel * this.c_noisePrimaryNoteHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                    let newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + ((channel * this.c_noisePrimaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                         + (this.c_noisePrimaryNoteSat + channel * this.c_noisePrimaryNoteSatScale) + "%,"
                         + (this.c_noisePrimaryNoteLum + channel * this.c_noisePrimaryNoteLumScale) + "%)";
                     let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
                     return newChannelColors;
                 }
                 case ("mod"): {
-                    let newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + ((channel * this.c_modSecondaryChannelHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                    let newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + ((channel * this.c_modSecondaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modSecondaryChannelSat + channel * this.c_modSecondaryChannelSatScale) + "%,"
                         + (this.c_modSecondaryChannelLum + channel * this.c_modSecondaryChannelLumScale) + "%)";
-                    let newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + ((channel * this.c_modPrimaryChannelHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                    let newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + ((channel * this.c_modPrimaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modPrimaryChannelSat + channel * this.c_modPrimaryChannelSatScale) + "%,"
                         + (this.c_modPrimaryChannelLum + channel * this.c_modPrimaryChannelLumScale) + "%)";
-                    let newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + ((channel * this.c_modSecondaryNoteHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                    let newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + ((channel * this.c_modSecondaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modSecondaryNoteSat + channel * this.c_modSecondaryNoteSatScale) + "%,"
                         + (this.c_modSecondaryNoteLum + channel * this.c_modSecondaryNoteLumScale) + "%)";
-                    let newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + ((channel * this.c_modPrimaryNoteHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                    let newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + ((channel * this.c_modPrimaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                         + (this.c_modPrimaryNoteSat + channel * this.c_modPrimaryNoteSatScale) + "%,"
                         + (this.c_modPrimaryNoteLum + channel * this.c_modPrimaryNoteLumScale) + "%)";
                     let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
@@ -2085,16 +2086,16 @@ var beepbox = (function (exports) {
                 }
                 case ("pitch"):
                 default: {
-                    let newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                    let newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchSecondaryChannelSat * (1 - (this.c_pitchSecondaryChannelSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchSecondaryChannelLum * (1 - (this.c_pitchSecondaryChannelLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                    let newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchPrimaryChannelSat * (1 - (this.c_pitchPrimaryChannelSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchPrimaryChannelLum * (1 - (this.c_pitchPrimaryChannelLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                    let newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchSecondaryNoteSat * (1 - (this.c_pitchSecondaryNoteSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchSecondaryNoteLum * (1 - (this.c_pitchSecondaryNoteLumScale * Math.floor(channel / 7)))) + "%)";
-                    let newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                    let newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                         + (this.c_pitchPrimaryNoteSat * (1 - (this.c_pitchPrimaryNoteSatScale * Math.floor(channel / 7)))) + "%,"
                         + (this.c_pitchPrimaryNoteLum * (1 - (this.c_pitchPrimaryNoteLumScale * Math.floor(channel / 7)))) + "%)";
                     let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
@@ -2105,7 +2106,7 @@ var beepbox = (function (exports) {
         static getComputedChannelColor(song, channel) {
             if (!this.usesColorFormula) {
                 let base = ColorConfig.getChannelColor(song, channel);
-                var regex = /\(([^)]+)\)/;
+                var regex = /\(([^\,)]+)/;
                 let newChannelSecondary = ColorConfig.getComputed(regex.exec(base.secondaryChannel)[1]);
                 let newChannelPrimary = ColorConfig.getComputed(regex.exec(base.primaryChannel)[1]);
                 let newNoteSecondary = ColorConfig.getComputed(regex.exec(base.secondaryNote)[1]);
@@ -2120,19 +2121,13 @@ var beepbox = (function (exports) {
         static getChannelColor(song, channel) {
             if (!this.usesColorFormula) {
                 if (channel < song.pitchChannelCount) {
-                    return ColorConfig.getComputed("--pitch-channel-limit") == ""
-                        ? ColorConfig.pitchChannels[channel % ColorConfig.pitchChannels.length]
-                        : ColorConfig.pitchChannels[channel % (Number(ColorConfig.getComputed("--pitch-channel-limit")) % ColorConfig.pitchChannels.length)];
+                    return ColorConfig.pitchChannels[(channel % this.c_pitchLimit) % ColorConfig.pitchChannels.length];
                 }
                 else if (channel < song.pitchChannelCount + song.noiseChannelCount) {
-                    return ColorConfig.getComputed("--noise-channel-limit") == ""
-                        ? ColorConfig.noiseChannels[(channel - song.pitchChannelCount) % ColorConfig.noiseChannels.length]
-                        : ColorConfig.noiseChannels[(channel - song.pitchChannelCount) % (Number(ColorConfig.getComputed("--noise-channel-limit")) % ColorConfig.noiseChannels.length)];
+                    return ColorConfig.noiseChannels[((channel - song.pitchChannelCount) % this.c_noiseLimit) % ColorConfig.noiseChannels.length];
                 }
                 else {
-                    return ColorConfig.getComputed("--mod-channel-limit") == ""
-                        ? ColorConfig.modChannels[(channel - song.pitchChannelCount - song.noiseChannelCount) % ColorConfig.modChannels.length]
-                        : ColorConfig.modChannels[(channel - song.pitchChannelCount - song.noiseChannelCount) % (Number(ColorConfig.getComputed("--mod-channel-limit")) % ColorConfig.modChannels.length)];
+                    return ColorConfig.modChannels[((channel - song.pitchChannelCount - song.noiseChannelCount) % this.c_modLimit) % ColorConfig.modChannels.length];
                 }
             }
             else {
@@ -2140,20 +2135,20 @@ var beepbox = (function (exports) {
                     return ColorConfig.colorLookup.get(channel);
                 }
                 else {
-                    let colorFormulaPitchLimit = ColorConfig.getComputed("--formula-pitch-channel-limit") == "" ? 360 : Number(ColorConfig.getComputed("--formula-pitch-channel-limit"));
-                    let colorFormulaNoiseLimit = ColorConfig.getComputed("--formula-noise-channel-limit") == "" ? 360 : Number(ColorConfig.getComputed("--formula-noise-channel-limit"));
-                    let colorFormulaModLimit = ColorConfig.getComputed("--formula-mod-channel-limit") == "" ? 360 : Number(ColorConfig.getComputed("--formula-mod-channel-limit"));
+                    let colorFormulaPitchLimit = this.c_colorFormulaPitchLimit;
+                    let colorFormulaNoiseLimit = this.c_colorFormulaNoiseLimit;
+                    let colorFormulaModLimit = this.c_colorFormulaModLimit;
                     if (channel < song.pitchChannelCount) {
-                        let newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                        let newChannelSecondary = "hsl(" + ((this.c_pitchSecondaryChannelHue + (channel * this.c_pitchSecondaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchSecondaryChannelSat * (1 - (this.c_pitchSecondaryChannelSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchSecondaryChannelLum * (1 - (this.c_pitchSecondaryChannelLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                        let newChannelPrimary = "hsl(" + ((this.c_pitchPrimaryChannelHue + (channel * this.c_pitchPrimaryChannelHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchPrimaryChannelSat * (1 - (this.c_pitchPrimaryChannelSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchPrimaryChannelLum * (1 - (this.c_pitchPrimaryChannelLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                        let newNoteSecondary = "hsl(" + ((this.c_pitchSecondaryNoteHue + (channel * this.c_pitchSecondaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchSecondaryNoteSat * (1 - (this.c_pitchSecondaryNoteSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchSecondaryNoteLum * (1 - (this.c_pitchSecondaryNoteLumScale * Math.floor(channel / 9)))) + "%)";
-                        let newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / Config.pitchChannelCountMax) * 256) % colorFormulaPitchLimit) + ","
+                        let newNotePrimary = "hsl(" + ((this.c_pitchPrimaryNoteHue + (channel * this.c_pitchPrimaryNoteHueScale / this.c_pitchChannelCountOverride) * 256) % colorFormulaPitchLimit) + ","
                             + (this.c_pitchPrimaryNoteSat * (1 - (this.c_pitchPrimaryNoteSatScale * Math.floor(channel / 9)))) + "%,"
                             + (this.c_pitchPrimaryNoteLum * (1 - (this.c_pitchPrimaryNoteLumScale * Math.floor(channel / 9)))) + "%)";
                         let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
@@ -2161,16 +2156,16 @@ var beepbox = (function (exports) {
                         return newChannelColors;
                     }
                     else if (channel < song.pitchChannelCount + song.noiseChannelCount) {
-                        let newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryChannelHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                        let newChannelSecondary = "hsl(" + ((this.c_noiseSecondaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noiseSecondaryChannelSat + channel * this.c_noiseSecondaryChannelSatScale) + "%,"
                             + (this.c_noiseSecondaryChannelLum + channel * this.c_noiseSecondaryChannelLumScale) + "%)";
-                        let newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryChannelHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                        let newChannelPrimary = "hsl(" + ((this.c_noisePrimaryChannelHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryChannelHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noisePrimaryChannelSat + channel * this.c_noisePrimaryChannelSatScale) + "%,"
                             + (this.c_noisePrimaryChannelLum + channel * this.c_noisePrimaryChannelLumScale) + "%)";
-                        let newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryNoteHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                        let newNoteSecondary = "hsl(" + ((this.c_noiseSecondaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noiseSecondaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noiseSecondaryNoteSat + channel * this.c_noiseSecondaryNoteSatScale) + "%,"
                             + (this.c_noiseSecondaryNoteLum + channel * this.c_noiseSecondaryNoteLumScale) + "%)";
-                        let newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryNoteHueScale) / Config.noiseChannelCountMax) * 256) % colorFormulaNoiseLimit) + ","
+                        let newNotePrimary = "hsl(" + ((this.c_noisePrimaryNoteHue + (((channel - song.pitchChannelCount) * this.c_noisePrimaryNoteHueScale) / this.c_noiseChannelCountOverride) * 256) % colorFormulaNoiseLimit) + ","
                             + (this.c_noisePrimaryNoteSat + channel * this.c_noisePrimaryNoteSatScale) + "%,"
                             + (this.c_noisePrimaryNoteLum + channel * this.c_noisePrimaryNoteLumScale) + "%)";
                         let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
@@ -2178,16 +2173,16 @@ var beepbox = (function (exports) {
                         return newChannelColors;
                     }
                     else {
-                        let newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryChannelHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                        let newChannelSecondary = "hsl(" + ((this.c_modSecondaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modSecondaryChannelSat + channel * this.c_modSecondaryChannelSatScale) + "%,"
                             + (this.c_modSecondaryChannelLum + channel * this.c_modSecondaryChannelLumScale) + "%)";
-                        let newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryChannelHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                        let newChannelPrimary = "hsl(" + ((this.c_modPrimaryChannelHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryChannelHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modPrimaryChannelSat + channel * this.c_modPrimaryChannelSatScale) + "%,"
                             + (this.c_modPrimaryChannelLum + channel * this.c_modPrimaryChannelLumScale) + "%)";
-                        let newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryNoteHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                        let newNoteSecondary = "hsl(" + ((this.c_modSecondaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modSecondaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modSecondaryNoteSat + channel * this.c_modSecondaryNoteSatScale) + "%,"
                             + (this.c_modSecondaryNoteLum + channel * this.c_modSecondaryNoteLumScale) + "%)";
-                        let newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryNoteHueScale) / Config.modChannelCountMax) * 256) % colorFormulaModLimit) + ","
+                        let newNotePrimary = "hsl(" + ((this.c_modPrimaryNoteHue + (((channel - song.pitchChannelCount - song.noiseChannelCount) * this.c_modPrimaryNoteHueScale) / this.c_modChannelCountOverride) * 256) % colorFormulaModLimit) + ","
                             + (this.c_modPrimaryNoteSat + channel * this.c_modPrimaryNoteSatScale) + "%,"
                             + (this.c_modPrimaryNoteLum + channel * this.c_modPrimaryNoteLumScale) + "%)";
                         let newChannelColors = { secondaryChannel: newChannelSecondary, primaryChannel: newChannelPrimary, secondaryNote: newNoteSecondary, primaryNote: newNotePrimary };
@@ -2200,14 +2195,229 @@ var beepbox = (function (exports) {
         static setTheme(name) {
             let theme = this.themes[name];
             if (theme == undefined)
-                theme = this.themes["dark classic"];
+                theme = ColorConfig.defaultTheme;
             this._styleElement.textContent = theme;
+            let valuesToAdd = ":root{";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--oscilloscope-line-L") == "")
+                valuesToAdd += "--oscilloscope-line-L:var(--primary-text,white);";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--oscilloscope-line-R") == "")
+                valuesToAdd += "--oscilloscope-line-R:var(--text-selection,rgba(119,68,255,0.99));";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--text-enabled-icon") == "")
+                valuesToAdd += "--text-enabled-icon:✓ ;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--text-disabled-icon") == "")
+                valuesToAdd += "--text-disabled-icon:　;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--text-spacing-icon") == "")
+                valuesToAdd += "--text-spacing-icon:　;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--note-flash") == "")
+                valuesToAdd += "--note-flash:#ffffff;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--note-flash-secondary") == "")
+                valuesToAdd += "--note-flash-secondary:#ffffff77;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch-channel-limit") == "")
+                valuesToAdd += "--pitch-channel-limit:" + Config.pitchChannelCountMax + ";";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise-channel-limit") == "")
+                valuesToAdd += "--noise-channel-limit:" + Config.noiseChannelCountMax + ";";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod-channel-limit") == "")
+                valuesToAdd += "--mod-channel-limit:" + Config.modChannelCountMax + ";";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--formula-pitch-channel-limit") == "")
+                valuesToAdd += "--formula-pitch-channel-limit:360;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--formula-noise-channel-limit") == "")
+                valuesToAdd += "--formula-noise-channel-limit:360;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--formula-mod-channel-limit") == "")
+                valuesToAdd += "--formula-mod-channel-limit:360;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--editor-background") == "")
+                valuesToAdd += "--editor-background:black;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--ui-widget-background") == "")
+                valuesToAdd += "--ui-widget-background:#444;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--loop-accent") == "")
+                valuesToAdd += "--loop-accent:#74f;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--box-selection-fill") == "")
+                valuesToAdd += "--box-selection-fill:rgba(255,255,255,0.2);";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--primary-text") == "")
+                valuesToAdd += "--primary-text:white;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--inverted-text") == "")
+                valuesToAdd += "--inverted-text:black;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-pitch") == "")
+                valuesToAdd += "--track-editor-bg-pitch:#444;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-pitch-dim") == "")
+                valuesToAdd += "--track-editor-bg-pitch-dim:#333;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-noise") == "")
+                valuesToAdd += "--track-editor-bg-noise:#444;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-noise-dim") == "")
+                valuesToAdd += "--track-editor-bg-noise-dim:#333;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-mod") == "")
+                valuesToAdd += "--track-editor-bg-mod:#234;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-mod-dim") == "")
+                valuesToAdd += "--track-editor-bg-mod-dim:#123;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mute-button-normal") == "")
+                valuesToAdd += "--mute-button-normal:#ffa033;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mute-button-mod") == "")
+                valuesToAdd += "--mute-button-mod:#9a6bff;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch1-secondary-channel") == "")
+                valuesToAdd += "--pitch1-secondary-channel:#0099A1;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch1-primary-channel") == "")
+                valuesToAdd += "--pitch1-primary-channel:#25F3FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch1-secondary-note") == "")
+                valuesToAdd += "--pitch1-secondary-note:#00BDC7;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch1-primary-note") == "")
+                valuesToAdd += "--pitch1-primary-note:#92F9FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch2-secondary-channel") == "")
+                valuesToAdd += "--pitch2-secondary-channel:#A1A100;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch2-primary-channel") == "")
+                valuesToAdd += "--pitch2-primary-channel:#FFFF25;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch2-secondary-note") == "")
+                valuesToAdd += "--pitch2-secondary-note:#C7C700;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch2-primary-note") == "")
+                valuesToAdd += "--pitch2-primary-note:#FFFF92;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch3-secondary-channel") == "")
+                valuesToAdd += "--pitch3-secondary-channel:#C75000;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch3-primary-channel") == "")
+                valuesToAdd += "--pitch3-primary-channel:#FF9752;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch3-secondary-note") == "")
+                valuesToAdd += "--pitch3-secondary-note:#FF771C;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch3-primary-note") == "")
+                valuesToAdd += "--pitch3-primary-note:#FFCDAB;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch4-secondary-channel") == "")
+                valuesToAdd += "--pitch4-secondary-channel:#00A100;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch4-primary-channel") == "")
+                valuesToAdd += "--pitch4-primary-channel:#50FF50;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch4-secondary-note") == "")
+                valuesToAdd += "--pitch4-secondary-note:#00C700;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch4-primary-note") == "")
+                valuesToAdd += "--pitch4-primary-note:#A0FFA0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch5-secondary-channel") == "")
+                valuesToAdd += "--pitch5-secondary-channel:#D020D0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch5-primary-channel") == "")
+                valuesToAdd += "--pitch5-primary-channel:#FF90FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch5-secondary-note") == "")
+                valuesToAdd += "--pitch5-secondary-note:#E040E0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch5-primary-note") == "")
+                valuesToAdd += "--pitch5-primary-note:#FFC0FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch6-secondary-channel") == "")
+                valuesToAdd += "--pitch6-secondary-channel:#7777B0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch6-primary-channel") == "")
+                valuesToAdd += "--pitch6-primary-channel:#A0A0FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch6-secondary-note") == "")
+                valuesToAdd += "--pitch6-secondary-note:#8888D0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch6-primary-note") == "")
+                valuesToAdd += "--pitch6-primary-note:#D0D0FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch7-secondary-channel") == "")
+                valuesToAdd += "--pitch7-secondary-channel:#8AA100;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch7-primary-channel") == "")
+                valuesToAdd += "--pitch7-primary-channel:#DEFF25;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch7-secondary-note") == "")
+                valuesToAdd += "--pitch7-secondary-note:#AAC700;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch7-primary-note") == "")
+                valuesToAdd += "--pitch7-primary-note:#E6FF92;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch8-secondary-channel") == "")
+                valuesToAdd += "--pitch8-secondary-channel:#DF0019;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch8-primary-channel") == "")
+                valuesToAdd += "--pitch8-primary-channel:#FF98A4;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch8-secondary-note") == "")
+                valuesToAdd += "--pitch8-secondary-note:#FF4E63;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch8-primary-note") == "")
+                valuesToAdd += "--pitch8-primary-note:#FFB2BB;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch9-secondary-channel") == "")
+                valuesToAdd += "--pitch9-secondary-channel:#00A170;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch9-primary-channel") == "")
+                valuesToAdd += "--pitch9-primary-channel:#50FFC9;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch9-secondary-note") == "")
+                valuesToAdd += "--pitch9-secondary-note:#00C78A;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch9-primary-note") == "")
+                valuesToAdd += "--pitch9-primary-note:#83FFD9;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch10-secondary-channel") == "")
+                valuesToAdd += "--pitch10-secondary-channel:#A11FFF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch10-primary-channel") == "")
+                valuesToAdd += "--pitch10-primary-channel:#CE8BFF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch10-secondary-note") == "")
+                valuesToAdd += "--pitch10-secondary-note:#B757FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--pitch10-primary-note") == "")
+                valuesToAdd += "--pitch10-primary-note:#DFACFF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise1-secondary-channel") == "")
+                valuesToAdd += "--noise1-secondary-channel:#6F6F6F;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise1-primary-channel") == "")
+                valuesToAdd += "--noise1-primary-channel:#AAAAAA;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise1-secondary-note") == "")
+                valuesToAdd += "--noise1-secondary-note:#A7A7A7;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise1-primary-note") == "")
+                valuesToAdd += "--noise1-primary-note:#E0E0E0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise2-secondary-channel") == "")
+                valuesToAdd += "--noise2-secondary-channel:#996633;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise2-primary-channel") == "")
+                valuesToAdd += "--noise2-primary-channel:#DDAA77;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise2-secondary-note") == "")
+                valuesToAdd += "--noise2-secondary-note:#CC9966;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise2-primary-note") == "")
+                valuesToAdd += "--noise2-primary-note:#F0D0BB;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise3-secondary-channel") == "")
+                valuesToAdd += "--noise3-secondary-channel:#4A6D8F;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise3-primary-channel") == "")
+                valuesToAdd += "--noise3-primary-channel:#77AADD;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise3-secondary-note") == "")
+                valuesToAdd += "--noise3-secondary-note:#6F9FCF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise3-primary-note") == "")
+                valuesToAdd += "--noise3-primary-note:#BBD7FF;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise4-secondary-channel") == "")
+                valuesToAdd += "--noise4-secondary-channel:#7A4F9A;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise4-primary-channel") == "")
+                valuesToAdd += "--noise4-primary-channel:#AF82D2;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise4-secondary-note") == "")
+                valuesToAdd += "--noise4-secondary-note:#9E71C1;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise4-primary-note") == "")
+                valuesToAdd += "--noise4-primary-note:#D4C1EA;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise5-secondary-channel") == "")
+                valuesToAdd += "--noise5-secondary-channel:#607837;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise5-primary-channel") == "")
+                valuesToAdd += "--noise5-primary-channel:#A2BB77;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise5-secondary-note") == "")
+                valuesToAdd += "--noise5-secondary-note:#91AA66;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--noise5-primary-note") == "")
+                valuesToAdd += "--noise5-primary-note:#C5E2B2;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod1-secondary-channel") == "")
+                valuesToAdd += "--mod1-secondary-channel:#339955;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod1-primary-channel") == "")
+                valuesToAdd += "--mod1-primary-channel:#77fc55;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod1-secondary-note") == "")
+                valuesToAdd += "--mod1-secondary-note:#77ff8a;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod1-primary-note") == "")
+                valuesToAdd += "--mod1-primary-note:#cdffee;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod2-secondary-channel") == "")
+                valuesToAdd += "--mod2-secondary-channel:#993355;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod2-primary-channel") == "")
+                valuesToAdd += "--mod2-primary-channel:#f04960;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod2-secondary-note") == "")
+                valuesToAdd += "--mod2-secondary-note:#f057a0;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod2-primary-note") == "")
+                valuesToAdd += "--mod2-primary-note:#ffb8de;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod3-secondary-channel") == "")
+                valuesToAdd += "--mod3-secondary-channel:#553399;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod3-primary-channel") == "")
+                valuesToAdd += "--mod3-primary-channel:#8855fc;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod3-secondary-note") == "")
+                valuesToAdd += "--mod3-secondary-note:#aa64ff;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod3-primary-note") == "")
+                valuesToAdd += "--mod3-primary-note:#f8ddff;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod4-secondary-channel") == "")
+                valuesToAdd += "--mod4-secondary-channel:#a86436;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod4-primary-channel") == "")
+                valuesToAdd += "--mod4-primary-channel:#c8a825;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod4-secondary-note") == "")
+                valuesToAdd += "--mod4-secondary-note:#e8ba46;";
+            if (getComputedStyle(this._styleElement).getPropertyValue("--mod4-primary-note") == "")
+                valuesToAdd += "--mod4-primary-note:#fff6d3;";
+            valuesToAdd += "}";
+            this._styleElement.textContent = valuesToAdd + this._styleElement.textContent;
             const themeColor = document.querySelector("meta[name='theme-color']");
             if (themeColor != null) {
                 themeColor.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue('--ui-widget-background'));
             }
             this.resetColors();
             this.usesColorFormula = (getComputedStyle(this._styleElement).getPropertyValue("--use-color-formula").trim() == "true");
+            this.c_pitchLimit = +getComputedStyle(this._styleElement).getPropertyValue("--pitch-channel-limit");
+            this.c_noiseLimit = +getComputedStyle(this._styleElement).getPropertyValue("--noise-channel-limit");
+            this.c_modLimit = +getComputedStyle(this._styleElement).getPropertyValue("--mod-channel-limit");
+            this.c_colorFormulaPitchLimit = +getComputedStyle(this._styleElement).getPropertyValue("--formula-pitch-channel-limit");
+            this.c_colorFormulaNoiseLimit = +getComputedStyle(this._styleElement).getPropertyValue("--formula-noise-channel-limit");
+            this.c_colorFormulaModLimit = +getComputedStyle(this._styleElement).getPropertyValue("--formula-mod-channel-limit");
             this.c_invertedText = getComputedStyle(this._styleElement).getPropertyValue("--inverted-text");
             this.c_trackEditorBgNoiseDim = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-noise-dim");
             this.c_trackEditorBgNoise = getComputedStyle(this._styleElement).getPropertyValue("--track-editor-bg-noise");
@@ -2288,6 +2498,12 @@ var beepbox = (function (exports) {
                 this.c_modPrimaryNoteSatScale = +getComputedStyle(this._styleElement).getPropertyValue("--mod-primary-note-sat-scale");
                 this.c_modPrimaryNoteLum = +getComputedStyle(this._styleElement).getPropertyValue("--mod-primary-note-lum");
                 this.c_modPrimaryNoteLumScale = +getComputedStyle(this._styleElement).getPropertyValue("--mod-primary-note-lum-scale");
+                if (getComputedStyle(this._styleElement).getPropertyValue("--formula-pitch-channel-count-override") != "")
+                    this.c_pitchChannelCountOverride = +getComputedStyle(this._styleElement).getPropertyValue("--formula-pitch-channel-count-override");
+                if (getComputedStyle(this._styleElement).getPropertyValue("--formula-noise-channel-count-override") != "")
+                    this.c_noiseChannelCountOverride = +getComputedStyle(this._styleElement).getPropertyValue("--formula-noise-channel-count-override");
+                if (getComputedStyle(this._styleElement).getPropertyValue("--formula-mod-channel-count-override") != "")
+                    this.c_modChannelCountOverride = +getComputedStyle(this._styleElement).getPropertyValue("--formula-mod-channel-count-override");
             }
         }
         static getComputed(name) {
@@ -2296,246 +2512,24 @@ var beepbox = (function (exports) {
     }
     ColorConfig.colorLookup = new Map();
     ColorConfig.usesColorFormula = false;
+    ColorConfig.defaultTheme = "ultrabox dark";
     ColorConfig.themes = {
-        "dark classic": `
-			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
-				--pitch1-secondary-channel: #0099A1;
-				--pitch1-primary-channel:   #25F3FF;
-				--pitch1-secondary-note:    #00BDC7;
-				--pitch1-primary-note:      #92F9FF;
-				--pitch2-secondary-channel: #A1A100;
-				--pitch2-primary-channel:   #FFFF25;
-				--pitch2-secondary-note:    #C7C700;
-				--pitch2-primary-note:      #FFFF92;
-				--pitch3-secondary-channel: #C75000;
-				--pitch3-primary-channel:   #FF9752;
-				--pitch3-secondary-note:    #FF771C;
-				--pitch3-primary-note:      #FFCDAB;
-				--pitch4-secondary-channel: #00A100;
-				--pitch4-primary-channel:   #50FF50;
-				--pitch4-secondary-note:    #00C700;
-				--pitch4-primary-note:      #A0FFA0;
-				--pitch5-secondary-channel: #D020D0;
-				--pitch5-primary-channel:   #FF90FF;
-				--pitch5-secondary-note:    #E040E0;
-				--pitch5-primary-note:      #FFC0FF;
-				--pitch6-secondary-channel: #7777B0;
-				--pitch6-primary-channel:   #A0A0FF;
-				--pitch6-secondary-note:    #8888D0;
-				--pitch6-primary-note:      #D0D0FF;
-				--pitch7-secondary-channel: #8AA100;
-				--pitch7-primary-channel:   #DEFF25;
-				--pitch7-secondary-note:    #AAC700;
-				--pitch7-primary-note:      #E6FF92;
-				--pitch8-secondary-channel: #DF0019;
-				--pitch8-primary-channel:   #FF98A4;
-				--pitch8-secondary-note:    #FF4E63;
-				--pitch8-primary-note:      #FFB2BB;
-				--pitch9-secondary-channel: #00A170;
-				--pitch9-primary-channel:   #50FFC9;
-				--pitch9-secondary-note:    #00C78A;
-				--pitch9-primary-note:      #83FFD9;
-				--pitch10-secondary-channel:#A11FFF;
-				--pitch10-primary-channel:  #CE8BFF;
-				--pitch10-secondary-note:   #B757FF;
-				--pitch10-primary-note:     #DFACFF;
-				--noise1-secondary-channel: #6F6F6F;
-				--noise1-primary-channel:   #AAAAAA;
-				--noise1-secondary-note:    #A7A7A7;
-				--noise1-primary-note:      #E0E0E0;
-				--noise2-secondary-channel: #996633;
-				--noise2-primary-channel:   #DDAA77;
-				--noise2-secondary-note:    #CC9966;
-				--noise2-primary-note:      #F0D0BB;
-				--noise3-secondary-channel: #4A6D8F;
-				--noise3-primary-channel:   #77AADD;
-				--noise3-secondary-note:    #6F9FCF;
-				--noise3-primary-note:      #BBD7FF;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
-          --mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:	    #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
-				}
-			`,
+        "dark classic": ``,
         "dark competition": `
 				:root {
-					--page-margin: black;
-					--editor-background: black;
 					--hover-preview: #ddd;
 					--playhead: #ddd;
 					--primary-text: #ddd;
 					--secondary-text: #8e695b;
-					--inverted-text: black;
 					--text-selection: rgba(169,0,255,0.99);
 					--box-selection-fill: rgba(221,221,221,0.2);
 					--loop-accent: #bf15ba;
 					--link-accent: #f888ff;
 					--ui-widget-background: #443a3a;
-					--ui-widget-focus: #777;
 					--pitch-background: #353333;
 					--tonic: #884a44;
 					--fifth-note: #415498;
-					--white-piano-key: #bbb;
-					--black-piano-key: #444;
-                    --white-piano-key-text: #131200;
-                    --black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
-					--pitch1-secondary-channel: #0099a1;
-					--pitch1-primary-channel:   #25f3ff;
-					--pitch1-secondary-note:    #00bdc7;
-					--pitch1-primary-note:      #92f9ff;
-					--pitch2-secondary-channel: #a1a100;
-					--pitch2-primary-channel:   #ffff25;
-					--pitch2-secondary-note:    #c7c700;
-					--pitch2-primary-note:      #ffff92;
-					--pitch3-secondary-channel: #c75000;
-					--pitch3-primary-channel:   #ff9752;
-					--pitch3-secondary-note:    #ff771c;
-					--pitch3-primary-note:      #ffcdab;
-					--pitch4-secondary-channel: #00a100;
-					--pitch4-primary-channel:   #50ff50;
-					--pitch4-secondary-note:    #00c700;
-					--pitch4-primary-note:      #a0ffa0;
-					--pitch5-secondary-channel: #d020d0;
-					--pitch5-primary-channel:   #ff90ff;
-					--pitch5-secondary-note:    #e040e0;
-					--pitch5-primary-note:      #ffc0ff;
-					--pitch6-secondary-channel: #7777b0;
-					--pitch6-primary-channel:   #a0a0ff;
-					--pitch6-secondary-note:    #8888d0;
-					--pitch6-primary-note:      #d0d0ff;
-					--pitch7-secondary-channel: #8AA100;
-					--pitch7-primary-channel:   #DEFF25;
-					--pitch7-secondary-note:	  #AAC700;
-					--pitch7-primary-note:			#E6FF92;
-					--pitch8-secondary-channel: #DF0019;
-					--pitch8-primary-channel:   #FF98A4;
-					--pitch8-secondary-note:    #FF4E63;
-					--pitch8-primary-note:      #FFB2BB;
-					--pitch9-secondary-channel: #00A170;
-					--pitch9-primary-channel:   #50FFC9;
-					--pitch9-secondary-note:    #00C78A;
-					--pitch9-primary-note:			#83FFD9;
-					--pitch10-secondary-channel:#A11FFF;
-					--pitch10-primary-channel:  #CE8BFF;
-					--pitch10-secondary-note:   #B757FF;
-					--pitch10-primary-note:     #DFACFF;
-					--noise1-secondary-channel: #6f6f6f;
-					--noise1-primary-channel:   #aaaaaa;
-					--noise1-secondary-note:    #a7a7a7;
-					--noise1-primary-note:      #e0e0e0;
-					--noise2-secondary-channel: #996633;
-					--noise2-primary-channel:   #ddaa77;
-					--noise2-secondary-note:    #cc9966;
-					--noise2-primary-note:      #f0d0bb;
-					--noise3-secondary-channel: #4a6d8f;
-					--noise3-primary-channel:   #77aadd;
-					--noise3-secondary-note:    #6f9fcf;
-					--noise3-primary-note:      #bbd7ff;
 					--noise4-secondary-channel: #6B3E8E;
-					--noise4-primary-channel:   #AF82D2;
-					--noise4-secondary-note:    #9E71C1;
-					--noise4-primary-note:      #D4C1EA;
-					--noise5-secondary-channel: #607837;
-					--noise5-primary-channel:   #A2BB77;
-					--noise5-secondary-note:    #91AA66;
-					--noise5-primary-note:      #C5E2B2;
-					--mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:			  #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
-
 			}
 		`,
         "light classic": `
@@ -2559,9 +2553,6 @@ var beepbox = (function (exports) {
 				--fifth-note: #bbddf0;
 				--white-piano-key: #eee;
 				--black-piano-key: #666;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
 					--track-editor-bg-pitch: #ececec;
 					--track-editor-bg-pitch-dim: #fdfdfd;
 					--track-editor-bg-noise: #ececec;
@@ -2638,23 +2629,12 @@ var beepbox = (function (exports) {
 				--noise5-primary-note:      #68784C;
 					--mod1-secondary-channel:   #339955;
 					--mod1-primary-channel:     #77dd55;
-					--mod1-secondary-note:      #77ff8a;
 					--mod1-primary-note:        #2ad84a;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
 					--mod2-primary-note:        #ba124a;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
 					--mod3-primary-note:        #7a1caa;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
 					--mod4-primary-note:        #a86810;
 					--mod-label-primary:        #dddddd;
 					--mod-label-secondary-text: #777;
-					--mod-label-primary-text:   black;
 					--disabled-note-primary:    #666;
 					--disabled-note-secondary:  #aaa;
 			}
@@ -2666,20 +2646,18 @@ var beepbox = (function (exports) {
 				.select2-selection__rendered {
 					box-shadow: inset 0 0 0 1px var(--secondary-text);
 				}
+
+				.promptContainerBG::before {
+					box-shadow: inset 0 0 2000px rgba(255, 255, 255, .5);
+				}	
 		`,
         "jummbox classic": `
 				:root {
 					--page-margin: #040410;
 					--editor-background: #040410;
-					--hover-preview: white;
 					--playhead: rgba(255, 255, 255, 0.9);
-					--primary-text: white;
 					--secondary-text: #84859a;
-					--inverted-text: black;
-					--text-selection: rgba(119,68,255,0.99);
 					--box-selection-fill: #044b94;
-					--loop-accent: #74f;
-					--link-accent: #98f;
 					--ui-widget-background: #393e4f;
 					--ui-widget-focus: #6d6886;
 					--pitch-background: #393e4f;
@@ -2687,8 +2665,6 @@ var beepbox = (function (exports) {
 					--fifth-note: #54547a;
 					--white-piano-key: #eee;
 					--black-piano-key: #666;
-                    --white-piano-key-text: #131200;
-                    --black-piano-key-text: #fff;
 					--use-color-formula: true;
 					--track-editor-bg-pitch: #393e4f;
 					--track-editor-bg-pitch-dim: #1c1d28;
@@ -2803,7 +2779,6 @@ var beepbox = (function (exports) {
 					--fifth-note: #385840;
 					--white-piano-key: #bda;
 					--black-piano-key: #573;
-                    --white-piano-key-text: #131200;
                     --black-piano-key-text: #ffffff;
 					--use-color-formula: true;
 					--track-editor-bg-pitch: #254820;
@@ -2903,7 +2878,6 @@ var beepbox = (function (exports) {
 				:root {
 					--page-margin: #0a0000;
 					--editor-background: #0a0000;
-					--hover-preview: white;
 					--playhead: rgba(247, 172, 196, 0.9);
 					--primary-text: #f5d6bf;
 					--secondary-text: #934050;
@@ -2919,7 +2893,6 @@ var beepbox = (function (exports) {
 					--fifth-note: #5b3e6b;
 					--white-piano-key: #d89898;
 					--black-piano-key: #572b29;
-                    --white-piano-key-text: #131200;
                     --black-piano-key-text: #ffffff;
 					--use-color-formula: true;
 					--track-editor-bg-pitch: #5e3a41;
@@ -3035,7 +3008,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #1a1818;
 			--white-piano-key: #a89e9e;
 			--black-piano-key: #2d2424;
-            --white-piano-key-text: #131200;
             --black-piano-key-text: #ffffff;
 			--use-color-formula: true;
 			--track-editor-bg-pitch: #373737;
@@ -3259,17 +3231,17 @@ var beepbox = (function (exports) {
 				.beepboxEditor .piano-button::before {
 					display: none;
 				}
+
+				.promptContainerBG::before {
+					box-shadow: inset 0 0 2000px rgba(255, 255, 255, .5);
+				}
 			`,
         "amoled dark": `
 				:root {
 					--page-margin: #000;
 					--editor-background: #020406;
-					--hover-preview: white;
 					--playhead: rgba(255, 255, 255, 0.9);
-					--primary-text: white;
 					--secondary-text: #8e88ce;
-					--inverted-text: black;
-					--text-selection: rgba(119,68,255,0.99);
 					--box-selection-fill: #044b94;
 					--loop-accent: #ad38f9;
 					--link-accent: #bd25ff;
@@ -3281,7 +3253,6 @@ var beepbox = (function (exports) {
 					--white-piano-key: #02040c;
 					--black-piano-key: #02040c;
                     --white-piano-key-text: #fff;
-                    --black-piano-key-text: #fff;
 					--use-color-formula: true;
 					--track-editor-bg-pitch: #050829;
 					--track-editor-bg-pitch-dim: #010213;
@@ -3385,8 +3356,6 @@ var beepbox = (function (exports) {
   --playhead: #fff;
   --primary-text: #c1f1ff;
   --secondary-text: #546775;
-  --inverted-text: black;
-  --text-selection: rgba(119,68,255,0.99);
   --box-selection-fill: #3e0028;
   --loop-accent: #5e68fffc;
   --link-accent: #ff3ad5fc;
@@ -3398,8 +3367,6 @@ var beepbox = (function (exports) {
   --white-piano-key: #f3f2ff;
   --black-piano-key: #4b4471;
   --white-piano-key-text: #4b4471;
-  --black-piano-key-text: #fff;
-  --use-color-formula: false;
   --track-editor-bg-pitch: #34406c;
   --track-editor-bg-pitch-dim: #121931;
   --track-editor-bg-noise: #562e3b;
@@ -3449,11 +3416,8 @@ var beepbox = (function (exports) {
   --pitch9-secondary-channel: #1F605A;
   --pitch9-primary-channel: #69FFEA;
   --pitch9-secondary-note: #178076;
-  --pitch9-primary-note: #83FFD9;
   --pitch10-secondary-channel: #6D438C;
-  --pitch10-primary-channel: #CE8BFF;
   --pitch10-secondary-note: #8040B0;
-  --pitch10-primary-note: #DFACFF;
   --noise1-secondary-channel: #635070;
   --noise1-primary-channel: #9071db;
   --noise1-secondary-note: #915dc1;
@@ -3485,7 +3449,6 @@ var beepbox = (function (exports) {
   --mod3-secondary-channel: #6f579f;
   --mod3-primary-channel: #b192f7;
   --mod3-secondary-note: #7c3fc8;
-  --mod3-primary-note: #f8ddff;
   --mod4-secondary-channel: #a88a36;
   --mod4-primary-channel: #bec825;
   --mod4-secondary-note: #aecb57;
@@ -3503,11 +3466,8 @@ var beepbox = (function (exports) {
 			:root {
 			--page-margin: #050000;
 			--editor-background: #050000;
-			--hover-preview: white;
-			--playhead: white;
 			--primary-text: #b8cee0;
 			--secondary-text: #cb3434;
-			--inverted-text: black;
 			--text-selection: rgb(255 68 68 / 99%);
 			--box-selection-fill: rgb(255 0 0 / 30%);
 			--loop-accent: #7744FF;
@@ -3519,9 +3479,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #381818;
 			--white-piano-key: #cdcdcd;
 			--black-piano-key: #232323;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #302938;
 			--track-editor-bg-pitch-dim: #211c26;
 			--track-editor-bg-noise: #261f42;
@@ -3622,11 +3579,8 @@ var beepbox = (function (exports) {
 			:root {
 			--page-margin: #020514;
 			--editor-background: #020514;
-			--hover-preview: white;
-			--playhead: white;
 			--primary-text: #D4DCE9;
 			--secondary-text: #3E87DA;
-			--inverted-text: black;
 			--text-selection: #03599bd9;
 			--box-selection-fill: hsl(206deg 66% 41% / 85%);
 			--loop-accent: #639BD6;
@@ -3638,9 +3592,6 @@ var beepbox = (function (exports) {
 			--fifth-note: hsl(206deg 36% 16%);
 			--white-piano-key: #c1bfe9;
 			--black-piano-key: #454354;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #25568d80;
 			--track-editor-bg-pitch-dim: #10253c80;
 			--track-editor-bg-noise: #25568d80;
@@ -3741,15 +3692,9 @@ var beepbox = (function (exports) {
 		:root {
 			--page-margin: #060304;
 			--editor-background: #060304;
-			--hover-preview: white;
-			--playhead: white;
-			--primary-text: white;
-			--secondary-text: #999;
-			--inverted-text: black;
 			--text-selection: rgb(115 80 76);
 			--box-selection-fill: rgb(174 73 81 / 45%);
 			--loop-accent: #834A69;
-			--link-accent: #98f;
 			--ui-widget-background: #2a2523;
 			--ui-widget-focus: #4e4c44;
 			--pitch-background: #121212;
@@ -3757,9 +3702,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #222;
 			--white-piano-key: #b59b9b;
 			--black-piano-key: #231e1e;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #352f38;
 			--track-editor-bg-pitch-dim: #232025;
 			--track-editor-bg-noise: #3c3029;
@@ -3860,11 +3802,6 @@ var beepbox = (function (exports) {
 		:root {
 			--page-margin: #040507;
 			--editor-background: #040507;
-			--hover-preview: white;
-			--playhead: white;
-			--primary-text: white;
-			--secondary-text: #999;
-			--inverted-text: black;
 			--text-selection: rgb(115 103 76);
 			--box-selection-fill: rgb(174 109 73 / 45%);
 			--loop-accent: #EC897D;
@@ -3876,9 +3813,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #191a20;
 			--white-piano-key: #bbbaba;
 			--black-piano-key: #2d2d2d;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #2b2d40;
 			--track-editor-bg-pitch-dim: #191a25;
 			--track-editor-bg-noise: #3c3644;
@@ -3979,11 +3913,6 @@ var beepbox = (function (exports) {
 		:root {
 			--page-margin: #040300;
 			--editor-background: #040300;
-			--hover-preview: white;
-			--playhead: white;
-			--primary-text: white;
-			--secondary-text: #999;
-			--inverted-text: black;
 			--text-selection: rgb(94 0 157);
 			--box-selection-fill: rgb(174 173 73 / 45%);
 			--loop-accent: #EC897D;
@@ -3995,9 +3924,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #2E2A15;
 			--white-piano-key: #bbbaba;
 			--black-piano-key: #2d2d2d;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #2d2e42;
 			--track-editor-bg-pitch-dim: #191a25;
 			--track-editor-bg-noise: #393340;
@@ -4098,11 +4024,6 @@ var beepbox = (function (exports) {
 		:root {
 			--page-margin: #010003;
 			--editor-background: #010003;
-			--hover-preview: white;
-			--playhead: white;
-			--primary-text: white;
-			--secondary-text: #999;
-			--inverted-text: black;
 			--text-selection: rgb(147 195 0);
 			--box-selection-fill: rgb(145 174 73 / 49%);
 			--loop-accent: #BCDE2C;
@@ -4114,9 +4035,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #18221a;
 			--white-piano-key: #e3e3e3;
 			--black-piano-key: #2d2d2d;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #38293e;
 			--track-editor-bg-pitch-dim: #251c29;
 			--track-editor-bg-noise: #2c304c;
@@ -4221,8 +4139,6 @@ var beepbox = (function (exports) {
 			--playhead: rgba(255, 255, 255, 0.9);
 			--primary-text: #f0e0ff;
 			--secondary-text: #706087;
-			--inverted-text: black;
-			--text-selection: rgba(119,68,255,0.99);
 			--box-selection-fill: #225835;
 			--loop-accent: #8f00fb;
 			--link-accent: #82dd5d;
@@ -4233,8 +4149,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #42604d;
 			--white-piano-key: #f6e8ff;
 			--black-piano-key: #5a4972;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
 			--use-color-formula: true;
 			--track-editor-bg-pitch: #392a46;
 			--track-editor-bg-pitch-dim: #1c1d28;
@@ -4332,12 +4246,6 @@ var beepbox = (function (exports) {
 		:root {
 			--page-margin: #04081a;
 			--editor-background: #04081a;
-			--hover-preview: white;
-			--playhead: white;
-			--primary-text: white;
-			--secondary-text: #999;
-			--inverted-text: black;
-			--text-selection: rgba(119,68,255,0.99);
 			--box-selection-fill: rgb(0 72 181);
 			--loop-accent: #44d4ff;
 			--link-accent: #ffa500;
@@ -4348,27 +4256,14 @@ var beepbox = (function (exports) {
 			--fifth-note: #0898a1;
 			--white-piano-key: #ffffff;
 			--black-piano-key: #516d7a;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #213352;
 			--track-editor-bg-pitch-dim: #152032;
 			--track-editor-bg-noise: #403524;
 			--track-editor-bg-noise-dim: #2a1f0e;
-			--track-editor-bg-mod: #234;
-			--track-editor-bg-mod-dim: #123;
-			--multiplicative-mod-slider: #456;
-			--overwriting-mod-slider: #654;
 			--indicator-primary: #5490ff;
-			--indicator-secondary: #444;
-			--select2-opt-group: #585858;
-			--input-box-outline: #333;
 			--mute-button-normal: #3372ff;
 			--mute-button-mod: #dd872f;
-			--pitch1-secondary-channel: #0099A1;
 			--pitch1-primary-channel: #77f7ff;
-			--pitch1-secondary-note: #00BDC7;
-			--pitch1-primary-note: #92F9FF;
 			--pitch2-secondary-channel: #0083a1;
 			--pitch2-primary-channel: #35d9ff;
 			--pitch2-secondary-note: #0083a1;
@@ -4450,8 +4345,6 @@ var beepbox = (function (exports) {
         "fusion": `:root {
 			--page-margin: #0c0306;
 			--editor-background: #0c0306;
-			--hover-preview: white;
-			--playhead: white;
 			--primary-text: #26d9cd;
 			--secondary-text: #ff6666;
 			--inverted-text: white;
@@ -4466,9 +4359,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #ff666640;
 			--white-piano-key: #cdcdcd;
 			--black-piano-key: #232323;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #404040bf;
 			--track-editor-bg-pitch-dim: #151515;
 			--track-editor-bg-noise: #404040bf;
@@ -4559,9 +4449,6 @@ var beepbox = (function (exports) {
 			--mod4-primary-channel: #ffcc99;
 			--mod4-secondary-note: #cc9966;
 			--mod4-primary-note: #ffcc99;
-			--mod-label-primary: #999;
-			--mod-label-secondary-text: #333;
-			--mod-label-primary-text: black;
 			--disabled-note-primary: #696969;
 			--disabled-note-secondary: #232323;
 		}`,
@@ -4572,7 +4459,6 @@ var beepbox = (function (exports) {
 			--playhead: #243953;
 			--primary-text: black;
 			--secondary-text: #855b95;
-			--inverted-text: black;
 			--text-selection: rgb(132 125 255);
 			--box-selection-fill: rgb(174 109 73 / 65%);
 			--loop-accent: #EC897D;
@@ -4584,9 +4470,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #dcdcdc;
 			--white-piano-key: #ffffff;
 			--black-piano-key: #615f66;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #e9ebff;
 			--track-editor-bg-pitch-dim: #e9ebff;
 			--track-editor-bg-noise: #fdf2fe;
@@ -4679,7 +4562,6 @@ var beepbox = (function (exports) {
 			--mod4-primary-note: #a68ab9;
 			--mod-label-primary: #e9e9e9;
 			--mod-label-secondary-text: #707070;
-			--mod-label-primary-text: black;
 			--disabled-note-primary: #959595;
 			--disabled-note-secondary: #6e6e6e;
 			}`,
@@ -4687,11 +4569,8 @@ var beepbox = (function (exports) {
 		:root {
 			--page-margin: #040410;
 			--editor-background: #150e1f;
-			--hover-preview: white;
 			--playhead: rgba(255, 255, 255, 0.9);
-			--primary-text: white;
 			--secondary-text: #8C849A;
-			--inverted-text: black;
 			--text-selection: rgba(141,79,201,0.99);
 			--box-selection-fill: #311E44;
 			--loop-accent: #CC688C;
@@ -4703,8 +4582,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #ab77bd50;
 			--white-piano-key: #EEEEEE;
 			--black-piano-key: #5F5566;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
 			--use-color-formula: true;
 			--track-editor-bg-pitch: #46374C;
 			--track-editor-bg-pitch-dim: #1F1C2850;
@@ -4796,7 +4673,6 @@ var beepbox = (function (exports) {
 			--mod-primary-note-lum: 85;
 			--mod-primary-note-lum-scale: 0;
 			--disabled-note-primary: #aaa;
-			--disabled-note-secondary: #666;
 		}`,
         "roe light": `
 		:root {
@@ -4818,9 +4694,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #e7c6c6;
 			--white-piano-key: #cdcdcd;
 			--black-piano-key: #232323;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #e5e1ea;
 			--track-editor-bg-pitch-dim: #cbc4d4;
 			--track-editor-bg-noise: #e0ddee;
@@ -4913,9 +4786,11 @@ var beepbox = (function (exports) {
 			--mod4-primary-note: #9e6279;
 			--mod-label-primary: #d0c7db;
 			--mod-label-secondary-text: #cb3434;
-			--mod-label-primary-text: black;
 			--disabled-note-primary: #616161;
 			--disabled-note-secondary: #474747;
+		}
+		.promptContainerBG::before {
+			box-shadow: inset 0 0 2000px rgba(255, 255, 255, .5);
 		}`,
         "energized": `
 		:root {
@@ -4923,9 +4798,7 @@ var beepbox = (function (exports) {
 			--editor-background: #000a08;
 			--hover-preview: #ffffcc;
 			--playhead: #ccfff5;
-			--primary-text: white;
 			--secondary-text: #d9d98c;
-			--inverted-text: black;
 			--text-selection: #ffff6659;
 			--box-selection-fill: #ffffff33;
 			--loop-accent: #ffff00;
@@ -4937,7 +4810,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #ffff6633;
 			--white-piano-key: #66998f;
 			--black-piano-key: #141f1d;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #66998f40;
 			--track-editor-bg-pitch-dim: #293d3940;
 			--track-editor-bg-noise: #66998f40;
@@ -5041,9 +4913,7 @@ var beepbox = (function (exports) {
 			--playhead: #e79a82;
 			--primary-text: #decdbf;
 			--secondary-text: #fa99bb;
-			--inverted-text: black;
 			--text-selection: #990036;
-			--box-selection-fill: rgba(255,255,255,0.2);
 			--loop-accent: #f6377a;
 			--link-accent: #f6377a;
 			--ui-widget-background: #24160f;
@@ -5055,7 +4925,6 @@ var beepbox = (function (exports) {
 			--black-piano-key: #482c1e;
 			--white-piano-key-text: black;
 			--black-piano-key-text: white;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #4d2a19;
 			--track-editor-bg-pitch-dim: #27150c;
 			--track-editor-bg-noise: #4d2a19;
@@ -5157,9 +5026,7 @@ var beepbox = (function (exports) {
 			--editor-background: #000;
 			--hover-preview: #808080;
 			--playhead: #808080;
-			--primary-text: white;
 			--secondary-text: #cccccc;
-			--inverted-text: black;
 			--text-selection: #696969;
 			--box-selection-fill: #cccccc40;
 			--loop-accent: #808080;
@@ -5267,11 +5134,8 @@ var beepbox = (function (exports) {
         "blutonium": `:root {
 			--page-margin: #02070D;
 			--editor-background: #02070D;
-			--hover-preview: white;
-			--playhead: white;
 			--primary-text: #9bd1ee;
 			--secondary-text: #5a6da8;
-			--inverted-text: black;
 			--text-selection: rgb(68 68 255 / 99%);
 			--box-selection-fill: rgb(0 0 255 / 30%);
 			--loop-accent: #024aca;
@@ -5283,7 +5147,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #344051;
 			--white-piano-key: #a6c6ed;
 			--black-piano-key: #2f4687;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #25284c;
 			--track-editor-bg-pitch-dim: #211c26;
 			--track-editor-bg-noise: #261f42;
@@ -5380,47 +5243,181 @@ var beepbox = (function (exports) {
 			--disabled-note-primary: #c9c9c9;
 			--disabled-note-secondary: #616161;
 	}`,
+        "slushie": `
+	:root {
+		--page-margin: #040814;
+		--editor-background: #040814;
+		--hover-preview: #c6f7ff;
+		--primary-text: #d3f3ff;
+		--secondary-text: #6f72b5;
+		--inverted-text: black;
+		--box-selection-fill: rgb(43 70 171 / 62%);
+		--loop-accent: #573ebb;
+		--ui-widget-background: #2e2f44;
+		--ui-widget-focus: #2b2c46;
+		--pitch-background: #353654;
+		--tonic: #716fe3;
+		--fifth-note: #76469b;
+		--white-piano-key: #abbce3;
+		--black-piano-key: #2f235e;
+		--track-editor-bg-pitch: #3a3b5c;
+		--track-editor-bg-pitch-dim: #1f2036;
+		--track-editor-bg-noise: #3c3554;
+		--track-editor-bg-noise-dim: #1e1834;
+		--track-editor-bg-mod: #30335e;
+		--track-editor-bg-mod-dim: #161938;
+		--multiplicative-mod-slider: #e29cff;
+		--overwriting-mod-slider: #495789;
+		--indicator-primary: #e1a6ff;
+		--indicator-secondary: #415187;
+		--select2-opt-group: #22223a;
+		--input-box-outline: #2d2648;
+		--mute-button-normal: #7aceff;
+		--pitch1-secondary-channel: #5f3ea5;
+		--pitch1-primary-channel: #c1a4ff;
+		--pitch1-secondary-note: #794fd3;
+		--pitch1-primary-note: #d8c6ff;
+		--pitch2-secondary-channel: #4f44bf;
+		--pitch2-primary-channel: #9287ff;
+		--pitch2-secondary-note: #5e51d9;
+		--pitch2-primary-note: #b6afff;
+		--pitch3-secondary-channel: #374eb9;
+		--pitch3-primary-channel: #8097ff;
+		--pitch3-secondary-note: #445cc9;
+		--pitch3-primary-note: #a0b2ff;
+		--pitch4-secondary-channel: #2867cf;
+		--pitch4-primary-channel: #6fa5ff;
+		--pitch4-secondary-note: #2e6ed7;
+		--pitch4-primary-note: #a6c7ff;
+		--pitch5-secondary-channel: #3175a7;
+		--pitch5-primary-channel: #7ec9ff;
+		--pitch5-secondary-note: #367eb3;
+		--pitch5-primary-note: #9fd7ff;
+		--pitch6-secondary-channel: #3993a9;
+		--pitch6-primary-channel: #8ce9ff;
+		--pitch6-secondary-note: #386da3;
+		--pitch6-primary-note: #9eecff;
+		--pitch7-secondary-channel: #369d8a;
+		--pitch7-primary-channel: #8bfce7;
+		--pitch7-secondary-note: #1c93a7;
+		--pitch7-primary-note: #abffef;
+		--pitch8-secondary-channel: #00A170;
+		--pitch8-primary-channel: #50FFC9;
+		--pitch8-secondary-note: #00C78A;
+		--pitch8-primary-note: #83FFD9;
+		--pitch9-secondary-channel: #49b374;
+		--pitch9-primary-channel: #8affa9;
+		--pitch9-secondary-note: #26815f;
+		--pitch9-primary-note: #c8ffde;
+		--pitch10-secondary-channel: #58a747;
+		--pitch10-primary-channel: #bbffaa;
+		--pitch10-secondary-note: #1d7c48;
+		--pitch10-primary-note: #c7ffbc;
+		--noise1-secondary-channel: #42829b;
+		--noise1-primary-channel: #97d3fc;
+		--noise1-secondary-note: #3f53b3;
+		--noise1-primary-note: #97d3fc;
+		--noise2-secondary-channel: #6354bb;
+		--noise2-primary-channel: #9a89ff;
+		--noise2-secondary-note: #5f4dcd;
+		--noise2-primary-note: #c6bcff;
+		--noise3-secondary-channel: #704a95;
+		--noise3-primary-channel: #c285ff;
+		--noise3-secondary-note: #ad5aff;
+		--noise3-primary-note: #d3a6ff;
+		--noise4-secondary-channel: #a53c65;
+		--noise4-primary-channel: #f794bb;
+		--noise4-secondary-note: #cb5080;
+		--noise4-primary-note: #f794bb;
+		--noise5-secondary-channel: #9b2d2d;
+		--noise5-primary-channel: #ff7676;
+		--noise5-secondary-note: #cb4444;
+		--noise5-primary-note: #ff9999;
+		--mod1-secondary-channel: #b7613c;
+		--mod1-primary-channel: #ff9f76;
+		--mod1-secondary-note: #e77e52;
+		--mod1-primary-note: #ffb99b;
+		--mod2-secondary-channel: #916d34;
+		--mod2-primary-channel: #fece80;
+		--mod2-secondary-note: #c58b35;
+		--mod2-primary-note: #ffdda5;
+		--mod3-secondary-channel: #83761a;
+		--mod3-primary-channel: #fdf68c;
+		--mod3-secondary-note: #c18e00;
+		--mod3-primary-note: #fdf68c;
+		--mod4-secondary-channel: #a86436;
+		--mod4-primary-channel: #c8a825;
+		--mod4-secondary-note: #e8ba46;
+		--mod4-primary-note: #c8a825;
+		--mod-label-primary: #37325e;
+		--mod-label-secondary-text: #6e8aa7;
+		--mod-label-primary-text: #c1ffff;
+}`,
+        "ultrabox dark": `
+:root {
+/*--mod-title: #CCCCCC;*/
+--loop-accent: #CCCCCC;
+--playhead: #CCCCCC;
+/*--primary-text: #CCCCCC;
+--hover-preview: #CCCCCC;*/
+--link-accent: #FF8EC5;
+--indicator-primary: #FF8EC5;
+/*--indicator-primary: #CCCCCC;*/
+/*--indicator-secondary: #E856B2;*/
+--white-piano-key: #CCCCCC;
+/*--black-piano-key: #444;*/
+--text-selection: #932253;
+--oscilloscope-line-L: #CCCCCC;
+--oscilloscope-line-R: #932253;
+--pitch-channel-limit: 8;
+--pitch1-secondary-channel: #A83030;
+--pitch1-primary-channel:   #FF7C7C;
+--pitch1-secondary-note:    #B51532;
+--pitch1-primary-note:      #FFA3A3;
+
+--pitch2-secondary-channel: #C75000;
+--pitch2-primary-channel:   #FF9752;
+--pitch2-secondary-note:    #FF771C;
+--pitch2-primary-note:      #FFCDAB;
+
+--pitch3-secondary-channel: #A1A100;
+--pitch3-primary-channel: #FFFF25;
+--pitch3-secondary-note: #C7C700;
+--pitch3-primary-note: #FFFF92;
+
+--pitch4-secondary-channel: #139620;
+--pitch4-primary-channel:   #25ff3a;
+--pitch4-secondary-note:    #21FF33;
+--pitch4-primary-note:      #C0FFB5;
+
+--pitch5-secondary-channel: #0099A1;
+--pitch5-primary-channel:   #25F3FF;
+--pitch5-secondary-note:    #00BDC7;
+--pitch5-primary-note:      #92F9FF;
+
+--pitch6-secondary-channel: #58599E;
+--pitch6-primary-channel:   #5EA3FF;
+--pitch6-secondary-note:    #183AC7;
+--pitch6-primary-note:      #9EC8FF;
+
+--pitch7-secondary-channel: #6038a5;
+--pitch7-primary-channel:   #C760FF;
+--pitch7-secondary-note:    #5433A0;
+--pitch7-primary-note:      #D99EFF;
+
+--pitch8-secondary-channel: #932253;
+--pitch8-primary-channel:   #FF60A5;
+--pitch8-secondary-note:    #8E1C4E;
+--pitch8-primary-note:      #FF8EC5;
+
+/*--track-editor-bg-mod: #632D45;
+--track-editor-bg-mod-dim: #3F1D2C;*/
+}`,
         "modbox classic": `
 			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
 				--loop-accent: #9900cc;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 4;
-				--pitch1-secondary-channel: #0099a1;
-				--pitch1-primary-channel:   #25f3ff;
 				--pitch1-secondary-note:    #0099a1;
 				--pitch1-primary-note:      #25f3ff;
 				--pitch2-secondary-channel: #439143;
@@ -5435,8 +5432,6 @@ var beepbox = (function (exports) {
 				--pitch4-primary-channel:   #ff9752;
 				--pitch4-secondary-note:    #c75000;
 				--pitch4-primary-note:      #ff9752;
-				--pitch5-secondary-channel: #d020d0;
-				--pitch5-primary-channel:   #FF90FF;
 				--pitch5-secondary-note:    #d020d0;
 				--pitch5-primary-note:      #ff90ff;
 				--pitch6-secondary-channel: #552377;
@@ -5476,9 +5471,6 @@ var beepbox = (function (exports) {
 				--noise4-secondary-note:    #7c9b42;
 				--noise4-primary-note:      #a5ff00;
 				--noise5-secondary-channel: #7c9b42;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
          --mod1-secondary-channel: #0099a1;
 				--mod1-primary-channel:   #25f3ff;
 				--mod1-secondary-note:    #0099a1;
@@ -5495,51 +5487,12 @@ var beepbox = (function (exports) {
 				--mod4-primary-channel:   #ff9752;
 				--mod4-secondary-note:    #c75000;
 				--mod4-primary-note:      #ff9752;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 					--text-disabled-icon: ✗ ;
 				}
 			`,
         "zefbox": `
 			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
 				--loop-accent: #C3593D;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 				--pitch1-secondary-channel: #06c400;
 				--pitch1-primary-channel:   #08ff00;
 				--pitch1-secondary-note:    #06c400;
@@ -5616,50 +5569,11 @@ var beepbox = (function (exports) {
 				--mod4-primary-channel:   #e20000;
 				--mod4-secondary-note:    #c90000;
 				--mod4-primary-note:      #e20000;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 			`,
         "sandbox classic": `
 			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
 				--loop-accent: #198195;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 4;
 				--pitch1-secondary-channel: #539999;
@@ -5738,50 +5652,11 @@ var beepbox = (function (exports) {
 				--mod4-primary-channel:   #FF8844;
 				--mod4-secondary-note:    #8B4343;
 				--mod4-primary-note:      #FF8844;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 			`,
         "harrybox": `
 			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
 				--loop-accent: #9900cc;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--noise-channel-limit: 2;
 				--pitch1-secondary-channel: #00ffff;
 				--pitch1-primary-channel:   #00ffff;
@@ -5859,11 +5734,6 @@ var beepbox = (function (exports) {
 				--mod4-primary-channel:   #008c8c;
 				--mod4-secondary-note:    #008c8c;
 				--mod4-primary-note:      #008c8c;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 			`,
         "brucebox": `
@@ -5871,39 +5741,8 @@ var beepbox = (function (exports) {
 				font: 16px/2 cursive;
 				--page-margin: #4667CE;
 				--editor-background: #4667CE;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
 					--track-editor-bg-pitch-dim: #444;
-					--track-editor-bg-noise: #444;
 					--track-editor-bg-noise-dim: #444;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 3;
 					--noise-channel-limit: 1;
 				--pitch1-secondary-channel: #bda822;
@@ -5947,47 +5786,10 @@ var beepbox = (function (exports) {
 				--pitch10-secondary-note:    #bda822;
 				--pitch10-primary-note:      #fcdb00;
 				--noise1-secondary-channel: #991010;
-				--noise1-secondary-channel: #6F6F6F;
-				--noise1-primary-channel:   #AAAAAA;
-				--noise1-secondary-note:    #A7A7A7;
-				--noise1-primary-note:      #E0E0E0;
-				--noise2-secondary-channel: #996633;
-				--noise2-primary-channel:   #DDAA77;
-				--noise2-secondary-note:    #CC9966;
-				--noise2-primary-note:      #F0D0BB;
-				--noise3-secondary-channel: #4A6D8F;
-				--noise3-primary-channel:   #77AADD;
-				--noise3-secondary-note:    #6F9FCF;
-				--noise3-primary-note:      #BBD7FF;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
-          --mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:	    #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
+				}
+
+				.trackContainer .noSelection {
+				background: black !important;
 				}
 
 				span input, 
@@ -6014,12 +5816,8 @@ var beepbox = (function (exports) {
         "shitbox 2.0": `
 			:root {
 			--page-margin: maroon;
-					--editor-background: black;
-					--hover-preview: white;
 					--playhead: firebrick;
 					--primary-text: silver;
-					--secondary-text: #999;
-					--inverted-text: black;
 				--text-selection: rgba(139,69,19,0.99);
 					--box-selection-fill: rgba(220,20,60,0.2);
 					--loop-accent: #841;
@@ -6029,25 +5827,6 @@ var beepbox = (function (exports) {
 					--pitch-background: #700;
 					--tonic: #522;
 					--fifth-note: #f75;
-					--white-piano-key: #bbb;
-					--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 3;
 				--pitch1-secondary-channel: #7e4a35;
@@ -6090,18 +5869,6 @@ var beepbox = (function (exports) {
 					--pitch10-primary-channel:   #ccc795;
 					--pitch10-secondary-note:    #838060;
 					--pitch10-primary-note:      #f2ecb1;
-					--noise1-secondary-channel: #6f6f6f;
-					--noise1-primary-channel:   #aaaaaa;
-					--noise1-secondary-note:    #a7a7a7;
-					--noise1-primary-note:      #e0e0e0;
-					--noise2-secondary-channel: #996633;
-					--noise2-primary-channel:   #ddaa77;
-					--noise2-secondary-note:    #cc9966;
-					--noise2-primary-note:      #f0d0bb;
-					--noise3-secondary-channel: #4a6d8f;
-					--noise3-primary-channel:   #77aadd;
-					--noise3-secondary-note:    #6f9fcf;
-					--noise3-primary-note:      #bbd7ff;
 					--noise4-secondary-channel: #6f6f6f;
 					--noise4-primary-channel:   #aaaaaa;
 					--noise4-secondary-note:    #a7a7a7;
@@ -6126,11 +5893,6 @@ var beepbox = (function (exports) {
 					--mod4-primary-channel:   #ccc795;
 					--mod4-secondary-note:    #838060;
 					--mod4-primary-note:      #f2ecb1;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 					--note-flash: firebrick;
   					--note-flash-secondary: firebrick;
 				}
@@ -6141,122 +5903,13 @@ var beepbox = (function (exports) {
 				font: 20px/2 monospace;
 				--page-margin: #252525;
 				--editor-background: #252525;
-				--hover-preview: white;
-				--playhead: white;
 				--primary-text: #C8C8C8;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
 				--link-accent: #945800;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
 					--track-editor-bg-pitch-dim: #444;
-					--track-editor-bg-noise: #444;
 					--track-editor-bg-noise-dim: #444;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 3;
-				--pitch1-secondary-channel: #0099A1;
-				--pitch1-primary-channel:   #25F3FF;
-				--pitch1-secondary-note:    #00BDC7;
-				--pitch1-primary-note:      #92F9FF;
-				--pitch2-secondary-channel: #A1A100;
-				--pitch2-primary-channel:   #FFFF25;
-				--pitch2-secondary-note:    #C7C700;
-				--pitch2-primary-note:      #FFFF92;
-				--pitch3-secondary-channel: #C75000;
-				--pitch3-primary-channel:   #FF9752;
-				--pitch3-secondary-note:    #FF771C;
-				--pitch3-primary-note:      #FFCDAB;
-				--pitch4-secondary-channel: #00A100;
-				--pitch4-primary-channel:   #50FF50;
-				--pitch4-secondary-note:    #00C700;
-				--pitch4-primary-note:      #A0FFA0;
-				--pitch5-secondary-channel: #D020D0;
-				--pitch5-primary-channel:   #FF90FF;
-				--pitch5-secondary-note:    #E040E0;
-				--pitch5-primary-note:      #FFC0FF;
-				--pitch6-secondary-channel: #7777B0;
-				--pitch6-primary-channel:   #A0A0FF;
-				--pitch6-secondary-note:    #8888D0;
-				--pitch6-primary-note:      #D0D0FF;
-				--pitch7-secondary-channel: #8AA100;
-				--pitch7-primary-channel:   #DEFF25;
-				--pitch7-secondary-note:    #AAC700;
-				--pitch7-primary-note:      #E6FF92;
-				--pitch8-secondary-channel: #DF0019;
-				--pitch8-primary-channel:   #FF98A4;
-				--pitch8-secondary-note:    #FF4E63;
-				--pitch8-primary-note:      #FFB2BB;
-				--pitch9-secondary-channel: #00A170;
-				--pitch9-primary-channel:   #50FFC9;
-				--pitch9-secondary-note:    #00C78A;
-				--pitch9-primary-note:      #83FFD9;
-				--pitch10-secondary-channel:#A11FFF;
-				--pitch10-primary-channel:  #CE8BFF;
-				--pitch10-secondary-note:   #B757FF;
-				--pitch10-primary-note:     #DFACFF;
-				--noise1-secondary-channel: #6F6F6F;
-				--noise1-primary-channel:   #AAAAAA;
-				--noise1-secondary-note:    #A7A7A7;
-				--noise1-primary-note:      #E0E0E0;
-				--noise2-secondary-channel: #996633;
-				--noise2-primary-channel:   #DDAA77;
-				--noise2-secondary-note:    #CC9966;
-				--noise2-primary-note:      #F0D0BB;
-				--noise3-secondary-channel: #4A6D8F;
-				--noise3-primary-channel:   #77AADD;
-				--noise3-secondary-note:    #6F9FCF;
-				--noise3-primary-note:      #BBD7FF;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
-          --mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:	    #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
+					--text-disabled-icon: ✗ ;
 				}
 
 				.beepboxEditor input[type="range"]::-moz-range-thumb {
@@ -6272,6 +5925,10 @@ var beepbox = (function (exports) {
 				}
 				button.nextBarButton {
 					width: 40px;
+				}
+
+				.trackContainer .noSelection {
+				background: black !important;
 				}
 
 				span input, 
@@ -6297,45 +5954,9 @@ var beepbox = (function (exports) {
 				#text-content > section > h1 {
 					color: #C8C8C8;
 					}
-
 			`,
         "nerdbox": `
 			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 9;
 					--noise-channel-limit: 3;
 				--pitch1-secondary-channel: #139620;
@@ -6414,11 +6035,6 @@ var beepbox = (function (exports) {
 				--mod4-primary-channel:   #9456ff;
 				--mod4-secondary-note:    #6038a5;
 				--mod4-primary-note:      #ff35e0;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 			`,
         "nepbox": `
@@ -6443,7 +6059,6 @@ var beepbox = (function (exports) {
 				--black-piano-key: #fff;
 				--white-piano-key-text: #fff;
 				--black-piano-key-text: #000;
-				--use-color-formula: false;
 				--track-editor-bg-pitch: #424242;
 				--track-editor-bg-pitch-dim: #000;
 				--track-editor-bg-noise: #424242;
@@ -6502,7 +6117,6 @@ var beepbox = (function (exports) {
 				--mod4-primary-channel: #0c79ff;
 				--mod4-secondary-note: #3b2bae;
 				--mod4-primary-note: #0c79ff;
-				--disabled-note-primary: #999;
 				--disabled-note-secondary: #696969;
 				}
 			`,
@@ -6514,7 +6128,6 @@ var beepbox = (function (exports) {
 --playhead: #75461d;
 --primary-text: #ddd;
 --secondary-text: #8e695b;
---inverted-text: black;
 --text-selection: #75461d;
 --box-selection-fill: rgba(117, 70, 29,0.5);
 --loop-accent: #75461d;
@@ -6524,23 +6137,6 @@ var beepbox = (function (exports) {
 --pitch-background: #361900;
 --tonic: #fdba9a;
 --fifth-note: #7f78d2;
---white-piano-key: #bbb;
---black-piano-key: #444;
---use-color-formula: false;
---track-editor-bg-pitch: #444;
---track-editor-bg-pitch-dim: #333;
---track-editor-bg-noise: #444;
---track-editor-bg-noise-dim: #333;
---track-editor-bg-mod: #234;
---track-editor-bg-mod-dim: #123;
---multiplicative-mod-slider: #456;
---overwriting-mod-slider: #654;
---indicator-primary: #74f;
---indicator-secondary: #444;
---select2-opt-group: #585858;
---input-box-outline: #333;
---mute-button-normal: #ffa033;
---mute-button-mod: #9a6bff;
 --pitch1-secondary-channel: #798566;
 --pitch1-primary-channel: #9dab86;
 --pitch1-secondary-note: #798566;
@@ -6561,10 +6157,6 @@ var beepbox = (function (exports) {
 --pitch5-primary-channel: #a4d1c8;
 --pitch5-secondary-note: #779992;
 --pitch5-primary-note: #a4d1c8;
---pitch6-secondary-channel: #7777b0;
---pitch6-primary-channel: #a0a0ff;
---pitch6-secondary-note: #8888d0;
---pitch6-primary-note: #d0d0ff;
 --pitch7-secondary-channel: #300707;
 --pitch7-primary-channel: #560d0d;
 --pitch7-secondary-note: #300707;
@@ -6585,64 +6177,26 @@ var beepbox = (function (exports) {
 --noise1-primary-channel: #a6b1e1;
 --noise1-secondary-note: #5f6582;
 --noise1-primary-note: #a6b1e1;
---noise2-secondary-channel: #996633;
---noise2-primary-channel: #ddaa77;
---noise2-secondary-note: #cc9966;
---noise2-primary-note: #f0d0bb;
---noise3-secondary-channel: #4a6d8f;
---noise3-primary-channel: #77aadd;
---noise3-secondary-note: #6f9fcf;
---noise3-primary-note: #bbd7ff;
 --noise4-secondary-channel: #6B3E8E;
---noise4-primary-channel: #AF82D2;
---noise4-secondary-note: #9E71C1;
---noise4-primary-note: #D4C1EA;
 --noise5-secondary-channel: #996633;
 --noise5-primary-channel: #ddaa77;
 --noise5-secondary-note: #cc9966;
 --noise5-primary-note: #f0d0bb;
 --mod1-secondary-channel: #339955;
---mod1-primary-channel: #77fc55;
---mod1-secondary-note: #77ff8a;
---mod1-primary-note: #cdffee;
---mod2-secondary-channel: #993355;
---mod2-primary-channel: #f04960;
---mod2-secondary-note: #f057a0;
---mod2-primary-note: #ffb8de;
---mod3-secondary-channel: #553399;
---mod3-primary-channel: #8855fc;
---mod3-secondary-note: #aa64ff;
---mod3-primary-note: #f8ddff;
---mod4-secondary-channel: #a86436;
---mod4-primary-channel: #c8a825;
---mod4-secondary-note: #e8ba46;
---mod4-primary-note: #fff6d3;
---mod-label-primary: #999;
---mod-label-secondary-text: #333;
---mod-label-primary-text: black;
 				}
 			`,
         "blubox classic": `
 			:root {
 				--page-margin: #040410;
 					--editor-background: #040410;
-					--hover-preview: white;
-					--playhead: white;
-					--primary-text: white;
 					--secondary-text: #84859a;
-					--inverted-text: black;
-					--text-selection: rgba(119,68,255,0.99);
 					--box-selection-fill: #044b94;
-					--loop-accent: #74f;
 					--link-accent: #024ACA;
 					--ui-widget-background: #393e4f;
 					--ui-widget-focus: #6d6886;
 					--pitch-background: #393e4f;
 					--tonic: #725491;
 					--fifth-note: #54547a;
-					--white-piano-key: #bbb;
-					--black-piano-key: #444;
-					--use-color-formula: false;
 					--track-editor-bg-pitch: #393e4f;
 					--track-editor-bg-pitch-dim: #1c1d28;
 					--track-editor-bg-noise: #3d3535;
@@ -6656,7 +6210,6 @@ var beepbox = (function (exports) {
 					--select2-opt-group: #5d576f;
 					--input-box-outline: #222;
 					--mute-button-normal: #886eae;
-					--mute-button-mod: #9a6bff;
 					--pitch1-secondary-channel: #0A89FF;
 					--pitch1-primary-channel:   #024ACA;
 					--pitch1-secondary-note:    #0A89FF;
@@ -6738,39 +6291,9 @@ var beepbox = (function (exports) {
 				:root {
 			--page-margin: #0d0063;
 			--editor-background: #0D0063;
-			--hover-preview: white;
-			--playhead: white;
-			--primary-text: white;
-			--secondary-text: #999;
-			--inverted-text: black;
-			--text-selection: rgba(119,68,255,0.99);
-			--box-selection-fill: rgba(255,255,255,0.2);
-			--loop-accent: #74f;
-			--link-accent: #98f;
-			--ui-widget-background: #444;
-			--ui-widget-focus: #777;
 			--pitch-background: #322c59;
 			--tonic: #1c1933;
 			--fifth-note: #7b74ad;
-			--white-piano-key: #bbb;
-			--black-piano-key: #444;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
-			--track-editor-bg-pitch: #444;
-			--track-editor-bg-pitch-dim: #333;
-			--track-editor-bg-noise: #444;
-			--track-editor-bg-noise-dim: #333;
-			--track-editor-bg-mod: #234;
-			--track-editor-bg-mod-dim: #123;
-			--multiplicative-mod-slider: #456;
-			--overwriting-mod-slider: #654;
-			--indicator-primary: #74f;
-			--indicator-secondary: #444;
-			--select2-opt-group: #585858;
-			--input-box-outline: #333;
-			--mute-button-normal: #ffa033;
-			--mute-button-mod: #9a6bff;
 			--pitch-channel-limit: 6;
 			--noise-channel-limit: 3;
 			--pitch1-secondary-channel: #c7ac00;
@@ -6785,18 +6308,6 @@ var beepbox = (function (exports) {
 			--pitch3-primary-channel: #ffc6a1;
 			--pitch3-secondary-note: #b37466;
 			--pitch3-primary-note: #ffc6a1;
-			--pitch4-secondary-channel: #00a100;
-			--pitch4-primary-channel: #50ff50;
-			--pitch4-secondary-note: #00c700;
-			--pitch4-primary-note: #a0ffa0;
-			--pitch5-secondary-channel: #d020d0;
-			--pitch5-primary-channel: #ff90ff;
-			--pitch5-secondary-note: #e040e0;
-			--pitch5-primary-note: #ffc0ff;
-			--pitch6-secondary-channel: #7777b0;
-			--pitch6-primary-channel: #a0a0ff;
-			--pitch6-secondary-note: #8888d0;
-			--pitch6-primary-note: #d0d0ff;
 			--pitch7-secondary-channel: #c7ac00;
 			--pitch7-primary-channel: #fcf403;
 			--pitch7-secondary-note: #c7c700;
@@ -6817,22 +6328,11 @@ var beepbox = (function (exports) {
 			--noise1-primary-channel: #cee9eb;
 			--noise1-secondary-note: #95acad;
 			--noise1-primary-note: #cee9eb;
-			--noise2-secondary-channel: #996633;
-			--noise2-primary-channel: #ddaa77;
-			--noise2-secondary-note: #cc9966;
-			--noise2-primary-note: #f0d0bb;
-			--noise3-secondary-channel: #4a6d8f;
-			--noise3-primary-channel: #77aadd;
-			--noise3-secondary-note: #6f9fcf;
-			--noise3-primary-note: #bbd7ff;
 			--noise4-secondary-channel: #7c9b42;
 			--noise4-primary-channel:   #a5ff00;
 			--noise4-secondary-note:    #7c9b42;
 			--noise4-primary-note:      #a5ff00;
 			--noise5-secondary-channel: #7c9b42;
-			--noise5-primary-channel:   #A2BB77;
-			--noise5-secondary-note:    #91AA66;
-			--noise5-primary-note:      #C5E2B2;
       	 	--mod1-secondary-channel: #c7ac00;
 			--mod1-primary-channel: #fcf403;
 			--mod1-secondary-note: #c7c700;
@@ -6849,33 +6349,15 @@ var beepbox = (function (exports) {
 			--mod4-primary-channel: #50ff50;
 			--mod4-secondary-note: #00c700;
 			--mod4-primary-note: #a0ffa0;
-			--mod-label-primary:        #999;
-			--mod-label-secondary-text: #333;
-			--mod-label-primary-text:   black;
-			--disabled-note-primary:    #999;
-			--disabled-note-secondary:  #666;
 				}
 			`,
         "dogebox dark": `
 				:root {
 					--page-margin: #0d0063;
 					--editor-background: #0D0063;
-					--hover-preview: white;
-					--playhead: white;
-					--primary-text: white;
-					--secondary-text: #999;
-					--inverted-text: black;
-					--text-selection: rgba(119,68,255,0.99);
-					--box-selection-fill: rgba(255,255,255,0.2);
-					--loop-accent: #74f;
-					--link-accent: #98f;
-					--ui-widget-background: #444;
-					--ui-widget-focus: #777;
 					--pitch-background: #322c59;
 					--tonic: #1c1933;
 					--fifth-note: #7b74ad;
-					--white-piano-key: #bbb;
-					--black-piano-key: #444;
 					--pitch1-secondary-channel: #c7ac00;
 					--pitch1-primary-channel:   #fcf403;
 					--pitch1-secondary-note:    #c7c700;
@@ -6888,164 +6370,19 @@ var beepbox = (function (exports) {
 					--pitch3-primary-channel:   #ffc6a1;
 					--pitch3-secondary-note:    #b37466;
 					--pitch3-primary-note:      #ffc6a1;
-					--pitch4-secondary-channel: #00a100;
-					--pitch4-primary-channel:   #50ff50;
-					--pitch4-secondary-note:    #00c700;
-					--pitch4-primary-note:      #a0ffa0;
-					--pitch5-secondary-channel: #d020d0;
-					--pitch5-primary-channel:   #ff90ff;
-					--pitch5-secondary-note:    #e040e0;
-					--pitch5-primary-note:      #ffc0ff;
-					--pitch6-secondary-channel: #7777b0;
-					--pitch6-primary-channel:   #a0a0ff;
-					--pitch6-secondary-note:    #8888d0;
-					--pitch6-primary-note:      #d0d0ff;
 					--noise1-secondary-channel: #95acad;
 					--noise1-primary-channel:   #cee9eb;
 					--noise1-secondary-note:    #95acad;
 					--noise1-primary-note:      #cee9eb;
-					--noise2-secondary-channel: #996633;
-					--noise2-primary-channel:   #ddaa77;
-					--noise2-secondary-note:    #cc9966;
-					--noise2-primary-note:      #f0d0bb;
-					--noise3-secondary-channel: #4a6d8f;
-					--noise3-primary-channel:   #77aadd;
-					--noise3-secondary-note:    #6f9fcf;
-					--noise3-primary-note:      #bbd7ff;
-				}
-			`,
-        "todbox classic": `
-				:root {
-					--page-margin: black;
-					--editor-background: black;
-					--hover-preview: white;
-					--playhead: white;
-					--primary-text: white;
-					--secondary-text: #999;
-					--inverted-text: black;
-					--text-selection: rgba(119,68,255,0.99);
-					--box-selection-fill: rgba(255,255,255,0.2);
-					--loop-accent: #74f;
-					--link-accent: #98f;
-					--ui-widget-background: #444;
-					--ui-widget-focus: #777;
-					--pitch-background: #444;
-					--tonic: #864;
-					--fifth-note: #468;
-					--white-piano-key: #bbb;
-					--black-piano-key: #444;
-						--white-piano-key-text: #131200;
-						--black-piano-key-text: #fff;
-						--use-color-formula: false;
-						--track-editor-bg-pitch: #444;
-						--track-editor-bg-pitch-dim: #333;
-						--track-editor-bg-noise: #444;
-						--track-editor-bg-noise-dim: #333;
-						--track-editor-bg-mod: #234;
-						--track-editor-bg-mod-dim: #123;
-						--multiplicative-mod-slider: #456;
-						--overwriting-mod-slider: #654;
-						--indicator-primary: #74f;
-						--indicator-secondary: #444;
-						--select2-opt-group: #585858;
-						--input-box-outline: #333;
-						--mute-button-normal: #ffa033;
-						--mute-button-mod: #9a6bff;s
-						--pitch-channel-limit: 6;
-					--noise-channel-limit: 3;
-					--pitch1-secondary-channel: #0099a1;
-					--pitch1-primary-channel:   #25f3ff;
-					--pitch1-secondary-note:    #00bdc7;
-					--pitch1-primary-note:      #92f9ff;
-					--pitch2-secondary-channel: #a1a100;
-					--pitch2-primary-channel:   #ffff25;
-					--pitch2-secondary-note:    #c7c700;
-					--pitch2-primary-note:      #ffff92;
-					--pitch3-secondary-channel: #c75000;
-					--pitch3-primary-channel:   #ff9752;
-					--pitch3-secondary-note:    #ff771c;
-					--pitch3-primary-note:      #ffcdab;
-					--pitch4-secondary-channel: #00a100;
-					--pitch4-primary-channel:   #50ff50;
-					--pitch4-secondary-note:    #00c700;
-					--pitch4-primary-note:      #a0ffa0;
-					--pitch5-secondary-channel: #d020d0;
-					--pitch5-primary-channel:   #ff90ff;
-					--pitch5-secondary-note:    #e040e0;
-					--pitch5-primary-note:      #ffc0ff;
-					--pitch6-secondary-channel: #7777b0;
-					--pitch6-primary-channel:   #a0a0ff;
-					--pitch6-secondary-note:    #8888d0;
-					--pitch6-primary-note:      #d0d0ff;
-					--pitch7-secondary-channel: #0099a1;
-					--pitch7-primary-channel:   #25f3ff;
-					--pitch7-secondary-note:    #00bdc7;
-					--pitch7-primary-note:      #92f9ff;
-					--pitch8-secondary-channel: #a1a100;
-					--pitch8-primary-channel:   #ffff25;
-					--pitch8-secondary-note:    #c7c700;
-					--pitch8-primary-note:      #ffff92;
-					--pitch9-secondary-channel: #c75000;
-					--pitch9-primary-channel:   #ff9752;
-					--pitch9-secondary-note:    #ff771c;
-					--pitch9-primary-note:      #ffcdab;
-					--pitch10-secondary-channel: #00a100;
-					--pitch10-primary-channel:   #50ff50;
-					--pitch10-secondary-note:    #00c700;
-					--pitch10-primary-note:      #a0ffa0;
-					--noise1-secondary-channel: #6f6f6f;
-					--noise1-primary-channel:   #aaaaaa;
-					--noise1-secondary-note:    #a7a7a7;
-					--noise1-primary-note:      #e0e0e0;
-					--noise2-secondary-channel: #996633;
-					--noise2-primary-channel:   #ddaa77;
-					--noise2-secondary-note:    #cc9966;
-					--noise2-primary-note:      #f0d0bb;
-					--noise3-secondary-channel: #4a6d8f;
-					--noise3-primary-channel:   #77aadd;
-					--noise3-secondary-note:    #6f9fcf;
-					--noise3-primary-note:      #bbd7ff;
-					--noise4-secondary-channel: #6f6f6f;
-					--noise4-primary-channel:   #aaaaaa;
-					--noise4-secondary-note:    #a7a7a7;
-					--noise4-primary-note:      #e0e0e0;
-					--noise5-secondary-channel: #996633;
-					--noise5-primary-channel:   #ddaa77;
-					--noise5-secondary-note:    #cc9966;
-					--noise5-primary-note:      #f0d0bb;
-					--mod1-secondary-channel: #0099a1;
-					--mod1-primary-channel:   #25f3ff;
-					--mod1-secondary-note:    #00bdc7;
-					--mod1-primary-note:      #92f9ff;
-					--mod2-secondary-channel: #a1a100;
-					--mod2-primary-channel:   #ffff25;
-					--mod2-secondary-note:    #c7c700;
-					--mod2-primary-note:      #ffff92;
-					--mod3-secondary-channel: #c75000;
-					--mod3-primary-channel:   #ff9752;
-					--mod3-secondary-note:    #ff771c;
-					--mod3-primary-note:      #ffcdab;
-					--mod4-secondary-channel: #00a100;
-					--mod4-primary-channel:   #50ff50;
-					--mod4-secondary-note:    #00c700;
-					--mod4-primary-note:      #a0ffa0;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 			`,
         "todbox dark mode": `
 			:root {
 				-webkit-text-stroke-width: 0.5px;
-					--page-margin: black;
-					--editor-background: black;
 					--hover-preview: #999999;
 					--playhead: #999999;
 					--primary-text: #999999;
 					--secondary-text: #444444;
-					--inverted-text: black;
 				--text-selection: #999999;
 					--box-selection-fill: #999999;
 					--loop-accent: #999999;
@@ -7057,23 +6394,6 @@ var beepbox = (function (exports) {
 					--fifth-note: #202020;
 					--white-piano-key: #999999;
 					--black-piano-key: #101010;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 3;
 					--pitch1-secondary-channel: #004444;
@@ -7152,11 +6472,6 @@ var beepbox = (function (exports) {
 					--mod4-primary-channel:   #009900;
 					--mod4-secondary-note:    #004400;
 					--mod4-primary-note:      #009900;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 				.beepboxEditor button, .beepboxEditor select {
 					box-shadow: inset 0 0 0 1px var(--secondary-text);
@@ -7164,15 +6479,6 @@ var beepbox = (function (exports) {
 			`,
         "mainbox 1.0": `
 			:root {
-				--page-margin: black;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
 				--loop-accent: #2F1C40;
 				--link-accent: #543873;
 				--ui-widget-background: #2F1C40;
@@ -7182,23 +6488,6 @@ var beepbox = (function (exports) {
 				--fifth-note: #37416B;
 				--white-piano-key: #156CB6;
 				--black-piano-key: #130D14;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 3;
 					--pitch1-secondary-channel: #156C99;
@@ -7223,8 +6512,6 @@ var beepbox = (function (exports) {
 					--pitch5-primary-note:      #848ED8;
 					--pitch6-secondary-channel: #585882;
 					--pitch6-primary-channel:   #5A72DD;
-					--pitch6-secondary-note:    #8888d0;
-					--pitch6-primary-note:      #d0d0ff;
 					--pitch7-secondary-channel: #7D7C2E;
 					--pitch7-primary-channel:   #B0C952;
 					--pitch7-secondary-note:    #7D7C2E;
@@ -7246,21 +6533,12 @@ var beepbox = (function (exports) {
 					--noise1-secondary-note:    #A1A3B7;
 					--noise1-primary-note:      #DDBADD;
 					--noise2-secondary-channel: #865E40;
-					--noise2-primary-channel:   #ddaa77;
 					--noise2-secondary-note:    #C7B47A;
 					--noise2-primary-note:      #CFC587;
 					--noise3-secondary-channel: #7E7068;
 					--noise3-primary-channel:   #B19998;
 					--noise3-secondary-note:    #BAA6BC;
 					--noise3-primary-note:      #EDDCEC;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
           --mod1-secondary-channel: #156C99;
 					--mod1-primary-channel:   #00CFDF;
 					--mod1-secondary-note:    #0080A8;
@@ -7277,251 +6555,11 @@ var beepbox = (function (exports) {
 					--mod4-primary-channel:   #00915C;
 					--mod4-secondary-note:    #004337;
 					--mod4-primary-note:      #00915E;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
-				}
-			`,
-        "fogbox": `
-			:root {
-				--page-margin: #252525;
-				--editor-background: #252525;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
-				--pitch1-secondary-channel: #0099A1;
-				--pitch1-primary-channel:   #25F3FF;
-				--pitch1-secondary-note:    #00BDC7;
-				--pitch1-primary-note:      #92F9FF;
-				--pitch2-secondary-channel: #A1A100;
-				--pitch2-primary-channel:   #FFFF25;
-				--pitch2-secondary-note:    #C7C700;
-				--pitch2-primary-note:      #FFFF92;
-				--pitch3-secondary-channel: #C75000;
-				--pitch3-primary-channel:   #FF9752;
-				--pitch3-secondary-note:    #FF771C;
-				--pitch3-primary-note:      #FFCDAB;
-				--pitch4-secondary-channel: #00A100;
-				--pitch4-primary-channel:   #50FF50;
-				--pitch4-secondary-note:    #00C700;
-				--pitch4-primary-note:      #A0FFA0;
-				--pitch5-secondary-channel: #D020D0;
-				--pitch5-primary-channel:   #FF90FF;
-				--pitch5-secondary-note:    #E040E0;
-				--pitch5-primary-note:      #FFC0FF;
-				--pitch6-secondary-channel: #7777B0;
-				--pitch6-primary-channel:   #A0A0FF;
-				--pitch6-secondary-note:    #8888D0;
-				--pitch6-primary-note:      #D0D0FF;
-				--pitch7-secondary-channel: #8AA100;
-				--pitch7-primary-channel:   #DEFF25;
-				--pitch7-secondary-note:    #AAC700;
-				--pitch7-primary-note:      #E6FF92;
-				--pitch8-secondary-channel: #DF0019;
-				--pitch8-primary-channel:   #FF98A4;
-				--pitch8-secondary-note:    #FF4E63;
-				--pitch8-primary-note:      #FFB2BB;
-				--pitch9-secondary-channel: #00A170;
-				--pitch9-primary-channel:   #50FFC9;
-				--pitch9-secondary-note:    #00C78A;
-				--pitch9-primary-note:      #83FFD9;
-				--pitch10-secondary-channel:#A11FFF;
-				--pitch10-primary-channel:  #CE8BFF;
-				--pitch10-secondary-note:   #B757FF;
-				--pitch10-primary-note:     #DFACFF;
-				--noise1-secondary-channel: #6F6F6F;
-				--noise1-primary-channel:   #AAAAAA;
-				--noise1-secondary-note:    #A7A7A7;
-				--noise1-primary-note:      #E0E0E0;
-				--noise2-secondary-channel: #996633;
-				--noise2-primary-channel:   #DDAA77;
-				--noise2-secondary-note:    #CC9966;
-				--noise2-primary-note:      #F0D0BB;
-				--noise3-secondary-channel: #4A6D8F;
-				--noise3-primary-channel:   #77AADD;
-				--noise3-secondary-note:    #6F9FCF;
-				--noise3-primary-note:      #BBD7FF;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
-          --mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:	    #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 			`,
         "foxbox": `
 			:root {
 				--page-margin: #ADD8E6;
-				--editor-background: black;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
-				--pitch1-secondary-channel: #0099A1;
-				--pitch1-primary-channel:   #25F3FF;
-				--pitch1-secondary-note:    #00BDC7;
-				--pitch1-primary-note:      #92F9FF;
-				--pitch2-secondary-channel: #A1A100;
-				--pitch2-primary-channel:   #FFFF25;
-				--pitch2-secondary-note:    #C7C700;
-				--pitch2-primary-note:      #FFFF92;
-				--pitch3-secondary-channel: #C75000;
-				--pitch3-primary-channel:   #FF9752;
-				--pitch3-secondary-note:    #FF771C;
-				--pitch3-primary-note:      #FFCDAB;
-				--pitch4-secondary-channel: #00A100;
-				--pitch4-primary-channel:   #50FF50;
-				--pitch4-secondary-note:    #00C700;
-				--pitch4-primary-note:      #A0FFA0;
-				--pitch5-secondary-channel: #D020D0;
-				--pitch5-primary-channel:   #FF90FF;
-				--pitch5-secondary-note:    #E040E0;
-				--pitch5-primary-note:      #FFC0FF;
-				--pitch6-secondary-channel: #7777B0;
-				--pitch6-primary-channel:   #A0A0FF;
-				--pitch6-secondary-note:    #8888D0;
-				--pitch6-primary-note:      #D0D0FF;
-				--pitch7-secondary-channel: #8AA100;
-				--pitch7-primary-channel:   #DEFF25;
-				--pitch7-secondary-note:    #AAC700;
-				--pitch7-primary-note:      #E6FF92;
-				--pitch8-secondary-channel: #DF0019;
-				--pitch8-primary-channel:   #FF98A4;
-				--pitch8-secondary-note:    #FF4E63;
-				--pitch8-primary-note:      #FFB2BB;
-				--pitch9-secondary-channel: #00A170;
-				--pitch9-primary-channel:   #50FFC9;
-				--pitch9-secondary-note:    #00C78A;
-				--pitch9-primary-note:      #83FFD9;
-				--pitch10-secondary-channel:#A11FFF;
-				--pitch10-primary-channel:  #CE8BFF;
-				--pitch10-secondary-note:   #B757FF;
-				--pitch10-primary-note:     #DFACFF;
-				--noise1-secondary-channel: #6F6F6F;
-				--noise1-primary-channel:   #AAAAAA;
-				--noise1-secondary-note:    #A7A7A7;
-				--noise1-primary-note:      #E0E0E0;
-				--noise2-secondary-channel: #996633;
-				--noise2-primary-channel:   #DDAA77;
-				--noise2-secondary-note:    #CC9966;
-				--noise2-primary-note:      #F0D0BB;
-				--noise3-secondary-channel: #4A6D8F;
-				--noise3-primary-channel:   #77AADD;
-				--noise3-secondary-note:    #6F9FCF;
-				--noise3-primary-note:      #BBD7FF;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
-          --mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:	    #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;	
 				}
 			`,
         "wackybox": `
@@ -7529,126 +6567,16 @@ var beepbox = (function (exports) {
 			:root {
 				--page-margin: #050000;
 				--editor-background: #050000;
-				--hover-preview: white;
-				--playhead: white;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: rgba(255,255,255,0.2);
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #444;
-				--ui-widget-focus: #777;
-				--pitch-background: #444;
-				--tonic: #864;
-				--fifth-note: #468;
-				--white-piano-key: #bbb;
-				--black-piano-key: #444;
-				--white-piano-key-text: #131200;
-				--black-piano-key-text: #fff;
-					--use-color-formula: false;
-					--track-editor-bg-pitch: #444;
-					--track-editor-bg-pitch-dim: #333;
-					--track-editor-bg-noise: #444;
-					--track-editor-bg-noise-dim: #333;
-					--track-editor-bg-mod: #234;
-					--track-editor-bg-mod-dim: #123;
-					--multiplicative-mod-slider: #456;
-					--overwriting-mod-slider: #654;
-					--indicator-primary: #74f;
-					--indicator-secondary: #444;
-					--select2-opt-group: #585858;
-					--input-box-outline: #333;
-					--mute-button-normal: #ffa033;
-					--mute-button-mod: #9a6bff;
 					--pitch-channel-limit: 6;
 					--noise-channel-limit: 3;
-				--pitch1-secondary-channel: #0099A1;
-				--pitch1-primary-channel:   #25F3FF;
-				--pitch1-secondary-note:    #00BDC7;
-				--pitch1-primary-note:      #92F9FF;
-				--pitch2-secondary-channel: #A1A100;
-				--pitch2-primary-channel:   #FFFF25;
-				--pitch2-secondary-note:    #C7C700;
-				--pitch2-primary-note:      #FFFF92;
-				--pitch3-secondary-channel: #C75000;
-				--pitch3-primary-channel:   #FF9752;
-				--pitch3-secondary-note:    #FF771C;
-				--pitch3-primary-note:      #FFCDAB;
-				--pitch4-secondary-channel: #00A100;
-				--pitch4-primary-channel:   #50FF50;
-				--pitch4-secondary-note:    #00C700;
-				--pitch4-primary-note:      #A0FFA0;
-				--pitch5-secondary-channel: #D020D0;
-				--pitch5-primary-channel:   #FF90FF;
-				--pitch5-secondary-note:    #E040E0;
-				--pitch5-primary-note:      #FFC0FF;
-				--pitch6-secondary-channel: #7777B0;
-				--pitch6-primary-channel:   #A0A0FF;
-				--pitch6-secondary-note:    #8888D0;
-				--pitch6-primary-note:      #D0D0FF;
-				--pitch7-secondary-channel: #8AA100;
-				--pitch7-primary-channel:   #DEFF25;
-				--pitch7-secondary-note:    #AAC700;
-				--pitch7-primary-note:      #E6FF92;
-				--pitch8-secondary-channel: #DF0019;
-				--pitch8-primary-channel:   #FF98A4;
-				--pitch8-secondary-note:    #FF4E63;
-				--pitch8-primary-note:      #FFB2BB;
-				--pitch9-secondary-channel: #00A170;
-				--pitch9-primary-channel:   #50FFC9;
-				--pitch9-secondary-note:    #00C78A;
-				--pitch9-primary-note:      #83FFD9;
-				--pitch10-secondary-channel:#A11FFF;
-				--pitch10-primary-channel:  #CE8BFF;
-				--pitch10-secondary-note:   #B757FF;
-				--pitch10-primary-note:     #DFACFF;
-				--noise1-secondary-channel: #6F6F6F;
-				--noise1-primary-channel:   #AAAAAA;
-				--noise1-secondary-note:    #A7A7A7;
-				--noise1-primary-note:      #E0E0E0;
-				--noise2-secondary-channel: #996633;
-				--noise2-primary-channel:   #DDAA77;
-				--noise2-secondary-note:    #CC9966;
-				--noise2-primary-note:      #F0D0BB;
-				--noise3-secondary-channel: #4A6D8F;
-				--noise3-primary-channel:   #77AADD;
-				--noise3-secondary-note:    #6F9FCF;
-				--noise3-primary-note:      #BBD7FF;
-				--noise4-secondary-channel: #7A4F9A;
-				--noise4-primary-channel:   #AF82D2;
-				--noise4-secondary-note:    #9E71C1;
-				--noise4-primary-note:      #D4C1EA;
-				--noise5-secondary-channel: #607837;
-				--noise5-primary-channel:   #A2BB77;
-				--noise5-secondary-note:    #91AA66;
-				--noise5-primary-note:      #C5E2B2;
-          --mod1-secondary-channel:   #339955;
-					--mod1-primary-channel:     #77fc55;
-					--mod1-secondary-note:      #77ff8a;
-					--mod1-primary-note:        #cdffee;
-					--mod2-secondary-channel:   #993355;
-					--mod2-primary-channel:     #f04960;
-					--mod2-secondary-note:      #f057a0;
-					--mod2-primary-note:        #ffb8de;
-					--mod3-secondary-channel:   #553399;
-					--mod3-primary-channel:     #8855fc;
-					--mod3-secondary-note:      #aa64ff;
-					--mod3-primary-note:	    #f8ddff;
-					--mod4-secondary-channel:   #a86436;
-					--mod4-primary-channel:     #c8a825;
-					--mod4-secondary-note:      #e8ba46;
-					--mod4-primary-note:        #fff6d3;
-					--mod-label-primary:        #999;
-					--mod-label-secondary-text: #333;
-					--mod-label-primary-text:   black;
-					--disabled-note-primary:    #999;
-					--disabled-note-secondary:  #666;
 				}
 
 				* {
 					cursor: url("theme_resources/wackybox_cursor.png"), auto !important;
+				}
+				#Hotdog {
+					display: inline !important;
+					content: url("theme_resources/hotdog.png") !important;
 				}
 
 			`,
@@ -7656,11 +6584,8 @@ var beepbox = (function (exports) {
 				:root {
 					--page-margin: #000000;
 					--editor-background: #000000;
-					--hover-preview: white;
 					--playhead: rgba(255, 255, 255, 0.9);
-					--primary-text: white;
 					--secondary-text: #93B6AD;
-					--inverted-text: black;
 					--text-selection: rgba(47,255,250,0.99);
 					--box-selection-fill: #03B068;
 					--loop-accent: #FF0061;
@@ -7681,8 +6606,8 @@ var beepbox = (function (exports) {
 					--track-editor-bg-mod-dim: #000000;
 					--multiplicative-mod-slider: #FFC800;
 					--overwriting-mod-slider: #00ffc0;
-					--indicator-primary: #333333;
-					--indicator-secondary: #00ffc0;
+					--indicator-primary: #00ffc0;
+					--indicator-secondary: #333333;
 					--select2-opt-group: #2B2B2B;
 					--input-box-outline: #69BFC6;
 					--mute-button-normal: #00ffc0;
@@ -7768,13 +6693,7 @@ var beepbox = (function (exports) {
 			:root {
 			 --page-margin: #200000;
 			  --editor-background: #200000;
-			  --hover-preview: white;
-			  --playhead: white;
-			  --primary-text: white;
-			  --secondary-text: #999;
-			  --inverted-text: black;
 			  --text-selection: #FF5100;
-			  --box-selection-fill: rgba(255,255,255,0.2);
 			  --loop-accent: #FF5100;
 			  --link-accent: #0F0;
 			  --ui-widget-background: #562334;
@@ -7782,23 +6701,13 @@ var beepbox = (function (exports) {
 			  --pitch-background: #6D1B36;
 			  --tonic: #FF5100;
 			  --fifth-note: #00B6FF;
-			  --white-piano-key: #bbb;
-			  --black-piano-key: #444;
-			  --use-color-formula: false;
 			  --track-editor-bg-pitch: #380C14;
 			  --track-editor-bg-pitch-dim: #200000;
 			  --track-editor-bg-noise: #233323;
 			  --track-editor-bg-noise-dim: #101A0F;
 			  --track-editor-bg-mod: #234C82;
 			  --track-editor-bg-mod-dim: #0D1D33;
-			  --multiplicative-mod-slider: #456;
-			  --overwriting-mod-slider: #654;
 			  --indicator-primary: #FF5100;
-			  --indicator-secondary: #444;
-			  --select2-opt-group: #585858;
-			  --input-box-outline: #333;
-			  --mute-button-normal: #ffa033;
-			  --mute-button-mod: #9a6bff;
 			  --pitch1-secondary-channel: #00B200;
 			  --pitch1-primary-channel: #0F0;
 			  --pitch1-secondary-note: #00B200;
@@ -7867,10 +6776,6 @@ var beepbox = (function (exports) {
 			  --mod2-primary-channel: #1FBAFF;
 			  --mod2-secondary-note: #1783B2;
 			  --mod2-primary-note: #1FBAFF;
-			  --mod3-secondary-channel: #553399;
-			  --mod3-primary-channel: #8855fc;
-			  --mod3-secondary-note: #aa64ff;
-			  --mod3-primary-note: #f8ddff;
 			  --mod4-secondary-channel: #B20E6B;
 			  --mod4-primary-channel: #FF1291;
 			  --mod4-secondary-note: #B20E6B;
@@ -7901,6 +6806,8 @@ var beepbox = (function (exports) {
 			--fifth-note: #3e2fb5;
 			--white-piano-key: #ebf3f4;
 			--black-piano-key: #253353;
+			--white-piano-key-text: black;
+			--black-piano-key-text: white;
 			--oscilloscope-line-L: #72dcfc;
 			--oscilloscope-line-R: #304eff;
 			--mod-title: #1b2fff;
@@ -7997,16 +6904,13 @@ var beepbox = (function (exports) {
 			--disabled-note-primary:    #53527b;
 			--disabled-note-secondary:  #1c1b30;
 		}
-						`,
+		`,
         "dogebox2": `
 			:root {
 				--page-margin: #000015;
 				--editor-background: #000015;
 				--hover-preview: #00ffff;
 				--playhead: #00ffff;
-				--primary-text: white;
-				--secondary-text: #999;
-				--inverted-text: black;
 				--text-selection: rgba(255, 127, 80, 0.99);
 				--box-selection-fill: rgba(255, 255, 255, 0.2);
 				--loop-accent: #ff00ff;
@@ -8019,7 +6923,6 @@ var beepbox = (function (exports) {
 				--white-piano-key: #ffffff;
 				--black-piano-key: #222222;
 				--white-piano-key-text: #000000;
-				--use-color-formula: false;
 				--track-editor-bg-pitch: #222222;
 				--track-editor-bg-pitch-dim: #111111;
 				--track-editor-bg-noise: #222222;
@@ -8118,16 +7021,12 @@ var beepbox = (function (exports) {
 				--note-flash: #ffffff;
 				--note-flash-secondary: #ffffff77;
 				}`,
-        "AbyssBox Classic": `
+        "abyssbox classic": `
 				:root {		
 				--page-margin: #1e0915; 		
 				--editor-background: #1e0915; 		
-				--hover-preview: white; 		
 				--playhead: rgba(255, 255, 255, 0.9); 		
-				--primary-text: white; 		
 				--secondary-text: #ffcedd; 		
-				--inverted-text: black;	 		
-				--text-selection: rgba(119,68,255,0.99); 		
 				--box-selection-fill: #1e0915; 		
 				--loop-accent: #873a51; 		
 				--link-accent: #df88ff; 		
@@ -8138,8 +7037,6 @@ var beepbox = (function (exports) {
 				--fifth-note: #75001e; 		
 				--white-piano-key: #cca5c7; 		
 				--black-piano-key: #402f2f;
-				--white-piano-key-text: #131200;		
-				--black-piano-key-text: #fff;		 		
 				--use-color-formula: true; 		
 				--track-editor-bg-pitch: #571c40; 		
 				--track-editor-bg-pitch-dim: #290d0d; 		
@@ -8246,6 +7143,11 @@ var beepbox = (function (exports) {
 				--note-flash: #ffffff;
 				--note-flash-secondary: #ffffff77;
 				
+				--oscilloscope-line-R: var(--ui-widget-background);
+				--oscilloscope-line-L: var(--secondary-text);
+				--text-spacing-icon: > ;
+				--scrollbar-color: #bf2c5d;
+				
 				--file-page-symbol: url("theme_resources/icon-file.png");
 				--edit-pencil-symbol: url("theme_resources/icon-edit.png");
 				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
@@ -8266,6 +7168,10 @@ var beepbox = (function (exports) {
 					}
 			* {
 			cursor: url("theme_resources/abyssbox_cursor.png"), auto;
+			}
+			#Hotdog {
+				display: inline !important;
+				content: url("theme_resources/hotdog.png") !important;
 			}
 			
 				@font-face {
@@ -8303,8 +7209,8 @@ var beepbox = (function (exports) {
 				#beepboxEditorContainer {
 						border-image-source: url("theme_resources/abyssbox_border.png");
 						border-image-slice: 4 fill; 
-					   border-image-width: 8px; 
-					border-image-repeat: stretch;
+					   	border-image-width: 8px; 
+						border-image-repeat: stretch;
 						padding: 12px;
 	
 						image-rendering: -moz-crisp-edges !important;         /* Firefox */
@@ -8435,35 +7341,31 @@ var beepbox = (function (exports) {
 				}
 	
 				`,
-        "AbyssBox Light": `
-				:root { 		
+        "abyssbox light": `
+			:root { 		
 				--page-margin: #e0adbc; 		
 				--editor-background: #e0adbc; 		
-				--hover-preview: white; 		
 				--playhead: rgba(255, 255, 255, 0.9); 		
-				--primary-text: #f5f0f1; 		
-				--secondary-text: #eddadf; 		
+				--primary-text: #6110d9; 		
+				--secondary-text: #cc1338;	
 				--inverted-text:  #e8bcc9;	 		
-				--text-selection: rgba(119,68,255,0.99); 		
 				--box-selection-fill: #bf2c5d; 		
 				--loop-accent: #8c346a; 		
 				--link-accent: #8c346a; 		
 				--ui-widget-background: #f5e9f0;		
-				--ui-widget-focus: #8c346a; 		
+				--ui-widget-focus: #f5e9f0; 		
 				--pitch-background: #eddadf; 		
 				--tonic: #f5f0f1; 		
 				--fifth-note: #ffb5c9; 		
 				--white-piano-key: #cca5c7; 		
 				--black-piano-key: #402f2f;
-				--white-piano-key-text: #131200;		
-				--black-piano-key-text: #fff;	 		
 				--use-color-formula: true; 		
-				--track-editor-bg-pitch: #decad8; 		
-				--track-editor-bg-pitch-dim: #bfb0bb; 		
-				--track-editor-bg-noise: #d6a3ca; 		
-				--track-editor-bg-noise-dim: #b389a9; 		
-				--track-editor-bg-mod: #b0649e; 		
-				--track-editor-bg-mod-dim: #915683; 		
+				--track-editor-bg-pitch: #edbecc; 		
+				--track-editor-bg-pitch-dim: #e0adbc; 		
+				--track-editor-bg-noise: #edbecc; 		
+				--track-editor-bg-noise-dim: #e0adbc; 		
+				--track-editor-bg-mod: #edbecc; 		
+				--track-editor-bg-mod-dim: #e0adbc; 		
 				--multiplicative-mod-slider: #9f6082; 		
 				--overwriting-mod-slider: #9e3470; 		
 				--indicator-primary: #b3498f; 		
@@ -8474,7 +7376,8 @@ var beepbox = (function (exports) {
 				--mute-button-mod: #ba364c; 		
 				--mod-label-primary: #541625; 		
 				--mod-label-secondary-text: rgb(120, 87, 86); 
-				--mod-label-primary-text: gray; 
+				--mod-label-primary-text: gray;
+				--mod-title: #cc1338; 
 			
 				--pitch-secondary-channel-hue: -80; 		
 				--pitch-secondary-channel-hue-scale 0; 		
@@ -8563,6 +7466,11 @@ var beepbox = (function (exports) {
 				--note-flash: #ffffff;
 				--note-flash-secondary: #ffffff77;
 
+				--oscilloscope-line-R: var(--ui-widget-background);
+				--oscilloscope-line-L: var(--secondary-text);
+				--text-spacing-icon: > ;
+				--scrollbar-color: #bf2c5d;
+
 				--file-page-symbol: url("theme_resources/icon-file.png");
 				--edit-pencil-symbol: url("theme_resources/icon-edit.png");
 				--preferences-gear-symbol: url("theme_resources/icon-preferences.png");
@@ -8580,7 +7488,7 @@ var beepbox = (function (exports) {
 				--zoom-in-symbol: url("theme_resources/icon-zoomIn.png");
 				--zoom-out-symbol: url("theme_resources/icon-zoomOut.png");
 				--export-symbol: url("theme_resources/icon-export.png");
-					}
+			}
 					/* sets background image */
 					body {
 					background-image: url("theme_resources/stripesbg_light.gif") !important;
@@ -8659,6 +7567,10 @@ var beepbox = (function (exports) {
 			/* sets cursor */ 
 			* {
 			cursor: url("theme_resources/abyssbox_cursor.png"), auto !important;
+			}
+			#Hotdog {
+				display: inline !important;
+				content: url("theme_resources/hotdog.png") !important;
 			}
 				@font-face {
 			   font-family: "AbyssType";
@@ -8750,16 +7662,292 @@ var beepbox = (function (exports) {
 				}
 	
 				`,
+        "slarmoosbox": `
+		:root {
+			--page-margin: #14051a;
+			--editor-background: #14051a;
+			--playhead: rgba(255, 255, 255, 0.9);
+			--primary-text: #71eee5;
+			--secondary-text: #3abbb2;
+			--inverted-text: #13695e;
+			--box-selection-fill: #36c71c;
+			--loop-accent: #36c71c;
+			--link-accent: white;
+			--ui-widget-background: #183d05;
+			--ui-widget-focus: #247d0d;
+			--pitch-background: #2e0e51;
+			--tonic: #247d0d;
+			--fifth-note: #3abbb2;
+			--white-piano-key: #ffffff;
+			--black-piano-key: #061705;
+			--white-piano-key-text: #061705;
+			--use-color-formula: true;
+			--track-editor-bg-pitch: #09382b;
+			--track-editor-bg-pitch-dim: #14051a;
+			--track-editor-bg-noise: #40400b;
+			--track-editor-bg-noise-dim: #14051a;
+			--track-editor-bg-mod: #0a2c08;
+			--track-editor-bg-mod-dim: #14051a;
+			--multiplicative-mod-slider: #3abb22;
+			--overwriting-mod-slider: #71eee5;
+			--indicator-primary: #a773e5;
+			--indicator-secondary: #4c1c89;
+			--select2-opt-group: #183d05;
+			--input-box-outline: #18040a;
+			--mute-button-normal: #36c71c;
+			--mute-button-mod: #a773e5;
+			--mod-label-primary: #a773e5;
+			--mod-label-secondary-text: #6b29bf;
+			--mod-label-primary-text: #14051a;
+			--mod-title: #247d1d;
+			--pitch-secondary-channel-hue: 100;
+			--pitch-secondary-channel-hue-scale: 6.1;
+			--pitch-secondary-channel-sat: 100.0;
+			--pitch-secondary-channel-sat-scale: 0.15;
+			--pitch-secondary-channel-lum: 60.0;
+			--pitch-secondary-channel-lum-scale: 0.05;
+			--pitch-primary-channel-hue: 100;
+			--pitch-primary-channel-hue-scale: 6.1;
+			--pitch-primary-channel-sat: 100;
+			--pitch-primary-channel-sat-scale: 0.15;
+			--pitch-primary-channel-lum: 75.0;
+			--pitch-primary-channel-lum-scale: 0.05;
+			--pitch-secondary-note-hue: 100;
+			--pitch-secondary-note-hue-scale: 6.1;
+			--pitch-secondary-note-sat: 95.0;
+			--pitch-secondary-note-sat-scale: 0.15;
+			--pitch-secondary-note-lum: 40;
+			--pitch-secondary-note-lum-scale: 0.05;
+			--pitch-primary-note-hue: 100;
+			--pitch-primary-note-hue-scale: 6.1;
+			--pitch-primary-note-sat: 100;
+			--pitch-primary-note-sat-scale: 0.15;
+			--pitch-primary-note-lum: 85.6;
+			--pitch-primary-note-lum-scale: 0.025;
+			--noise-secondary-channel-hue: 65;
+			--noise-secondary-channel-hue-scale: 2;
+			--noise-secondary-channel-sat: 55;
+			--noise-secondary-channel-sat-scale: 0;
+			--noise-secondary-channel-lum: 42;
+			--noise-secondary-channel-lum-scale: 0;
+			--noise-primary-channel-hue: 65;
+			--noise-primary-channel-hue-scale: 2;
+			--noise-primary-channel-sat: 66;
+			--noise-primary-channel-sat-scale: 0;
+			--noise-primary-channel-lum: 63.5;
+			--noise-primary-channel-lum-scale: 0;
+			--noise-secondary-note-hue: 65;
+			--noise-secondary-note-hue-scale: 2;
+			--noise-secondary-note-sat: 66;
+			--noise-secondary-note-sat-scale: 0;
+			--noise-secondary-note-lum: 55;
+			--noise-secondary-note-lum-scale: 0;
+			--noise-primary-note-hue: 65;
+			--noise-primary-note-hue-scale: 2;
+			--noise-primary-note-sat: 70;
+			--noise-primary-note-sat-scale: 0;
+			--noise-primary-note-lum: 74;
+			--noise-primary-note-lum-scale: 0;
+			--mod-secondary-channel-hue: 192;
+			--mod-secondary-channel-hue-scale: 1.5;
+			--mod-secondary-channel-sat: 88;
+			--mod-secondary-channel-sat-scale: 0;
+			--mod-secondary-channel-lum: 50;
+			--mod-secondary-channel-lum-scale: 0;
+			--mod-primary-channel-hue: 192;
+			--mod-primary-channel-hue-scale: 1.5;
+			--mod-primary-channel-sat: 96;
+			--mod-primary-channel-sat-scale: 0;
+			--mod-primary-channel-lum: 80;
+			--mod-primary-channel-lum-scale: 0;
+			--mod-secondary-note-hue: 192;
+			--mod-secondary-note-hue-scale: 1.5;
+			--mod-secondary-note-sat: 92;
+			--mod-secondary-note-sat-scale: 0;
+			--mod-secondary-note-lum: 45;
+			--mod-secondary-note-lum-scale: 0;
+			--mod-primary-note-hue: 192;
+			--mod-primary-note-hue-scale: 1.5;
+			--mod-primary-note-sat: 96;
+			--mod-primary-note-sat-scale: 0;
+			--mod-primary-note-lum: 85;
+			--mod-primary-note-lum-scale: 0;
+			--oscilloscope-line-R: white;
+			--oscilloscope-line-L: var(--secondary-text);
+		}`,
+        "axobox": `
+		:root {
+			--page-margin: #000e1c;
+			--editor-background: #000e1c;
+			--playhead: rgba(255, 255, 255, 0.9);
+			--secondary-text: #84859a;
+			--box-selection-fill: #044b94;
+			--ui-widget-background: #2a3045;
+			--ui-widget-focus: #4f4a68;
+			--pitch-background: #3c5773;
+			--tonic: #453e80;
+			--fifth-note: #545498;
+			--white-piano-key: #eee;
+			--black-piano-key: #666;
+			--use-color-formula: true;
+			--track-editor-bg-pitch: #393e4f;
+			--track-editor-bg-pitch-dim: #1c1d28;
+			--track-editor-bg-noise: #3d3535;
+			--track-editor-bg-noise-dim: #161313;
+			--track-editor-bg-mod: #283560;
+			--track-editor-bg-mod-dim: #0a101f;
+			--multiplicative-mod-slider: #606c9f;
+			--overwriting-mod-slider: #6850b5;
+			--indicator-primary: #1E90FF;
+			--indicator-secondary: #1560BD;
+			--select2-opt-group: #3f3951;
+			--input-box-outline: #222;
+			--mute-button-normal: #dda85d;
+			--mute-button-mod: #886eae;
+			--mod-label-primary: #282840;
+			--mod-label-secondary-text: rgb(87, 86, 120);
+			--mod-label-primary-text: white;
+			--pitch-secondary-channel-hue: 210;
+			--pitch-secondary-channel-hue-scale: 6.5;
+			--pitch-secondary-channel-sat: 100;
+			--pitch-secondary-channel-sat-scale: 0.1;
+			--pitch-secondary-channel-lum: 50;
+			--pitch-secondary-channel-lum-scale: 0.05;
+			--pitch-primary-channel-hue: 205;
+			--pitch-primary-channel-hue-scale: 6.5;
+			--pitch-primary-channel-sat: 39;
+			--pitch-primary-channel-sat-scale: 0.1;
+			--pitch-primary-channel-lum: 60;
+			--pitch-primary-channel-lum-scale: 0.05;
+			--pitch-secondary-note-hue: 225;
+			--pitch-secondary-note-hue-scale: 6.5;
+			--pitch-secondary-note-sat: 55;
+			--pitch-secondary-note-sat-scale: 0.1;
+			--pitch-secondary-note-lum: 37;
+			--pitch-secondary-note-lum-scale: 0.05;
+			--pitch-primary-note-hue: 204;
+			--pitch-primary-note-hue-scale: 6.5;
+			--pitch-primary-note-sat: 100;
+			--pitch-primary-note-sat-scale: 0.05;
+			--pitch-primary-note-lum: 37;
+			--pitch-primary-note-lum-scale: 0.025;
+			--noise-secondary-channel-hue: 138;
+			--noise-secondary-channel-hue-scale: 2;
+			--noise-secondary-channel-sat: 97;
+			--noise-secondary-channel-sat-scale: 0;
+			--noise-secondary-channel-lum: 38;
+			--noise-secondary-channel-lum-scale: 0;
+			--noise-primary-channel-hue: 74;
+			--noise-primary-channel-hue-scale: 2;
+			--noise-primary-channel-sat: 100;
+			--noise-primary-channel-sat-scale: 0;
+			--noise-primary-channel-lum: 36;
+			--noise-primary-channel-lum-scale: 0;
+			--noise-secondary-note-hue: 175;
+			--noise-secondary-note-hue-scale: 2;
+			--noise-secondary-note-sat: 98;
+			--noise-secondary-note-sat-scale: 0;
+			--noise-secondary-note-lum: 24;
+			--noise-secondary-note-lum-scale: 0;
+			--noise-primary-note-hue: 149;
+			--noise-primary-note-hue-scale: 2;
+			--noise-primary-note-sat: 100;
+			--noise-primary-note-sat-scale: 0;
+			--noise-primary-note-lum: 32;
+			--noise-primary-note-lum-scale: 0;
+			--mod-secondary-channel-hue: 44;
+			--mod-secondary-channel-hue-scale: 1.5;
+			--mod-secondary-channel-sat: 100;
+			--mod-secondary-channel-sat-scale: 0;
+			--mod-secondary-channel-lum: 50;
+			--mod-secondary-channel-lum-scale: 0;
+			--mod-primary-channel-hue: 45;
+			--mod-primary-channel-hue-scale: 1.5;
+			--mod-primary-channel-sat: 90;
+			--mod-primary-channel-sat-scale: 0;
+			--mod-primary-channel-lum: 57;
+			--mod-primary-channel-lum-scale: 0;
+			--mod-secondary-note-hue: 33;
+			--mod-secondary-note-hue-scale: 1.5;
+			--mod-secondary-note-sat: 100;
+			--mod-secondary-note-sat-scale: 0;
+			--mod-secondary-note-lum: 47;
+			--mod-secondary-note-lum-scale: 0;
+			--mod-primary-note-hue: 45;
+			--mod-primary-note-hue-scale: 1.5;
+			--mod-primary-note-sat: 100;
+			--mod-primary-note-sat-scale: 0;
+			--mod-primary-note-lum: 60;
+			--mod-primary-note-lum-scale: 0;
+			--disabled-note-primary:    #9187d1;
+			--disabled-note-secondary:  #6a67ac;
+		}`,
+        "lemmbox dark": `
+		:root {
+			--page-margin: #020009;
+			--editor-background: #020009;
+			--secondary-text: white;
+			--text-selection: #c2a855;
+			--loop-accent: #fff570;
+			--link-accent: #fff570;
+			--ui-widget-background: #191721;
+			--ui-widget-focus: #2d293b;
+			--pitch-background: #44444A;
+			--tonic: #c2a855;
+			--white-piano-key-text: #131200;
+			--black-piano-key-text: #fff;
+			--pitch-channel-limit: 10;
+			--indicator-primary: #6a38ff;
+			--input-box-outline: #403b4f;
+			--mute-button-mod: #8066cc;
+			--pitch1-secondary-channel: #0099A1;
+			--pitch1-primary-channel:   #25F3FF;
+			--pitch1-secondary-note:    #00BDC7;
+			--pitch1-primary-note:      #92F9FF;
+			--pitch2-secondary-channel: #A1A100;
+			--pitch2-primary-channel:   #FFFF25;
+			--pitch2-secondary-note:    #C7C700;
+			--pitch2-primary-note:      #FFFF92;
+			--pitch3-secondary-channel: #C75000;
+			--pitch3-primary-channel:   #FF9752;
+			--pitch3-secondary-note:    #FF771C;
+			--pitch3-primary-note:      #FFCDAB;
+			--pitch4-secondary-channel: #00A100;
+			--pitch4-primary-channel:   #50FF50;
+			--pitch4-secondary-note:    #00C700;
+			--pitch4-primary-note:      #A0FFA0;
+			--pitch5-secondary-channel: #D020D0;
+			--pitch5-primary-channel:   #FF90FF;
+			--pitch5-secondary-note:    #E040E0;
+			--pitch5-primary-note:      #FFC0FF;
+			--pitch6-secondary-channel: #7777B0;
+			--pitch6-primary-channel:   #A0A0FF;
+			--pitch6-secondary-note:    #8888D0;
+			--pitch6-primary-note:      #D0D0FF;
+			--pitch7-secondary-channel: #8AA100;
+			--pitch7-primary-channel:   #DEFF25;
+			--pitch7-secondary-note:    #AAC700;
+			--pitch7-primary-note:      #E6FF92;
+			--pitch8-secondary-channel: #DF0019;
+			--pitch8-primary-channel:   #FF98A4;
+			--pitch8-secondary-note:    #FF4E63;
+			--pitch8-primary-note:      #FFB2BB;
+			--pitch9-secondary-channel: #00A170;
+			--pitch9-primary-channel:   #50FFC9;
+			--pitch9-secondary-note:    #00C78A;
+			--pitch9-primary-note:      #83FFD9;
+			--pitch10-secondary-channel:#A11FFF;
+			--pitch10-primary-channel:  #CE8BFF;
+			--pitch10-secondary-note:   #B757FF;
+			--pitch10-primary-note:     #DFACFF;
+		}`,
         "azur lane": `
 		:root {
 			--page-margin: #19337e;
 			--editor-background: #000333cf;
-			--hover-preview: white;
 			--playhead: rgba(255, 255, 255, 0.9);
 			--primary-text: #9af9ff;
 			--secondary-text: #4072dd;
-			--inverted-text: black;
-			--text-selection: rgba(119,68,255,0.99);
 			--box-selection-fill: #044b94;
 			--loop-accent: #950d0d;
 			--link-accent: #0072ff;
@@ -8770,9 +7958,6 @@ var beepbox = (function (exports) {
 			--fifth-note: #731d1d;
 			--white-piano-key: #eee;
 			--black-piano-key: #000;
-			--white-piano-key-text: #131200;
-			--black-piano-key-text: #fff;
-			--use-color-formula: false;
 			--track-editor-bg-pitch: #535a73;
 			--track-editor-bg-pitch-dim: #353643;
 			--track-editor-bg-noise: #770000;
@@ -8867,16 +8052,14 @@ var beepbox = (function (exports) {
 		  --disabled-note-primary: #3a3a3a;
 		  --disabled-note-secondary: #000;
 			}
-		/* replaces hotdog (in a hacky way) with an image of the girls using the same scratch sprites from the 404 page*/
+		/* replaces hotdog with an image of the girls using the same scratch sprites from the 404 page*/
 		#Hotdog {
-		display: none;
-		}
-		.instructions-column > section:first-of-type > p:first-of-type:after {
-		display: block;
-		content: url("theme_resources/AzurLaneThemeStarterSquad.png");
-		width: 100%;
-		text-align: center;
-		margin-top: 25px;
+			display: inline !important;
+			content: url("theme_resources/AzurLaneThemeStarterSquad.png") !important;
+			width: 75%;
+			height: 75%;
+			text-align: center;
+			margin-top: 25px;
 		}
 		/* sets cursor */
 		* {
@@ -8900,139 +8083,33 @@ var beepbox = (function (exports) {
 		margin: auto;
 		content: url("theme_resources/AzurLaneThemeLogo.png");
 		}
-	}`,
-        "custom": `${localStorage.getItem("customColors") || `:root {
-				--page-margin: #040410;
-				--editor-background: #040410;
-				--hover-preview: white;
-				--playhead: rgba(255, 255, 255, 0.9);
-				--primary-text: white;
-				--secondary-text: #84859a;
-				--inverted-text: black;
-				--text-selection: rgba(119,68,255,0.99);
-				--box-selection-fill: #044b94;
-				--loop-accent: #74f;
-				--link-accent: #98f;
-				--ui-widget-background: #393e4f;
-				--ui-widget-focus: #6d6886;
-				--pitch-background: #393e4f99;
-				--tonic: #725491;
-				--fifth-note: #54547a;
-				--white-piano-key: #eee;
-				--black-piano-key: #666;
-				--use-color-formula: true;
-				--track-editor-bg-pitch: #393e4f;
-				--track-editor-bg-pitch-dim: #1c1d28;
-				--track-editor-bg-noise: #3d3535;
-				--track-editor-bg-noise-dim: #161313;
-				--track-editor-bg-mod: #283560;
-				--track-editor-bg-mod-dim: #0a101f;
-				--multiplicative-mod-slider: #606c9f;
-				--overwriting-mod-slider: #6850b5;
-				--indicator-primary: #9c64f7;
-				--indicator-secondary: #393e4f;
-				--select2-opt-group: #5d576f;
-				--input-box-outline: #222;
-				--mute-button-normal: #dda85d;
-				--mute-button-mod: #886eae;
-				--mod-label-primary: #282840;
-				--mod-label-secondary-text: rgb(87, 86, 120);
-				--mod-label-primary-text: white;
-				--pitch-secondary-channel-hue: 0;
-				--pitch-secondary-channel-hue-scale: 6.1;
-				--pitch-secondary-channel-sat: 83.3;
-				--pitch-secondary-channel-sat-scale: 0.1;
-				--pitch-secondary-channel-lum: 40;
-				--pitch-secondary-channel-lum-scale: 0.05;
-				--pitch-primary-channel-hue: 0;
-				--pitch-primary-channel-hue-scale: 6.1;
-				--pitch-primary-channel-sat: 100;
-				--pitch-primary-channel-sat-scale: 0.1;
-				--pitch-primary-channel-lum: 67.5;
-				--pitch-primary-channel-lum-scale: 0.05;
-				--pitch-secondary-note-hue: 0;
-				--pitch-secondary-note-hue-scale: 6.1;
-				--pitch-secondary-note-sat: 93.9;
-				--pitch-secondary-note-sat-scale: 0.1;
-				--pitch-secondary-note-lum: 25;
-				--pitch-secondary-note-lum-scale: 0.05;
-				--pitch-primary-note-hue: 0;
-				--pitch-primary-note-hue-scale: 6.1;
-				--pitch-primary-note-sat: 100;
-				--pitch-primary-note-sat-scale: 0.05;
-				--pitch-primary-note-lum: 85.6;
-				--pitch-primary-note-lum-scale: 0.025;
-				--noise-secondary-channel-hue: 0;
-				--noise-secondary-channel-hue-scale: 2;
-				--noise-secondary-channel-sat: 25;
-				--noise-secondary-channel-sat-scale: 0;
-				--noise-secondary-channel-lum: 42;
-				--noise-secondary-channel-lum-scale: 0;
-				--noise-primary-channel-hue: 0;
-				--noise-primary-channel-hue-scale: 2;
-				--noise-primary-channel-sat: 33;
-				--noise-primary-channel-sat-scale: 0;
-				--noise-primary-channel-lum: 63.5;
-				--noise-primary-channel-lum-scale: 0;
-				--noise-secondary-note-hue: 0;
-				--noise-secondary-note-hue-scale: 2;
-				--noise-secondary-note-sat: 33.5;
-				--noise-secondary-note-sat-scale: 0;
-				--noise-secondary-note-lum: 55;
-				--noise-secondary-note-lum-scale: 0;
-				--noise-primary-note-hue: 0;
-				--noise-primary-note-hue-scale: 2;
-				--noise-primary-note-sat: 46.5;
-				--noise-primary-note-sat-scale: 0;
-				--noise-primary-note-lum: 74;
-				--noise-primary-note-lum-scale: 0;
-				--mod-secondary-channel-hue: 192;
-				--mod-secondary-channel-hue-scale: 1.5;
-				--mod-secondary-channel-sat: 88;
-				--mod-secondary-channel-sat-scale: 0;
-				--mod-secondary-channel-lum: 50;
-				--mod-secondary-channel-lum-scale: 0;
-				--mod-primary-channel-hue: 192;
-				--mod-primary-channel-hue-scale: 1.5;
-				--mod-primary-channel-sat: 96;
-				--mod-primary-channel-sat-scale: 0;
-				--mod-primary-channel-lum: 80;
-				--mod-primary-channel-lum-scale: 0;
-				--mod-secondary-note-hue: 192;
-				--mod-secondary-note-hue-scale: 1.5;
-				--mod-secondary-note-sat: 92;
-				--mod-secondary-note-sat-scale: 0;
-				--mod-secondary-note-lum: 45;
-				--mod-secondary-note-lum-scale: 0;
-				--mod-primary-note-hue: 192;
-				--mod-primary-note-hue-scale: 1.5;
-				--mod-primary-note-sat: 96;
-				--mod-primary-note-sat-scale: 0;
-				--mod-primary-note-lum: 85;
-				--mod-primary-note-lum-scale: 0;
-			}`}`,
+		.promptContainerBG::before {
+			box-shadow: inset 0 0 2000px rgba(255, 255, 255, .5);
+		}
+		}`,
+        "custom": `${localStorage.getItem("customColors") || `:root {  }`}`,
     };
-    ColorConfig.pageMargin = "var(--page-margin)";
-    ColorConfig.editorBackground = "var(--editor-background)";
-    ColorConfig.hoverPreview = "var(--hover-preview)";
-    ColorConfig.playhead = "var(--playhead)";
-    ColorConfig.primaryText = "var(--primary-text)";
-    ColorConfig.secondaryText = "var(--secondary-text)";
-    ColorConfig.invertedText = "var(--inverted-text)";
-    ColorConfig.textSelection = "var(--text-selection)";
-    ColorConfig.boxSelectionFill = "var(--box-selection-fill)";
-    ColorConfig.loopAccent = "var(--loop-accent)";
-    ColorConfig.linkAccent = "var(--link-accent)";
-    ColorConfig.uiWidgetBackground = "var(--ui-widget-background)";
-    ColorConfig.uiWidgetFocus = "var(--ui-widget-focus)";
-    ColorConfig.pitchBackground = "var(--pitch-background)";
-    ColorConfig.tonic = "var(--tonic)";
-    ColorConfig.fifthNote = "var(--fifth-note)";
-    ColorConfig.whitePianoKey = "var(--white-piano-key)";
-    ColorConfig.blackPianoKey = "var(--black-piano-key)";
-    ColorConfig.whitePianoKeyText = "var(--white-piano-key-text)";
-    ColorConfig.blackPianoKeyText = "var(--black-piano-key-text)";
-    ColorConfig.useColorFormula = "var(--use-color-formula)";
+    ColorConfig.pageMargin = "var(--page-margin, black)";
+    ColorConfig.editorBackground = "var(--editor-background, black)";
+    ColorConfig.hoverPreview = "var(--hover-preview, white)";
+    ColorConfig.playhead = "var(--playhead, white)";
+    ColorConfig.primaryText = "var(--primary-text, white)";
+    ColorConfig.secondaryText = "var(--secondary-text, #999)";
+    ColorConfig.invertedText = "var(--inverted-text, black)";
+    ColorConfig.textSelection = "var(--text-selection, rgba(119,68,255,0.99))";
+    ColorConfig.boxSelectionFill = "var(--box-selection-fill, rgba(255,255,255,0.2))";
+    ColorConfig.loopAccent = "var(--loop-accent, #74f)";
+    ColorConfig.linkAccent = "var(--link-accent, #98f)";
+    ColorConfig.uiWidgetBackground = "var(--ui-widget-background, #444)";
+    ColorConfig.uiWidgetFocus = "var(--ui-widget-focus, #777)";
+    ColorConfig.pitchBackground = "var(--pitch-background, #444)";
+    ColorConfig.tonic = "var(--tonic, #864)";
+    ColorConfig.fifthNote = "var(--fifth-note, #468)";
+    ColorConfig.whitePianoKey = "var(--white-piano-key, #bbb)";
+    ColorConfig.blackPianoKey = "var(--black-piano-key, #444)";
+    ColorConfig.whitePianoKeyText = "var(--white-piano-key-text, #131200)";
+    ColorConfig.blackPianoKeyText = "var(--black-piano-key-text, #fff)";
+    ColorConfig.useColorFormula = "var(--use-color-formula, false)";
     ColorConfig.pitchSecondaryChannelHue = "var(--pitch-secondary-channel-hue)";
     ColorConfig.pitchSecondaryChannelHueScale = "var(--pitch-secondary-channel-hue-scale)";
     ColorConfig.pitchSecondaryChannelSat = "var(--pitch-secondary-channel-sat)";
@@ -9105,25 +8182,25 @@ var beepbox = (function (exports) {
     ColorConfig.noisePrimaryNoteSatScale = "var(--noise-primary-note-sat-scale)";
     ColorConfig.noisePrimaryNoteLum = "var(--noise-primary-note-lum)";
     ColorConfig.noisePrimaryNoteLumScale = "var(--noise-primary-note-lum-scale)";
-    ColorConfig.trackEditorBgPitch = "var(--track-editor-bg-pitch)";
-    ColorConfig.trackEditorBgPitchDim = "var(--track-editor-bg-pitch-dim)";
-    ColorConfig.trackEditorBgNoise = "var(--track-editor-bg-noise)";
-    ColorConfig.trackEditorBgNoiseDim = "var(--track-editor-bg-noise-dim)";
-    ColorConfig.trackEditorBgMod = "var(--track-editor-bg-mod)";
-    ColorConfig.trackEditorBgModDim = "var(--track-editor-bg-mod-dim)";
-    ColorConfig.multiplicativeModSlider = "var(--multiplicative-mod-slider)";
-    ColorConfig.overwritingModSlider = "var(--overwriting-mod-slider)";
-    ColorConfig.indicatorPrimary = "var(--indicator-primary)";
-    ColorConfig.indicatorSecondary = "var(--indicator-secondary)";
-    ColorConfig.select2OptGroup = "var(--select2-opt-group)";
-    ColorConfig.inputBoxOutline = "var(--input-box-outline)";
-    ColorConfig.muteButtonNormal = "var(--mute-button-normal)";
-    ColorConfig.muteButtonMod = "var(--mute-button-mod)";
-    ColorConfig.modLabelPrimary = "var(--mod-label-primary)";
-    ColorConfig.modLabelSecondaryText = "var(--mod-label-secondary-text)";
-    ColorConfig.modLabelPrimaryText = "var(--mod-label-primary-text)";
-    ColorConfig.disabledNotePrimary = "var(--disabled-note-primary)";
-    ColorConfig.disabledNoteSecondary = "var(--disabled-note-secondary)";
+    ColorConfig.trackEditorBgPitch = "var(--track-editor-bg-pitch, #444)";
+    ColorConfig.trackEditorBgPitchDim = "var(--track-editor-bg-pitch-dim, #333)";
+    ColorConfig.trackEditorBgNoise = "var(--track-editor-bg-noise, #444)";
+    ColorConfig.trackEditorBgNoiseDim = "var(--track-editor-bg-noise-dim, #333)";
+    ColorConfig.trackEditorBgMod = "var(--track-editor-bg-mod, #234)";
+    ColorConfig.trackEditorBgModDim = "var(--track-editor-bg-mod-dim, #123)";
+    ColorConfig.multiplicativeModSlider = "var(--multiplicative-mod-slider, #456;)";
+    ColorConfig.overwritingModSlider = "var(--overwriting-mod-slider, #654)";
+    ColorConfig.indicatorPrimary = "var(--indicator-primary, #74f)";
+    ColorConfig.indicatorSecondary = "var(--indicator-secondary, #444)";
+    ColorConfig.select2OptGroup = "var(--select2-opt-group, #585858)";
+    ColorConfig.inputBoxOutline = "var(--input-box-outline, #333)";
+    ColorConfig.muteButtonNormal = "var(--mute-button-normal, #ffa033)";
+    ColorConfig.muteButtonMod = "var(--mute-button-mod, #9a6bff)";
+    ColorConfig.modLabelPrimary = "var(--mod-label-primary, #999)";
+    ColorConfig.modLabelSecondaryText = "var(--mod-label-secondary-text, #333)";
+    ColorConfig.modLabelPrimaryText = "var(--mod-label-primary-text, black)";
+    ColorConfig.disabledNotePrimary = "var(--disabled-note-primary, #999)";
+    ColorConfig.disabledNoteSecondary = "var(--disabled-note-secondary, #666)";
     ColorConfig.c_pitchSecondaryChannelHue = 0;
     ColorConfig.c_pitchSecondaryChannelHueScale = 0;
     ColorConfig.c_pitchSecondaryChannelSat = 0;
@@ -9196,6 +8273,15 @@ var beepbox = (function (exports) {
     ColorConfig.c_noisePrimaryNoteSatScale = 0;
     ColorConfig.c_noisePrimaryNoteLum = 0;
     ColorConfig.c_noisePrimaryNoteLumScale = 0;
+    ColorConfig.c_pitchChannelCountOverride = 40;
+    ColorConfig.c_noiseChannelCountOverride = 16;
+    ColorConfig.c_modChannelCountOverride = 12;
+    ColorConfig.c_pitchLimit = 1;
+    ColorConfig.c_noiseLimit = 1;
+    ColorConfig.c_modLimit = 1;
+    ColorConfig.c_colorFormulaPitchLimit = 1;
+    ColorConfig.c_colorFormulaNoiseLimit = 1;
+    ColorConfig.c_colorFormulaModLimit = 1;
     ColorConfig.c_invertedText = "";
     ColorConfig.c_trackEditorBgNoiseDim = "";
     ColorConfig.c_trackEditorBgNoise = "";
@@ -9206,124 +8292,124 @@ var beepbox = (function (exports) {
     ColorConfig.pitchChannels = toNameMap([
         {
             name: "pitch1",
-            secondaryChannel: "var(--pitch1-secondary-channel)",
-            primaryChannel: "var(--pitch1-primary-channel)",
-            secondaryNote: "var(--pitch1-secondary-note)",
-            primaryNote: "var(--pitch1-primary-note)",
+            secondaryChannel: "var(--pitch1-secondary-channel, #0099A1)",
+            primaryChannel: "var(--pitch1-primary-channel, #25F3FF)",
+            secondaryNote: "var(--pitch1-secondary-note, #00BDC7)",
+            primaryNote: "var(--pitch1-primary-note, #92F9FF)",
         }, {
             name: "pitch2",
-            secondaryChannel: "var(--pitch2-secondary-channel)",
-            primaryChannel: "var(--pitch2-primary-channel)",
-            secondaryNote: "var(--pitch2-secondary-note)",
-            primaryNote: "var(--pitch2-primary-note)",
+            secondaryChannel: "var(--pitch2-secondary-channel, #A1A100)",
+            primaryChannel: "var(--pitch2-primary-channel, #FFFF25)",
+            secondaryNote: "var(--pitch2-secondary-note, #C7C700)",
+            primaryNote: "var(--pitch2-primary-note, #FFFF92)",
         }, {
             name: "pitch3",
-            secondaryChannel: "var(--pitch3-secondary-channel)",
-            primaryChannel: "var(--pitch3-primary-channel)",
-            secondaryNote: "var(--pitch3-secondary-note)",
-            primaryNote: "var(--pitch3-primary-note)",
+            secondaryChannel: "var(--pitch3-secondary-channel, #C75000)",
+            primaryChannel: "var(--pitch3-primary-channel, #FF9752)",
+            secondaryNote: "var(--pitch3-secondary-note, #FF771C)",
+            primaryNote: "var(--pitch3-primary-note, #FFCDAB)",
         }, {
             name: "pitch4",
-            secondaryChannel: "var(--pitch4-secondary-channel)",
-            primaryChannel: "var(--pitch4-primary-channel)",
-            secondaryNote: "var(--pitch4-secondary-note)",
-            primaryNote: "var(--pitch4-primary-note)",
+            secondaryChannel: "var(--pitch4-secondary-channel, #00A100)",
+            primaryChannel: "var(--pitch4-primary-channel, #50FF50)",
+            secondaryNote: "var(--pitch4-secondary-note, #00C700)",
+            primaryNote: "var(--pitch4-primary-note, #A0FFA0)",
         }, {
             name: "pitch5",
-            secondaryChannel: "var(--pitch5-secondary-channel)",
-            primaryChannel: "var(--pitch5-primary-channel)",
-            secondaryNote: "var(--pitch5-secondary-note)",
-            primaryNote: "var(--pitch5-primary-note)",
+            secondaryChannel: "var(--pitch5-secondary-channel, #D020D0)",
+            primaryChannel: "var(--pitch5-primary-channel, #FF90FF)",
+            secondaryNote: "var(--pitch5-secondary-note, #E040E0)",
+            primaryNote: "var(--pitch5-primary-note, #FFC0FF)",
         }, {
             name: "pitch6",
-            secondaryChannel: "var(--pitch6-secondary-channel)",
-            primaryChannel: "var(--pitch6-primary-channel)",
-            secondaryNote: "var(--pitch6-secondary-note)",
-            primaryNote: "var(--pitch6-primary-note)",
+            secondaryChannel: "var(--pitch6-secondary-channel, #7777B0)",
+            primaryChannel: "var(--pitch6-primary-channel, #A0A0FF)",
+            secondaryNote: "var(--pitch6-secondary-note, #8888D0)",
+            primaryNote: "var(--pitch6-primary-note, #D0D0FF)",
         }, {
             name: "pitch7",
-            secondaryChannel: "var(--pitch7-secondary-channel)",
-            primaryChannel: "var(--pitch7-primary-channel)",
-            secondaryNote: "var(--pitch7-secondary-note)",
-            primaryNote: "var(--pitch7-primary-note)",
+            secondaryChannel: "var(--pitch7-secondary-channel, #8AA100)",
+            primaryChannel: "var(--pitch7-primary-channel, #DEFF25)",
+            secondaryNote: "var(--pitch7-secondary-note, #AAC700)",
+            primaryNote: "var(--pitch7-primary-note, #E6FF92)",
         }, {
             name: "pitch8",
-            secondaryChannel: "var(--pitch8-secondary-channel)",
-            primaryChannel: "var(--pitch8-primary-channel)",
-            secondaryNote: "var(--pitch8-secondary-note)",
-            primaryNote: "var(--pitch8-primary-note)",
+            secondaryChannel: "var(--pitch8-secondary-channel, #DF0019)",
+            primaryChannel: "var(--pitch8-primary-channel, #FF98A4)",
+            secondaryNote: "var(--pitch8-secondary-note, #FF4E63)",
+            primaryNote: "var(--pitch8-primary-note, #FFB2BB)",
         }, {
             name: "pitch9",
-            secondaryChannel: "var(--pitch9-secondary-channel)",
-            primaryChannel: "var(--pitch9-primary-channel)",
-            secondaryNote: "var(--pitch9-secondary-note)",
-            primaryNote: "var(--pitch9-primary-note)",
+            secondaryChannel: "var(--pitch9-secondary-channel, #00A170)",
+            primaryChannel: "var(--pitch9-primary-channel, #50FFC9)",
+            secondaryNote: "var(--pitch9-secondary-note, #00C78A)",
+            primaryNote: "var(--pitch9-primary-note, #83FFD9)",
         }, {
             name: "pitch10",
-            secondaryChannel: "var(--pitch10-secondary-channel)",
-            primaryChannel: "var(--pitch10-primary-channel)",
-            secondaryNote: "var(--pitch10-secondary-note)",
-            primaryNote: "var(--pitch10-primary-note)",
+            secondaryChannel: "var(--pitch10-secondary-channel, #A11FFF)",
+            primaryChannel: "var(--pitch10-primary-channel, #CE8BFF)",
+            secondaryNote: "var(--pitch10-secondary-note, #B757FF)",
+            primaryNote: "var(--pitch10-primary-note, #DFACFF)",
         },
     ]);
     ColorConfig.noiseChannels = toNameMap([
         {
             name: "noise1",
-            secondaryChannel: "var(--noise1-secondary-channel)",
-            primaryChannel: "var(--noise1-primary-channel)",
-            secondaryNote: "var(--noise1-secondary-note)",
-            primaryNote: "var(--noise1-primary-note)",
+            secondaryChannel: "var(--noise1-secondary-channel, #6F6F6F)",
+            primaryChannel: "var(--noise1-primary-channel, #AAAAAA)",
+            secondaryNote: "var(--noise1-secondary-note, #A7A7A7)",
+            primaryNote: "var(--noise1-primary-note, #E0E0E0)",
         }, {
             name: "noise2",
-            secondaryChannel: "var(--noise2-secondary-channel)",
-            primaryChannel: "var(--noise2-primary-channel)",
-            secondaryNote: "var(--noise2-secondary-note)",
-            primaryNote: "var(--noise2-primary-note)",
+            secondaryChannel: "var(--noise2-secondary-channel, #996633)",
+            primaryChannel: "var(--noise2-primary-channel, #DDAA77)",
+            secondaryNote: "var(--noise2-secondary-note, #CC9966)",
+            primaryNote: "var(--noise2-primary-note, #F0D0BB)",
         }, {
             name: "noise3",
-            secondaryChannel: "var(--noise3-secondary-channel)",
-            primaryChannel: "var(--noise3-primary-channel)",
-            secondaryNote: "var(--noise3-secondary-note)",
-            primaryNote: "var(--noise3-primary-note)",
+            secondaryChannel: "var(--noise3-secondary-channel, #4A6D8F)",
+            primaryChannel: "var(--noise3-primary-channel, #77AADD)",
+            secondaryNote: "var(--noise3-secondary-note, #6F9FCF)",
+            primaryNote: "var(--noise3-primary-note, #BBD7FF)",
         }, {
             name: "noise4",
-            secondaryChannel: "var(--noise4-secondary-channel)",
-            primaryChannel: "var(--noise4-primary-channel)",
-            secondaryNote: "var(--noise4-secondary-note)",
-            primaryNote: "var(--noise4-primary-note)",
+            secondaryChannel: "var(--noise4-secondary-channel, #7A4F9A)",
+            primaryChannel: "var(--noise4-primary-channel, #AF82D2)",
+            secondaryNote: "var(--noise4-secondary-note, #9E71C1)",
+            primaryNote: "var(--noise4-primary-note, #D4C1EA)",
         }, {
             name: "noise5",
-            secondaryChannel: "var(--noise5-secondary-channel)",
-            primaryChannel: "var(--noise5-primary-channel)",
-            secondaryNote: "var(--noise5-secondary-note)",
-            primaryNote: "var(--noise5-primary-note)",
+            secondaryChannel: "var(--noise5-secondary-channel, #607837)",
+            primaryChannel: "var(--noise5-primary-channel, #A2BB77)",
+            secondaryNote: "var(--noise5-secondary-note, #91AA66)",
+            primaryNote: "var(--noise5-primary-note, #C5E2B2)",
         },
     ]);
     ColorConfig.modChannels = toNameMap([
         {
             name: "mod1",
-            secondaryChannel: "var(--mod1-secondary-channel)",
-            primaryChannel: "var(--mod1-primary-channel)",
-            secondaryNote: "var(--mod1-secondary-note)",
-            primaryNote: "var(--mod1-primary-note)",
+            secondaryChannel: "var(--mod1-secondary-channel, #339955)",
+            primaryChannel: "var(--mod1-primary-channel, #77fc55)",
+            secondaryNote: "var(--mod1-secondary-note, #77ff8a)",
+            primaryNote: "var(--mod1-primary-note, #cdffee)",
         }, {
             name: "mod2",
-            secondaryChannel: "var(--mod2-secondary-channel)",
-            primaryChannel: "var(--mod2-primary-channel)",
-            secondaryNote: "var(--mod2-secondary-note)",
-            primaryNote: "var(--mod2-primary-note)",
+            secondaryChannel: "var(--mod2-secondary-channel, #993355)",
+            primaryChannel: "var(--mod2-primary-channel, #f04960)",
+            secondaryNote: "var(--mod2-secondary-note, #f057a0)",
+            primaryNote: "var(--mod2-primary-note, #ffb8de)",
         }, {
             name: "mod3",
-            secondaryChannel: "var(--mod3-secondary-channel)",
-            primaryChannel: "var(--mod3-primary-channel)",
-            secondaryNote: "var(--mod3-secondary-note)",
-            primaryNote: "var(--mod3-primary-note)",
+            secondaryChannel: "var(--mod3-secondary-channel, #553399)",
+            primaryChannel: "var(--mod3-primary-channel, #8855fc)",
+            secondaryNote: "var(--mod3-secondary-note, #aa64ff)",
+            primaryNote: "var(--mod3-primary-note, #f8ddff)",
         }, {
             name: "mod4",
-            secondaryChannel: "var(--mod4-secondary-channel)",
-            primaryChannel: "var(--mod4-primary-channel)",
-            secondaryNote: "var(--mod4-secondary-note)",
-            primaryNote: "var(--mod4-primary-note)",
+            secondaryChannel: "var(--mod4-secondary-channel, #a86436)",
+            primaryChannel: "var(--mod4-primary-channel, #c8a825)",
+            secondaryNote: "var(--mod4-secondary-note, #e8ba46)",
+            primaryNote: "var(--mod4-primary-note, #fff6d3)",
         },
     ]);
     ColorConfig._styleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
@@ -9449,9 +8535,12 @@ var beepbox = (function (exports) {
 }
 
 
+html {
+	scrollbar-color: var(--scrollbar-color, ${ColorConfig.uiWidgetBackground}) var(--scrollbar-background, ${ColorConfig.editorBackground});
+}
+
 .obtrusive-scrollbars, .obtrusive-scrollbars * {
 	scrollbar-width: thin;
-	scrollbar-color: ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 }
 .obtrusive-scrollbars::-webkit-scrollbar, .obtrusive-scrollbars *::-webkit-scrollbar {
 	width: 12px;
@@ -10146,18 +9235,6 @@ var beepbox = (function (exports) {
 	justify-content: center;
 	align-items: center;
 	z-index: 100;
-}
-
-.beepboxEditor .promptContainer::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: ${ColorConfig.editorBackground};
-	opacity: 0.5;
-	display: flex;
 }
 
 .beepboxEditor .prompt {
@@ -12086,7 +11163,8 @@ li.select2-results__option[role=group] > strong:hover {
             }
             return patternObject;
         }
-        fromJsonObject(patternObject, song, channel, importedPartsPerBeat, isNoiseChannel, isModChannel) {
+        fromJsonObject(patternObject, song, channel, importedPartsPerBeat, isNoiseChannel, isModChannel, jsonFormat = "auto") {
+            const format = jsonFormat.toLowerCase();
             if (song.patternInstruments) {
                 if (Array.isArray(patternObject["instruments"])) {
                     const instruments = patternObject["instruments"];
@@ -12124,14 +11202,14 @@ li.select2-results__option[role=group] > strong:hover {
                     if (note.pitches.length < 1)
                         continue;
                     let startInterval = 0;
+                    let instrument = channel.instruments[this.instruments[0]];
+                    let mod = Math.max(0, Config.modCount - note.pitches[0] - 1);
                     for (let k = 0; k < noteObject["points"].length; k++) {
                         const pointObject = noteObject["points"][k];
                         if (pointObject == undefined || pointObject["tick"] == undefined)
                             continue;
                         const interval = (pointObject["pitchBend"] == undefined) ? 0 : (pointObject["pitchBend"] | 0);
                         const time = Math.round((+pointObject["tick"]) * Config.partsPerBeat / importedPartsPerBeat);
-                        let instrument = channel.instruments[this.instruments[0]];
-                        let mod = Math.max(0, Config.modCount - note.pitches[0] - 1);
                         let volumeCap = song.getVolumeCapForSetting(isModChannel, instrument.modulators[mod], instrument.modFilterTypes[mod]);
                         let size;
                         if (pointObject["volume"] == undefined) {
@@ -12191,6 +11269,14 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                     else {
                         note.continuesLastPattern = false;
+                    }
+                    if (format != "ultrabox" && instrument.modulators[mod] == Config.modulators.dictionary["tempo"].index) {
+                        for (const pin of note.pins) {
+                            const oldMin = 30;
+                            const newMin = 1;
+                            const old = pin.size + oldMin;
+                            pin.size = old - newMin;
+                        }
                     }
                     this.notes.push(note);
                 }
@@ -12819,7 +11905,7 @@ li.select2-results__option[role=group] > strong:hover {
             this.chord = 1;
             this.volume = 0;
             this.pan = Config.panCenter;
-            this.panDelay = 10;
+            this.panDelay = 0;
             this.arpeggioSpeed = 12;
             this.fastTwoNoteArp = false;
             this.legacyTieOver = false;
@@ -12916,7 +12002,7 @@ li.select2-results__option[role=group] > strong:hover {
             this.bitcrusherFreq = Math.floor((Config.bitcrusherFreqRange - 1) * 0.5);
             this.bitcrusherQuantization = Math.floor((Config.bitcrusherQuantizationRange - 1) * 0.5);
             this.pan = Config.panCenter;
-            this.panDelay = 10;
+            this.panDelay = 0;
             this.pitchShift = Config.pitchShiftCenter;
             this.detune = Config.detuneCenter;
             this.vibrato = 0;
@@ -13240,11 +12326,27 @@ li.select2-results__option[role=group] > strong:hover {
             }
             if (this.type == 2) {
                 instrumentObject["wave"] = Config.chipNoises[this.chipNoise].name;
+                instrumentObject["unison"] = this.unison == Config.unisons.length ? "custom" : Config.unisons[this.unison].name;
+                if (this.unison == Config.unisons.length) {
+                    instrumentObject["unisonVoices"] = this.unisonVoices;
+                    instrumentObject["unisonSpread"] = this.unisonSpread;
+                    instrumentObject["unisonOffset"] = this.unisonOffset;
+                    instrumentObject["unisonExpression"] = this.unisonExpression;
+                    instrumentObject["unisonSign"] = this.unisonSign;
+                }
             }
             else if (this.type == 3) {
                 instrumentObject["spectrum"] = [];
                 for (let i = 0; i < Config.spectrumControlPoints; i++) {
                     instrumentObject["spectrum"][i] = Math.round(100 * this.spectrumWave.spectrum[i] / Config.spectrumMax);
+                }
+                instrumentObject["unison"] = this.unison == Config.unisons.length ? "custom" : Config.unisons[this.unison].name;
+                if (this.unison == Config.unisons.length) {
+                    instrumentObject["unisonVoices"] = this.unisonVoices;
+                    instrumentObject["unisonSpread"] = this.unisonSpread;
+                    instrumentObject["unisonOffset"] = this.unisonOffset;
+                    instrumentObject["unisonExpression"] = this.unisonExpression;
+                    instrumentObject["unisonSign"] = this.unisonSign;
                 }
             }
             else if (this.type == 4) {
@@ -13280,6 +12382,14 @@ li.select2-results__option[role=group] > strong:hover {
             else if (this.type == 6) {
                 instrumentObject["pulseWidth"] = this.pulseWidth;
                 instrumentObject["decimalOffset"] = this.decimalOffset;
+                instrumentObject["unison"] = this.unison == Config.unisons.length ? "custom" : Config.unisons[this.unison].name;
+                if (this.unison == Config.unisons.length) {
+                    instrumentObject["unisonVoices"] = this.unisonVoices;
+                    instrumentObject["unisonSpread"] = this.unisonSpread;
+                    instrumentObject["unisonOffset"] = this.unisonOffset;
+                    instrumentObject["unisonExpression"] = this.unisonExpression;
+                    instrumentObject["unisonSign"] = this.unisonSign;
+                }
             }
             else if (this.type == 8) {
                 instrumentObject["pulseWidth"] = this.pulseWidth;
@@ -13387,8 +12497,9 @@ li.select2-results__option[role=group] > strong:hover {
         fromJsonObject(instrumentObject, isNoiseChannel, isModChannel, useSlowerRhythm, useFastTwoNoteArp, legacyGlobalReverb = 0, jsonFormat = Config.jsonFormat) {
             if (instrumentObject == undefined)
                 instrumentObject = {};
+            const format = jsonFormat.toLowerCase();
             let type = Config.instrumentTypeNames.indexOf(instrumentObject["type"]);
-            if ((jsonFormat == "SynthBox") && (instrumentObject["type"] == "FM"))
+            if ((format == "synthbox") && (instrumentObject["type"] == "FM"))
                 type = Config.instrumentTypeNames.indexOf("FM6op");
             if (type == -1)
                 type = isModChannel ? 10 : (isNoiseChannel ? 2 : 0);
@@ -13398,7 +12509,7 @@ li.select2-results__option[role=group] > strong:hover {
                 this.preset = instrumentObject["preset"] >>> 0;
             }
             if (instrumentObject["volume"] != undefined) {
-                if (jsonFormat == "JummBox" || jsonFormat == "SynthBox" || jsonFormat == "UltraBox") {
+                if (format == "jummbox" || format == "midbox" || format == "synthbox" || format == "goldbox" || format == "paandorasbox" || format == "ultrabox") {
                     this.volume = clamp(-Config.volumeRange / 2, (Config.volumeRange / 2) + 1, instrumentObject["volume"] | 0);
                 }
                 else {
@@ -13528,7 +12639,7 @@ li.select2-results__option[role=group] > strong:hover {
                 else if ((potentialPitchShift == "+1/2 (fifth)") || (potentialPitchShift == "+1 1/2 (octave and fifth)")) {
                     this.pitchShift = 18;
                 }
-                else if ((potentialPitchShift == "-1 (octave)") || (potentialPitchShift == "-2 (2 octaves)")) {
+                else if ((potentialPitchShift == "-1 (octave)") || (potentialPitchShift == "-2 (2 octaves")) {
                     this.pitchShift = 0;
                 }
                 else if ((potentialPitchShift == "-1/2 (fifth)") || (potentialPitchShift == "-1 1/2 (octave and fifth)")) {
@@ -13568,18 +12679,21 @@ li.select2-results__option[role=group] > strong:hover {
             }
             if (instrumentObject["pan"] != undefined) {
                 this.pan = clamp(0, Config.panMax + 1, Math.round(Config.panCenter + (instrumentObject["pan"] | 0) * Config.panCenter / 100));
-                if (this.pan != Config.panCenter) {
-                    this.effects = (this.effects | (1 << 2));
-                }
+            }
+            else if (instrumentObject["ipan"] != undefined) {
+                this.pan = clamp(0, Config.panMax + 1, Config.panCenter + (instrumentObject["ipan"] * -50));
             }
             else {
                 this.pan = Config.panCenter;
+            }
+            if (this.pan != Config.panCenter) {
+                this.effects = (this.effects | (1 << 2));
             }
             if (instrumentObject["panDelay"] != undefined) {
                 this.panDelay = (instrumentObject["panDelay"] | 0);
             }
             else {
-                this.panDelay = 10;
+                this.panDelay = 0;
             }
             if (instrumentObject["detune"] != undefined) {
                 this.detune = clamp(Config.detuneMin, Config.detuneMax + 1, (instrumentObject["detune"] | 0));
@@ -13696,6 +12810,7 @@ li.select2-results__option[role=group] > strong:hover {
                                 this.drumsetSpectrumWaves[j].spectrum[i] = Math.max(0, Math.min(Config.spectrumMax, Math.round(Config.spectrumMax * (+drum["spectrum"][i]) / 100)));
                             }
                         }
+                        this.drumsetSpectrumWaves[j].markCustomWaveDirty();
                     }
                 }
             }
@@ -13749,10 +12864,10 @@ li.select2-results__option[role=group] > strong:hover {
                         this.customAlgorithm.fromPreset(this.algorithm6Op);
                     }
                     this.feedbackType6Op = Config.feedbacks6Op.findIndex(feedback6Op => feedback6Op.name == instrumentObject["feedbackType"]);
-                    if ((this.feedbackType6Op == -1) && (jsonFormat == "SynthBox")) {
-                        this.feedbackType6Op = Config.algorithms6Op.findIndex(feedbackType6Op => feedbackType6Op.name == "Custom");
+                    if (this.feedbackType6Op == -1) {
                         let synthboxLegacyFeedbacks = toNameMap([
                             { name: "2⟲ 3⟲", indices: [[], [2], [3], [], [], []] },
+                            { name: "3⟲ 4⟲", indices: [[], [], [3], [4], [], []] },
                             { name: "4⟲ 5⟲", indices: [[], [], [], [4], [5], []] },
                             { name: "5⟲ 6⟲", indices: [[], [], [], [], [5], [6]] },
                             { name: "1⟲ 6⟲", indices: [[1], [], [], [], [], [6]] },
@@ -13779,17 +12894,19 @@ li.select2-results__option[role=group] > strong:hover {
                             { name: "1→2→3→4→5→6", indices: [[], [1], [2], [3], [4], [5]] },
                         ]);
                         let synthboxFeedbackType = synthboxLegacyFeedbacks[synthboxLegacyFeedbacks.findIndex(feedback => feedback.name == instrumentObject["feedbackType"])].indices;
-                        this.customFeedbackType.set(synthboxFeedbackType);
-                    }
-                    else {
-                        if (this.feedbackType6Op == -1)
-                            this.feedbackType6Op = 1;
-                        if (this.feedbackType6Op == 0) {
-                            this.customFeedbackType.set(instrumentObject["customFeedback"]["mods"]);
+                        if (synthboxFeedbackType != undefined) {
+                            this.feedbackType6Op = 0;
+                            this.customFeedbackType.set(synthboxFeedbackType);
                         }
                         else {
-                            this.customFeedbackType.fromPreset(this.feedbackType6Op);
+                            this.feedbackType6Op = 1;
                         }
+                    }
+                    if ((this.feedbackType6Op == 0) && (instrumentObject["customFeedback"] != undefined)) {
+                        this.customFeedbackType.set(instrumentObject["customFeedback"]["mods"]);
+                    }
+                    else {
+                        this.customFeedbackType.fromPreset(this.feedbackType6Op);
                     }
                 }
                 if (instrumentObject["feedbackAmplitude"] != undefined) {
@@ -13815,11 +12932,18 @@ li.select2-results__option[role=group] > strong:hover {
                         operator.amplitude = 0;
                     }
                     if (operatorObject["waveform"] != undefined) {
+                        if (format == "goldbox" && j > 3) {
+                            operator.waveform = 0;
+                            continue;
+                        }
                         operator.waveform = Config.operatorWaves.findIndex(wave => wave.name == operatorObject["waveform"]);
                         if (operator.waveform == -1) {
                             if (operatorObject["waveform"] == "square") {
                                 operator.waveform = Config.operatorWaves.dictionary["pulse width"].index;
                                 operator.pulseWidth = 5;
+                            }
+                            else if (operatorObject["waveform"] == "rounded") {
+                                operator.waveform = Config.operatorWaves.dictionary["quasi-sine"].index;
                             }
                             else {
                                 operator.waveform = 0;
@@ -13891,7 +13015,7 @@ li.select2-results__option[role=group] > strong:hover {
                     this.aliases = instrumentObject["aliases"];
                 }
                 else {
-                    if (jsonFormat == "ModBox") {
+                    if (format == "modbox") {
                         this.effects = (this.effects | (1 << 3));
                         this.aliases = true;
                         this.distortion = 0;
@@ -14070,6 +13194,10 @@ li.select2-results__option[role=group] > strong:hover {
                 if (index >= useControlPointCount)
                     return false;
             }
+            if ((automationTarget.name == "operatorFrequency") || (automationTarget.name == "operatorAmplitude")) {
+                if (index >= 4 + (this.type == 11 ? 2 : 0))
+                    return false;
+            }
             return true;
         }
         clearInvalidEnvelopeTargets() {
@@ -14214,7 +13342,7 @@ li.select2-results__option[role=group] > strong:hover {
         }
         initToDefault(andResetChannels = true) {
             this.scale = 0;
-            this.scaleCustom = [true, false, false, false, false, false, false, false, false, false, false, false];
+            this.scaleCustom = [true, false, true, true, false, false, false, true, true, false, true, true];
             this.key = 0;
             this.octave = 0;
             this.loopStart = 0;
@@ -14224,11 +13352,11 @@ li.select2-results__option[role=group] > strong:hover {
             this.beatsPerBar = 8;
             this.barCount = 16;
             this.patternsPerChannel = 8;
-            this.rhythm = 3;
+            this.rhythm = 1;
             this.layeredInstruments = false;
             this.patternInstruments = false;
             this.title = "Untitled";
-            document.title = EditorConfig.versionDisplayName;
+            document.title = this.title + " - " + EditorConfig.versionDisplayName;
             if (andResetChannels) {
                 this.pitchChannelCount = 3;
                 this.noiseChannelCount = 1;
@@ -14558,6 +13686,9 @@ li.select2-results__option[role=group] > strong:hover {
                     }
                     else if (instrument.type == 2) {
                         buffer.push(119, base64IntToCharCode[instrument.chipNoise]);
+                        buffer.push(104, base64IntToCharCode[instrument.unison]);
+                        if (instrument.unison == Config.unisons.length)
+                            encodeUnisonSettings(buffer, instrument.unisonVoices, instrument.unisonSpread, instrument.unisonOffset, instrument.unisonExpression, instrument.unisonSign);
                     }
                     else if (instrument.type == 3) {
                         buffer.push(83);
@@ -14566,6 +13697,9 @@ li.select2-results__option[role=group] > strong:hover {
                             spectrumBits.write(Config.spectrumControlPointBits, instrument.spectrumWave.spectrum[i]);
                         }
                         spectrumBits.encodeBase64(buffer);
+                        buffer.push(104, base64IntToCharCode[instrument.unison]);
+                        if (instrument.unison == Config.unisons.length)
+                            encodeUnisonSettings(buffer, instrument.unisonVoices, instrument.unisonSpread, instrument.unisonOffset, instrument.unisonExpression, instrument.unisonSign);
                     }
                     else if (instrument.type == 4) {
                         buffer.push(122);
@@ -14589,6 +13723,9 @@ li.select2-results__option[role=group] > strong:hover {
                     else if (instrument.type == 6) {
                         buffer.push(87, base64IntToCharCode[instrument.pulseWidth]);
                         buffer.push(base64IntToCharCode[instrument.decimalOffset >> 6], base64IntToCharCode[instrument.decimalOffset & 0x3f]);
+                        buffer.push(104, base64IntToCharCode[instrument.unison]);
+                        if (instrument.unison == Config.unisons.length)
+                            encodeUnisonSettings(buffer, instrument.unisonVoices, instrument.unisonSpread, instrument.unisonOffset, instrument.unisonExpression, instrument.unisonSign);
                     }
                     else if (instrument.type == 8) {
                         buffer.push(120, base64IntToCharCode[instrument.supersawDynamism], base64IntToCharCode[instrument.supersawSpread], base64IntToCharCode[instrument.supersawShape]);
@@ -15007,7 +14144,7 @@ li.select2-results__option[role=group] > strong:hover {
                         {
                             this.pitchChannelCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                             this.noiseChannelCount = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                            if (fromBeepBox || beforeTwo) {
+                            if (fromBeepBox || (fromJummBox && beforeTwo)) {
                                 this.modChannelCount = 0;
                             }
                             else {
@@ -15031,7 +14168,7 @@ li.select2-results__option[role=group] > strong:hover {
                         break;
                     case 115:
                         {
-                            this.scale = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                            this.scale = clamp(0, Config.scales.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             if (this.scale == Config.scales["dictionary"]["Custom"].index) {
                                 for (var i = 1; i < Config.pitchesPerOctave; i++) {
                                     this.scaleCustom[i] = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] == 1;
@@ -15199,19 +14336,18 @@ li.select2-results__option[role=group] > strong:hover {
                     case 114:
                         {
                             if (!fromUltraBox) {
-                                let newRhythm = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                                this.rhythm = clamp(0, Config.rhythms.length, newRhythm + 2);
+                                this.rhythm = clamp(0, Config.rhythms.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                 if (fromJummBox && beforeThree || fromBeepBox) {
-                                    if (this.rhythm == 2 || this.rhythm == 3) {
+                                    if (this.rhythm == Config.rhythms.dictionary["÷3 (triplets)"].index || this.rhythm == Config.rhythms.dictionary["÷6"].index) {
                                         useSlowerArpSpeed = true;
                                     }
-                                    if (this.rhythm >= 2) {
+                                    if (this.rhythm >= Config.rhythms.dictionary["÷6"].index) {
                                         useFastTwoNoteArp = true;
                                     }
                                 }
                             }
                             else {
-                                this.rhythm = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                this.rhythm = clamp(0, Config.rhythms.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             }
                         }
                         break;
@@ -15273,7 +14409,6 @@ li.select2-results__option[role=group] > strong:hover {
                                 instrument.fastTwoNoteArp = true;
                             }
                             if (beforeSeven && fromBeepBox) {
-                                instrument.effects = 0;
                                 if (instrument.chord != Config.chords.dictionary["simultaneous"].index) {
                                     instrument.effects |= 1 << 11;
                                 }
@@ -15770,6 +14905,12 @@ li.select2-results__option[role=group] > strong:hover {
                             if (beforeThree && fromBeepBox) {
                                 const channelIndex = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                                 this.channels[channelIndex].instruments[0].unison = clamp(0, Config.unisons.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                const instrument = this.channels[channelIndex].instruments[0];
+                                instrument.unisonVoices = Config.unisons[instrument.unison].voices;
+                                instrument.unisonSpread = Config.unisons[instrument.unison].spread;
+                                instrument.unisonOffset = Config.unisons[instrument.unison].offset;
+                                instrument.unisonExpression = Config.unisons[instrument.unison].expression;
+                                instrument.unisonSign = Config.unisons[instrument.unison].sign;
                             }
                             else if (beforeSix && fromBeepBox) {
                                 for (let channelIndex = 0; channelIndex < this.getChannelCount(); channelIndex++) {
@@ -15781,6 +14922,11 @@ li.select2-results__option[role=group] > strong:hover {
                                             instrument.chord = 3;
                                         }
                                         instrument.unison = unison;
+                                        instrument.unisonVoices = Config.unisons[instrument.unison].voices;
+                                        instrument.unisonSpread = Config.unisons[instrument.unison].spread;
+                                        instrument.unisonOffset = Config.unisons[instrument.unison].offset;
+                                        instrument.unisonExpression = Config.unisons[instrument.unison].expression;
+                                        instrument.unisonSign = Config.unisons[instrument.unison].sign;
                                     }
                                 }
                             }
@@ -15792,40 +14938,46 @@ li.select2-results__option[role=group] > strong:hover {
                                     this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].chord = 3;
                                 }
                                 this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].unison = unison;
-                            }
-                            else {
-                                this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].unison = clamp(0, Config.unisons.length + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            }
-                            const instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
-                            if ((fromUltraBox && !beforeFive) && (instrument.unison == Config.unisons.length)) {
-                                instrument.unisonVoices = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                                const unisonSpreadNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                                const unisonSpread = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + ((base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63)) * 63);
-                                const unisonOffsetNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                                const unisonOffset = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + ((base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63)) * 63);
-                                const unisonExpressionNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                                const unisonExpression = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63);
-                                const unisonSignNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                                const unisonSign = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63);
-                                instrument.unisonSpread = unisonSpread / 1000;
-                                if (unisonSpreadNegative == 0)
-                                    instrument.unisonSpread *= -1;
-                                instrument.unisonOffset = unisonOffset / 1000;
-                                if (unisonOffsetNegative == 0)
-                                    instrument.unisonOffset *= -1;
-                                instrument.unisonExpression = unisonExpression / 1000;
-                                if (unisonExpressionNegative == 0)
-                                    instrument.unisonExpression *= -1;
-                                instrument.unisonSign = unisonSign / 1000;
-                                if (unisonSignNegative == 0)
-                                    instrument.unisonSign *= -1;
-                            }
-                            else {
+                                const instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
                                 instrument.unisonVoices = Config.unisons[instrument.unison].voices;
                                 instrument.unisonSpread = Config.unisons[instrument.unison].spread;
                                 instrument.unisonOffset = Config.unisons[instrument.unison].offset;
                                 instrument.unisonExpression = Config.unisons[instrument.unison].expression;
                                 instrument.unisonSign = Config.unisons[instrument.unison].sign;
+                            }
+                            else {
+                                this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator].unison = clamp(0, Config.unisons.length + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                const instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
+                                if ((fromUltraBox && !beforeFive) && (instrument.unison == Config.unisons.length)) {
+                                    instrument.unisonVoices = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                    const unisonSpreadNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                    const unisonSpread = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + ((base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63)) * 63);
+                                    const unisonOffsetNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                    const unisonOffset = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + ((base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63)) * 63);
+                                    const unisonExpressionNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                    const unisonExpression = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63);
+                                    const unisonSignNegative = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                                    const unisonSign = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * 63);
+                                    instrument.unisonSpread = unisonSpread / 1000;
+                                    if (unisonSpreadNegative == 0)
+                                        instrument.unisonSpread *= -1;
+                                    instrument.unisonOffset = unisonOffset / 1000;
+                                    if (unisonOffsetNegative == 0)
+                                        instrument.unisonOffset *= -1;
+                                    instrument.unisonExpression = unisonExpression / 1000;
+                                    if (unisonExpressionNegative == 0)
+                                        instrument.unisonExpression *= -1;
+                                    instrument.unisonSign = unisonSign / 1000;
+                                    if (unisonSignNegative == 0)
+                                        instrument.unisonSign *= -1;
+                                }
+                                else {
+                                    instrument.unisonVoices = Config.unisons[instrument.unison].voices;
+                                    instrument.unisonSpread = Config.unisons[instrument.unison].spread;
+                                    instrument.unisonOffset = Config.unisons[instrument.unison].offset;
+                                    instrument.unisonExpression = Config.unisons[instrument.unison].expression;
+                                    instrument.unisonSign = Config.unisons[instrument.unison].sign;
+                                }
                             }
                         }
                         break;
@@ -16460,6 +15612,8 @@ li.select2-results__option[role=group] > strong:hover {
                             let songReverbChannel = -1;
                             let songReverbInstrument = -1;
                             let songReverbIndex = -1;
+                            const shouldCorrectTempoMods = fromJummBox;
+                            const jummboxTempoMin = 30;
                             while (true) {
                                 const channel = this.channels[channelIndex];
                                 const isNoiseChannel = this.getChannelIsNoise(channelIndex);
@@ -16712,7 +15866,13 @@ li.select2-results__option[role=group] > strong:hover {
                                             }
                                             note.pitches.length = pitchCount;
                                             pitchBends.unshift(note.pitches[0]);
+                                            const noteIsForTempoMod = isModChannel && channel.instruments[newPattern.instruments[0]].modulators[Config.modCount - 1 - note.pitches[0]] === Config.modulators.dictionary["tempo"].index;
+                                            let tempoOffset = 0;
+                                            if (shouldCorrectTempoMods && noteIsForTempoMod) {
+                                                tempoOffset = jummboxTempoMin - Config.tempoMin;
+                                            }
                                             if (isModChannel) {
+                                                note.pins[0].size += tempoOffset;
                                                 note.pins[0].size *= detuneScaleNotes[newPattern.instruments[0]][note.pitches[0]];
                                             }
                                             let pinCount = 1;
@@ -16722,7 +15882,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                 const interval = pitchBends[0] - note.pitches[0];
                                                 if (note.pins.length <= pinCount) {
                                                     if (isModChannel) {
-                                                        note.pins[pinCount++] = makeNotePin(interval, pinObj.time, pinObj.size * detuneScaleNotes[newPattern.instruments[0]][note.pitches[0]]);
+                                                        note.pins[pinCount++] = makeNotePin(interval, pinObj.time, pinObj.size * detuneScaleNotes[newPattern.instruments[0]][note.pitches[0]] + tempoOffset);
                                                     }
                                                     else {
                                                         note.pins[pinCount++] = makeNotePin(interval, pinObj.time, pinObj.size);
@@ -16733,7 +15893,7 @@ li.select2-results__option[role=group] > strong:hover {
                                                     pin.interval = interval;
                                                     pin.time = pinObj.time;
                                                     if (isModChannel) {
-                                                        pin.size = pinObj.size * detuneScaleNotes[newPattern.instruments[0]][note.pitches[0]];
+                                                        pin.size = pinObj.size * detuneScaleNotes[newPattern.instruments[0]][note.pitches[0]] + tempoOffset;
                                                     }
                                                     else {
                                                         pin.size = pinObj.size;
@@ -17166,7 +16326,17 @@ li.select2-results__option[role=group] > strong:hover {
             this.initToDefault(true);
             if (!jsonObject)
                 return;
-            const format = jsonFormat == "auto" ? jsonObject["format"] : jsonFormat;
+            if (jsonFormat == "auto") {
+                if (jsonObject["format"] == "BeepBox") {
+                    if (jsonObject["riff"] != undefined) {
+                        jsonFormat = "modbox";
+                    }
+                    if (jsonObject["masterGain"] != undefined) {
+                        jsonFormat = "jummbox";
+                    }
+                }
+            }
+            const format = (jsonFormat == "auto" ? jsonObject["format"] : jsonFormat).toLowerCase();
             if (jsonObject["name"] != undefined) {
                 this.title = jsonObject["name"];
             }
@@ -17426,7 +16596,7 @@ li.select2-results__option[role=group] > strong:hover {
                                     instrumentObject["wave"] = names[oldNames.findIndex(x => x === waveName)];
                                 }
                                 else if (veryOldNames.includes(waveName)) {
-                                    if (waveName === "trumpet" || waveName === "flute") ;
+                                    if ((waveName === "trumpet" || waveName === "flute") && (format != "paandorasbox")) ;
                                     else {
                                         shouldLoadLegacySamples = true;
                                         instrumentObject["wave"] = names[veryOldNames.findIndex(x => x === waveName)];
@@ -17660,7 +16830,7 @@ li.select2-results__option[role=group] > strong:hover {
                             patternObject = channelObject["patterns"][i];
                         if (patternObject == undefined)
                             continue;
-                        pattern.fromJsonObject(patternObject, this, channel, importedPartsPerBeat, isNoiseChannel, isModChannel);
+                        pattern.fromJsonObject(patternObject, this, channel, importedPartsPerBeat, isNoiseChannel, isModChannel, format);
                     }
                     channel.patterns.length = this.patternsPerChannel;
                     for (let i = 0; i < this.barCount; i++) {
@@ -17894,7 +17064,9 @@ li.select2-results__option[role=group] > strong:hover {
     class EnvelopeComputer {
         constructor() {
             this.noteSecondsStart = 0.0;
+            this.noteSecondsStartUnscaled = 0.0;
             this.noteSecondsEnd = 0.0;
+            this.noteSecondsEndUnscaled = 0.0;
             this.noteTicksStart = 0.0;
             this.noteTicksEnd = 0.0;
             this.noteSizeStart = Config.noteSizeMax;
@@ -17903,7 +17075,9 @@ li.select2-results__option[role=group] > strong:hover {
             this.nextNoteSize = Config.noteSizeMax;
             this._noteSizeFinal = Config.noteSizeMax;
             this.prevNoteSecondsStart = 0.0;
+            this.prevNoteSecondsStartUnscaled = 0.0;
             this.prevNoteSecondsEnd = 0.0;
+            this.prevNoteSecondsEndUnscaled = 0.0;
             this.prevNoteTicksStart = 0.0;
             this.prevNoteTicksEnd = 0.0;
             this._prevNoteSizeFinal = Config.noteSizeMax;
@@ -17929,21 +17103,26 @@ li.select2-results__option[role=group] > strong:hover {
         }
         reset() {
             this.noteSecondsEnd = 0.0;
+            this.noteSecondsEndUnscaled = 0.0;
             this.noteTicksEnd = 0.0;
             this._noteSizeFinal = Config.noteSizeMax;
             this.prevNoteSecondsEnd = 0.0;
+            this.prevNoteSecondsEndUnscaled = 0.0;
             this.prevNoteTicksEnd = 0.0;
             this._prevNoteSizeFinal = Config.noteSizeMax;
             this._modifiedEnvelopeCount = 0;
         }
         computeEnvelopes(instrument, currentPart, tickTimeStart, tickTimeStartReal, secondsPerTick, tone, timeScale) {
+            const secondsPerTickUnscaled = secondsPerTick;
             secondsPerTick *= timeScale;
             const transition = instrument.getTransition();
             if (tone != null && tone.atNoteStart && !transition.continues && !tone.forceContinueAtStart) {
                 this.prevNoteSecondsEnd = this.noteSecondsEnd;
+                this.prevNoteSecondsEndUnscaled = this.noteSecondsEndUnscaled;
                 this.prevNoteTicksEnd = this.noteTicksEnd;
                 this._prevNoteSizeFinal = this._noteSizeFinal;
                 this.noteSecondsEnd = 0.0;
+                this.noteSecondsEndUnscaled = 0.0;
                 this.noteTicksEnd = 0.0;
             }
             if (tone != null) {
@@ -17957,11 +17136,15 @@ li.select2-results__option[role=group] > strong:hover {
             const tickTimeEnd = tickTimeStart + timeScale;
             const tickTimeEndReal = tickTimeStartReal + 1.0;
             const noteSecondsStart = this.noteSecondsEnd;
+            const noteSecondsStartUnscaled = this.noteSecondsEndUnscaled;
             const noteSecondsEnd = noteSecondsStart + secondsPerTick;
+            const noteSecondsEndUnscaled = noteSecondsStartUnscaled + secondsPerTickUnscaled;
             const noteTicksStart = this.noteTicksEnd;
             const noteTicksEnd = noteTicksStart + 1.0;
             const prevNoteSecondsStart = this.prevNoteSecondsEnd;
+            const prevNoteSecondsStartUnscaled = this.prevNoteSecondsEndUnscaled;
             const prevNoteSecondsEnd = prevNoteSecondsStart + secondsPerTick;
+            const prevNoteSecondsEndUnscaled = prevNoteSecondsStartUnscaled + secondsPerTickUnscaled;
             const prevNoteTicksStart = this.prevNoteTicksEnd;
             const prevNoteTicksEnd = prevNoteTicksStart + 1.0;
             const beatsPerTick = 1.0 / (Config.ticksPerPart * Config.partsPerBeat);
@@ -18074,11 +17257,15 @@ li.select2-results__option[role=group] > strong:hover {
                 }
             }
             this.noteSecondsStart = noteSecondsStart;
+            this.noteSecondsStartUnscaled = noteSecondsStartUnscaled;
             this.noteSecondsEnd = noteSecondsEnd;
+            this.noteSecondsEndUnscaled = noteSecondsEndUnscaled;
             this.noteTicksStart = noteTicksStart;
             this.noteTicksEnd = noteTicksEnd;
             this.prevNoteSecondsStart = prevNoteSecondsStart;
+            this.prevNoteSecondsStartUnscaled = prevNoteSecondsStartUnscaled;
             this.prevNoteSecondsEnd = prevNoteSecondsEnd;
+            this.prevNoteSecondsEndUnscaled = prevNoteSecondsEndUnscaled;
             this.prevNoteTicksStart = prevNoteTicksStart;
             this.prevNoteTicksEnd = prevNoteTicksEnd;
             this.prevNoteSize = prevNoteSize;
@@ -18166,6 +17353,8 @@ li.select2-results__option[role=group] > strong:hover {
             this.liveInputSamplesHeld = 0;
             this.lastInterval = 0;
             this.noiseSample = 0.0;
+            this.noiseSampleA = 0.0;
+            this.noiseSampleB = 0.0;
             this.stringSustainStart = 0;
             this.stringSustainEnd = 0;
             this.phases = [];
@@ -18222,6 +17411,8 @@ li.select2-results__option[role=group] > strong:hover {
         }
         reset() {
             this.noiseSample = 0.0;
+            this.noiseSampleA = 0.0;
+            this.noiseSampleB = 0.0;
             for (let i = 0; i < Config.maxPitchOrOperatorCount; i++) {
                 this.phases[i] = 0.0;
                 this.directions[i] = 1;
@@ -18824,6 +18015,13 @@ li.select2-results__option[role=group] > strong:hover {
                 this.unisonExpression = instrument.unisonExpression;
                 this.unisonSign = instrument.unisonSign;
             }
+            else if (instrument.type == 6) {
+                this.unisonVoices = instrument.unisonVoices;
+                this.unisonSpread = instrument.unisonSpread;
+                this.unisonOffset = instrument.unisonOffset;
+                this.unisonExpression = instrument.unisonExpression;
+                this.unisonSign = instrument.unisonSign;
+            }
             else if (instrument.type == 9) {
                 this.wave = (this.aliases) ? instrument.customChipWave : instrument.customChipWaveIntegral;
                 this.volumeScale = 0.05;
@@ -18835,6 +18033,11 @@ li.select2-results__option[role=group] > strong:hover {
             }
             else if (instrument.type == 2) {
                 this.wave = getDrumWave(instrument.chipNoise, inverseRealFourierTransform, scaleElementsByFactor);
+                this.unisonVoices = instrument.unisonVoices;
+                this.unisonSpread = instrument.unisonSpread;
+                this.unisonOffset = instrument.unisonOffset;
+                this.unisonExpression = instrument.unisonExpression;
+                this.unisonSign = instrument.unisonSign;
             }
             else if (instrument.type == 5) {
                 this.wave = this.harmonicsWave.getCustomWave(instrument.harmonicsWave, instrument.type);
@@ -18854,6 +18057,11 @@ li.select2-results__option[role=group] > strong:hover {
             }
             else if (instrument.type == 3) {
                 this.wave = this.spectrumWave.getCustomWave(instrument.spectrumWave, 8);
+                this.unisonVoices = instrument.unisonVoices;
+                this.unisonSpread = instrument.unisonSpread;
+                this.unisonOffset = instrument.unisonOffset;
+                this.unisonExpression = instrument.unisonExpression;
+                this.unisonSign = instrument.unisonSign;
             }
             else if (instrument.type == 4) {
                 for (let i = 0; i < Config.drumCount; i++) {
@@ -19425,7 +18633,7 @@ li.select2-results__option[role=group] > strong:hover {
                     this.synthesize(outputDataL, outputDataR, outputBuffer.length, this.isPlayingSong);
                     if (this.oscEnabled) {
                         if (this.oscRefreshEventTimer <= 0) {
-                            events.raise("oscillascopeUpdate", outputDataL, outputDataR);
+                            events.raise("oscilloscopeUpdate", outputDataL, outputDataR);
                             this.oscRefreshEventTimer = 2;
                         }
                         else {
@@ -19528,14 +18736,6 @@ li.select2-results__option[role=group] > strong:hover {
         setModValue(volumeStart, volumeEnd, channelIndex, instrumentIndex, setting) {
             let val = volumeStart + Config.modulators[setting].convertRealFactor;
             let nextVal = volumeEnd + Config.modulators[setting].convertRealFactor;
-            if (Config.modulators[setting].optionalModify == "invert-0to50") {
-                val = 50 - val;
-                nextVal = 50 - nextVal;
-            }
-            if (Config.modulators[setting].optionalModify == "invert-0to99") {
-                val = 99 - val;
-                nextVal = 99 - nextVal;
-            }
             if (Config.modulators[setting].forSong) {
                 if (this.modValues[setting] == null || this.modValues[setting] != val || this.nextModValues[setting] != nextVal) {
                     this.modValues[setting] = val;
@@ -19706,6 +18906,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (!this.song)
                 return;
             const samplesPerTick = this.getSamplesPerTick();
+            this.prevBar = this.bar;
             if (this.loopBarEnd != this.bar)
                 this.bar++;
             else {
@@ -21046,8 +20247,8 @@ li.select2-results__option[role=group] > strong:hover {
             if ((!transition.isSeamless && !tone.forceContinueAtStart) || tone.prevNote == null) {
                 const fadeInSeconds = instrument.getFadeInSeconds();
                 if (fadeInSeconds > 0.0) {
-                    fadeExpressionStart *= Math.min(1.0, envelopeComputer.noteSecondsStart / fadeInSeconds);
-                    fadeExpressionEnd *= Math.min(1.0, envelopeComputer.noteSecondsEnd / fadeInSeconds);
+                    fadeExpressionStart *= Math.min(1.0, envelopeComputer.noteSecondsStartUnscaled / fadeInSeconds);
+                    fadeExpressionEnd *= Math.min(1.0, envelopeComputer.noteSecondsEndUnscaled / fadeInSeconds);
                 }
             }
             if (instrument.type == 4 && tone.drumsetPitch == null) {
@@ -21305,7 +20506,7 @@ li.select2-results__option[role=group] > strong:hover {
                     settingsExpressionMult *= Math.pow(2.0, 0.7 * (1.0 - useSustainStart / (Config.stringSustainRange - 1)));
                 }
                 const startFreq = Instrument.frequencyFromPitch(startPitch);
-                if (instrument.type == 0 || instrument.type == 9 || instrument.type == 5 || instrument.type == 7) {
+                if (instrument.type == 0 || instrument.type == 9 || instrument.type == 5 || instrument.type == 7 || instrument.type == 3 || instrument.type == 6 || instrument.type == 2) {
                     const unisonVoices = instrument.unisonVoices;
                     const unisonSpread = instrument.unisonSpread;
                     const unisonOffset = instrument.unisonOffset;
@@ -21394,8 +20595,8 @@ li.select2-results__option[role=group] > strong:hover {
                         useSpreadStart = (this.getModValue(Config.modulators.dictionary["spread"].index, channelIndex, tone.instrumentIndex, false)) / Config.supersawSpreadMax;
                         useSpreadEnd = (this.getModValue(Config.modulators.dictionary["spread"].index, channelIndex, tone.instrumentIndex, true)) / Config.supersawSpreadMax;
                     }
-                    const spreadSliderStart = useSpreadStart * envelopeStarts[39];
-                    const spreadSliderEnd = useSpreadEnd * envelopeEnds[39];
+                    const spreadSliderStart = Math.max(0, useSpreadStart) * envelopeStarts[39];
+                    const spreadSliderEnd = Math.max(0, useSpreadEnd) * envelopeEnds[39];
                     const averageSpreadSlider = (spreadSliderStart + spreadSliderEnd) * 0.5;
                     const curvedSpread = Math.pow(1.0 - Math.sqrt(Math.max(0.0, 1.0 - averageSpreadSlider)), 1.75);
                     for (let i = 0; i < Config.supersawVoiceCount; i++) {
@@ -21663,7 +20864,7 @@ li.select2-results__option[role=group] > strong:hover {
             const chipWaveLoopMode = instrumentState.chipWaveLoopMode;
             const chipWavePlayBackwards = instrumentState.chipWavePlayBackwards;
             const unisonSign = tone.specialIntervalExpressionMult * instrumentState.unisonSign;
-            if (instrumentState.unisonVoices == 1 && !instrumentState.chord.customInterval)
+            if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
                 tone.phases[1] = tone.phases[0];
             let phaseDeltaA = tone.phaseDeltas[0] * waveLength;
             let phaseDeltaB = tone.phaseDeltas[1] * waveLength;
@@ -21969,7 +21170,7 @@ li.select2-results__option[role=group] > strong:hover {
             const volumeScale = instrumentState.volumeScale;
             const waveLength = (aliases && instrumentState.type == 8) ? wave.length : wave.length - 1;
             const unisonSign = tone.specialIntervalExpressionMult * instrumentState.unisonSign;
-            if (instrumentState.unisonVoices == 1 && !instrumentState.chord.customInterval)
+            if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
                 tone.phases[1] = tone.phases[0];
             let phaseDeltaA = tone.phaseDeltas[0] * waveLength;
             let phaseDeltaB = tone.phaseDeltas[1] * waveLength;
@@ -22050,7 +21251,7 @@ li.select2-results__option[role=group] > strong:hover {
             const wave = instrumentState.wave;
             const waveLength = wave.length - 1;
             const unisonSign = tone.specialIntervalExpressionMult * instrumentState.unisonSign;
-            if (instrumentState.unisonVoices == 1 && !instrumentState.chord.customInterval)
+            if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
                 tone.phases[1] = tone.phases[0];
             let phaseDeltaA = tone.phaseDeltas[0] * waveLength;
             let phaseDeltaB = tone.phaseDeltas[1] * waveLength;
@@ -22793,13 +21994,19 @@ li.select2-results__option[role=group] > strong:hover {
             }
             effectsFunction(synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState);
         }
-        static pulseWidthSynth(synth, bufferIndex, roundedSamplesPerTick, tone, instrument) {
+        static pulseWidthSynth(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) {
             const data = synth.tempMonoInstrumentSampleBuffer;
-            let phaseDelta = tone.phaseDeltas[0];
-            const phaseDeltaScale = +tone.phaseDeltaScales[0];
+            const unisonSign = tone.specialIntervalExpressionMult * instrumentState.unisonSign;
+            if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
+                tone.phases[1] = tone.phases[0];
+            let phaseDeltaA = tone.phaseDeltas[0];
+            let phaseDeltaB = tone.phaseDeltas[1];
+            const phaseDeltaScaleA = +tone.phaseDeltaScales[0];
+            const phaseDeltaScaleB = +tone.phaseDeltaScales[1];
             let expression = +tone.expression;
             const expressionDelta = +tone.expressionDelta;
-            let phase = (tone.phases[0] % 1);
+            let phaseA = (tone.phases[0] % 1);
+            let phaseB = (tone.phases[1] % 1);
             let pulseWidth = tone.pulseWidth;
             const pulseWidthDelta = tone.pulseWidthDelta;
             const filters = tone.noteFilters;
@@ -22809,40 +22016,63 @@ li.select2-results__option[role=group] > strong:hover {
             const applyFilters = Synth.applyFilters;
             const stopIndex = bufferIndex + roundedSamplesPerTick;
             for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
-                const sawPhaseA = phase % 1;
-                const sawPhaseB = (phase + pulseWidth) % 1;
-                let pulseWave = sawPhaseB - sawPhaseA;
-                if (!instrument.aliases) {
-                    if (sawPhaseA < phaseDelta) {
-                        var t = sawPhaseA / phaseDelta;
-                        pulseWave += (t + t - t * t - 1) * 0.5;
+                const sawPhaseA = phaseA % 1;
+                const sawPhaseB = (phaseA + pulseWidth) % 1;
+                const sawPhaseC = phaseB % 1;
+                const sawPhaseD = (phaseB + pulseWidth) % 1;
+                let pulseWaveA = sawPhaseB - sawPhaseA;
+                let pulseWaveB = sawPhaseD - sawPhaseC;
+                if (!instrumentState.aliases) {
+                    if (sawPhaseA < phaseDeltaA) {
+                        var t = sawPhaseA / phaseDeltaA;
+                        pulseWaveA += (t + t - t * t - 1) * 0.5;
                     }
-                    else if (sawPhaseA > 1.0 - phaseDelta) {
-                        var t = (sawPhaseA - 1.0) / phaseDelta;
-                        pulseWave += (t + t + t * t + 1) * 0.5;
+                    else if (sawPhaseA > 1.0 - phaseDeltaA) {
+                        var t = (sawPhaseA - 1.0) / phaseDeltaA;
+                        pulseWaveA += (t + t + t * t + 1) * 0.5;
                     }
-                    if (sawPhaseB < phaseDelta) {
-                        var t = sawPhaseB / phaseDelta;
-                        pulseWave -= (t + t - t * t - 1) * 0.5;
+                    if (sawPhaseB < phaseDeltaA) {
+                        var t = sawPhaseB / phaseDeltaA;
+                        pulseWaveA -= (t + t - t * t - 1) * 0.5;
                     }
-                    else if (sawPhaseB > 1.0 - phaseDelta) {
-                        var t = (sawPhaseB - 1.0) / phaseDelta;
-                        pulseWave -= (t + t + t * t + 1) * 0.5;
+                    else if (sawPhaseB > 1.0 - phaseDeltaA) {
+                        var t = (sawPhaseB - 1.0) / phaseDeltaA;
+                        pulseWaveA -= (t + t + t * t + 1) * 0.5;
+                    }
+                    if (sawPhaseC < phaseDeltaB) {
+                        var t = sawPhaseC / phaseDeltaB;
+                        pulseWaveB += (t + t - t * t - 1) * 0.5;
+                    }
+                    else if (sawPhaseC > 1.0 - phaseDeltaB) {
+                        var t = (sawPhaseC - 1.0) / phaseDeltaB;
+                        pulseWaveB += (t + t + t * t + 1) * 0.5;
+                    }
+                    if (sawPhaseD < phaseDeltaB) {
+                        var t = sawPhaseD / phaseDeltaB;
+                        pulseWaveB -= (t + t - t * t - 1) * 0.5;
+                    }
+                    else if (sawPhaseD > 1.0 - phaseDeltaB) {
+                        var t = (sawPhaseD - 1.0) / phaseDeltaB;
+                        pulseWaveB -= (t + t + t * t + 1) * 0.5;
                     }
                 }
-                const inputSample = pulseWave;
+                const inputSample = pulseWaveA + pulseWaveB * unisonSign;
                 const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
                 initialFilterInput2 = initialFilterInput1;
                 initialFilterInput1 = inputSample;
-                phase += phaseDelta;
-                phaseDelta *= phaseDeltaScale;
+                phaseA += phaseDeltaA;
+                phaseB += phaseDeltaB;
+                phaseDeltaA *= phaseDeltaScaleA;
+                phaseDeltaB *= phaseDeltaScaleB;
                 pulseWidth += pulseWidthDelta;
                 const output = sample * expression;
                 expression += expressionDelta;
                 data[sampleIndex] += output;
             }
-            tone.phases[0] = phase;
-            tone.phaseDeltas[0] = phaseDelta;
+            tone.phases[0] = phaseA;
+            tone.phases[1] = phaseB;
+            tone.phaseDeltas[0] = phaseDeltaA;
+            tone.phaseDeltas[1] = phaseDeltaB;
             tone.expression = expression;
             tone.pulseWidth = pulseWidth;
             synth.sanitizeFilters(filters);
@@ -22938,40 +22168,60 @@ li.select2-results__option[role=group] > strong:hover {
         static noiseSynth(synth, bufferIndex, runLength, tone, instrumentState) {
             const data = synth.tempMonoInstrumentSampleBuffer;
             const wave = instrumentState.wave;
-            let phaseDelta = +tone.phaseDeltas[0];
-            const phaseDeltaScale = +tone.phaseDeltaScales[0];
+            const unisonSign = tone.specialIntervalExpressionMult * instrumentState.unisonSign;
+            if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
+                tone.phases[1] = tone.phases[0];
+            let phaseDeltaA = tone.phaseDeltas[0];
+            let phaseDeltaB = tone.phaseDeltas[1];
+            const phaseDeltaScaleA = +tone.phaseDeltaScales[0];
+            const phaseDeltaScaleB = +tone.phaseDeltaScales[1];
             let expression = +tone.expression;
             const expressionDelta = +tone.expressionDelta;
-            let phase = (tone.phases[0] % 1) * Config.chipNoiseLength;
+            let phaseA = (tone.phases[0] % 1) * Config.chipNoiseLength;
+            let phaseB = (tone.phases[1] % 1) * Config.chipNoiseLength;
             if (tone.phases[0] == 0.0) {
-                phase = Math.random() * Config.chipNoiseLength;
+                phaseA = Math.random() * Config.chipNoiseLength;
+                if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
+                    phaseB = phaseA;
+            }
+            if (tone.phases[1] == 0.0 && !(instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)) {
+                phaseB = Math.random() * Config.chipNoiseLength;
             }
             const phaseMask = Config.chipNoiseLength - 1;
-            let noiseSample = +tone.noiseSample;
+            let noiseSampleA = +tone.noiseSampleA;
+            let noiseSampleB = +tone.noiseSampleB;
             const filters = tone.noteFilters;
             const filterCount = tone.noteFilterCount | 0;
             let initialFilterInput1 = +tone.initialNoteFilterInput1;
             let initialFilterInput2 = +tone.initialNoteFilterInput2;
             const applyFilters = Synth.applyFilters;
-            const pitchRelativefilter = Math.min(1.0, phaseDelta * instrumentState.noisePitchFilterMult);
+            const pitchRelativefilterA = Math.min(1.0, phaseDeltaA * instrumentState.noisePitchFilterMult);
+            const pitchRelativefilterB = Math.min(1.0, phaseDeltaB * instrumentState.noisePitchFilterMult);
             const stopIndex = bufferIndex + runLength;
             for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
-                const waveSample = wave[phase & phaseMask];
-                noiseSample += (waveSample - noiseSample) * pitchRelativefilter;
-                const inputSample = noiseSample;
+                const waveSampleA = wave[phaseA & phaseMask];
+                const waveSampleB = wave[phaseB & phaseMask];
+                noiseSampleA += (waveSampleA - noiseSampleA) * pitchRelativefilterA;
+                noiseSampleB += (waveSampleB - noiseSampleB) * pitchRelativefilterB;
+                const inputSample = noiseSampleA + noiseSampleB * unisonSign;
                 const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
                 initialFilterInput2 = initialFilterInput1;
                 initialFilterInput1 = inputSample;
-                phase += phaseDelta;
-                phaseDelta *= phaseDeltaScale;
+                phaseA += phaseDeltaA;
+                phaseB += phaseDeltaB;
+                phaseDeltaA *= phaseDeltaScaleA;
+                phaseDeltaB *= phaseDeltaScaleB;
                 const output = sample * expression;
                 expression += expressionDelta;
                 data[sampleIndex] += output;
             }
-            tone.phases[0] = phase / Config.chipNoiseLength;
-            tone.phaseDeltas[0] = phaseDelta;
+            tone.phases[0] = phaseA / Config.chipNoiseLength;
+            tone.phases[1] = phaseB / Config.chipNoiseLength;
+            tone.phaseDeltas[0] = phaseDeltaA;
+            tone.phaseDeltas[1] = phaseDeltaB;
             tone.expression = expression;
-            tone.noiseSample = noiseSample;
+            tone.noiseSampleA = noiseSampleA;
+            tone.noiseSampleB = noiseSampleB;
             synth.sanitizeFilters(filters);
             tone.initialNoteFilterInput1 = initialFilterInput1;
             tone.initialNoteFilterInput2 = initialFilterInput2;
@@ -22980,43 +22230,68 @@ li.select2-results__option[role=group] > strong:hover {
             const data = synth.tempMonoInstrumentSampleBuffer;
             const wave = instrumentState.wave;
             const samplesInPeriod = (1 << 7);
-            let phaseDelta = tone.phaseDeltas[0] * samplesInPeriod;
-            const phaseDeltaScale = +tone.phaseDeltaScales[0];
+            const unisonSign = tone.specialIntervalExpressionMult * instrumentState.unisonSign;
+            if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
+                tone.phases[1] = tone.phases[0];
+            let phaseDeltaA = tone.phaseDeltas[0] * samplesInPeriod;
+            let phaseDeltaB = tone.phaseDeltas[1] * samplesInPeriod;
+            const phaseDeltaScaleA = +tone.phaseDeltaScales[0];
+            const phaseDeltaScaleB = +tone.phaseDeltaScales[1];
             let expression = +tone.expression;
             const expressionDelta = +tone.expressionDelta;
-            let noiseSample = +tone.noiseSample;
+            let noiseSampleA = +tone.noiseSampleA;
+            let noiseSampleB = +tone.noiseSampleB;
             const filters = tone.noteFilters;
             const filterCount = tone.noteFilterCount | 0;
             let initialFilterInput1 = +tone.initialNoteFilterInput1;
             let initialFilterInput2 = +tone.initialNoteFilterInput2;
             const applyFilters = Synth.applyFilters;
-            let phase = (tone.phases[0] % 1) * Config.spectrumNoiseLength;
-            if (tone.phases[0] == 0.0)
-                phase = Synth.findRandomZeroCrossing(wave, Config.spectrumNoiseLength) + phaseDelta;
+            let phaseA = (tone.phases[0] % 1) * Config.spectrumNoiseLength;
+            let phaseB = (tone.phases[1] % 1) * Config.spectrumNoiseLength;
+            if (tone.phases[0] == 0.0) {
+                phaseA = Synth.findRandomZeroCrossing(wave, Config.spectrumNoiseLength) + phaseDeltaA;
+                if (instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)
+                    phaseB = phaseA;
+            }
+            if (tone.phases[1] == 0.0 && !(instrumentState.unisonVoices == 1 && instrumentState.unisonSpread == 0 && !instrumentState.chord.customInterval)) {
+                phaseB = Synth.findRandomZeroCrossing(wave, Config.spectrumNoiseLength) + phaseDeltaB;
+            }
             const phaseMask = Config.spectrumNoiseLength - 1;
-            const pitchRelativefilter = Math.min(1.0, phaseDelta);
+            const pitchRelativefilterA = Math.min(1.0, phaseDeltaA);
+            const pitchRelativefilterB = Math.min(1.0, phaseDeltaB);
             const stopIndex = bufferIndex + runLength;
             for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
-                const phaseInt = phase | 0;
-                const index = phaseInt & phaseMask;
-                let waveSample = wave[index];
-                const phaseRatio = phase - phaseInt;
-                waveSample += (wave[index + 1] - waveSample) * phaseRatio;
-                noiseSample += (waveSample - noiseSample) * pitchRelativefilter;
-                const inputSample = noiseSample;
+                const phaseAInt = phaseA | 0;
+                const phaseBInt = phaseB | 0;
+                const indexA = phaseAInt & phaseMask;
+                const indexB = phaseBInt & phaseMask;
+                let waveSampleA = wave[indexA];
+                let waveSampleB = wave[indexB];
+                const phaseRatioA = phaseA - phaseAInt;
+                const phaseRatioB = phaseB - phaseBInt;
+                waveSampleA += (wave[indexA + 1] - waveSampleA) * phaseRatioA;
+                waveSampleB += (wave[indexB + 1] - waveSampleB) * phaseRatioB;
+                noiseSampleA += (waveSampleA - noiseSampleA) * pitchRelativefilterA;
+                noiseSampleB += (waveSampleB - noiseSampleB) * pitchRelativefilterB;
+                const inputSample = noiseSampleA + noiseSampleB * unisonSign;
                 const sample = applyFilters(inputSample, initialFilterInput1, initialFilterInput2, filterCount, filters);
                 initialFilterInput2 = initialFilterInput1;
                 initialFilterInput1 = inputSample;
-                phase += phaseDelta;
-                phaseDelta *= phaseDeltaScale;
+                phaseA += phaseDeltaA;
+                phaseB += phaseDeltaB;
+                phaseDeltaA *= phaseDeltaScaleA;
+                phaseDeltaB *= phaseDeltaScaleB;
                 const output = sample * expression;
                 expression += expressionDelta;
                 data[sampleIndex] += output;
             }
-            tone.phases[0] = phase / Config.spectrumNoiseLength;
-            tone.phaseDeltas[0] = phaseDelta / samplesInPeriod;
+            tone.phases[0] = phaseA / Config.spectrumNoiseLength;
+            tone.phases[1] = phaseB / Config.spectrumNoiseLength;
+            tone.phaseDeltas[0] = phaseDeltaA / samplesInPeriod;
+            tone.phaseDeltas[1] = phaseDeltaB / samplesInPeriod;
             tone.expression = expression;
-            tone.noiseSample = noiseSample;
+            tone.noiseSampleA = noiseSampleA;
+            tone.noiseSampleB = noiseSampleB;
             synth.sanitizeFilters(filters);
             tone.initialNoteFilterInput1 = initialFilterInput1;
             tone.initialNoteFilterInput2 = initialFilterInput2;
@@ -23706,6 +22981,155 @@ li.select2-results__option[role=group] > strong:hover {
             newNotes.push(newNote);
         }
     }
+    function mod(a, b) {
+        return (a % b + b) % b;
+    }
+    function sigma(a, b, c) {
+        let result = 0;
+        for (let i = c; i <= a; i++) {
+            result += b(i);
+        }
+        return result;
+    }
+    function randomSineWave(wave) {
+        let randomRoundWave = new Float32Array(64);
+        let waveLength = 64;
+        let foundNonZero = false;
+        const roundedWaveType = (Math.random() * 2 + 1) | 0;
+        if (roundedWaveType == 1 || roundedWaveType == 3) {
+            let randomNumber1 = Math.random() * 2 + 0.5;
+            let randomNumber2 = Math.random() * 13 + 3;
+            let randomNumber3 = Math.random() * 48 - 24;
+            for (let i = 0; i < waveLength; i++) {
+                randomRoundWave[i] = clamp(-24, 24 + 1, Math.round(mod(randomNumber3 + ((Math.sin((i + randomNumber3) / randomNumber2) * 24) + i * randomNumber1), 48) - 24));
+            }
+        }
+        else if (roundedWaveType == 2) {
+            let randomNumber1 = Math.random() * 0.19 + 0.06;
+            let randomNumber2 = Math.random() * 2 + 1;
+            let randomNumber3 = Math.random() * 48 - 24;
+            let randomNumber4 = Math.random() * 2 - 1;
+            for (let i = 0; i < waveLength; i++) {
+                randomRoundWave[i] = clamp(-24, 24 + 1, Math.round(randomNumber4 * Math.abs(2 * Math.floor((Math.sin((i / randomNumber2) * randomNumber1 + randomNumber3) * Math.cos((i * randomNumber2) * (randomNumber1 / 2)) * 24))) - randomNumber4 * 24));
+            }
+        }
+        for (let i = 0; i < waveLength; i++) {
+            wave[i] = randomRoundWave[i];
+            let minimum = Infinity;
+            let maximum = -Infinity;
+            for (let i = 0; i < waveLength; i++) {
+                minimum = Math.min(minimum, wave[i]);
+                maximum = Math.max(maximum, wave[i]);
+            }
+            const distance = maximum - minimum;
+            if (distance >= 7) {
+                foundNonZero = true;
+            }
+        }
+        if (!foundNonZero)
+            randomSineWave(wave);
+    }
+    function randomPulses(wave) {
+        let randomPulse = new Float32Array(64);
+        let waveLength = 64;
+        let foundNonZero = false;
+        let randomNumber2 = Math.round(Math.random() * 15 + 15);
+        let randomNumber3 = Math.round(Math.random() * 3 + 1);
+        let randomNumber4 = Math.round(Math.random() * 13 + 2);
+        for (let i = 0; i < waveLength; i++) {
+            let randomNumber1 = sigma(mod(i, randomNumber2), (i) => 1, randomNumber4);
+            randomPulse[i] = clamp(-24, 24 + 1, Math.round(mod(24 * (sigma(i, (i) => randomNumber1, Math.round(randomNumber2 / randomNumber3))), 24.0000000000001)));
+        }
+        for (let i = 0; i < waveLength; i++) {
+            wave[i] = randomPulse[i];
+            let minimum = Infinity;
+            let maximum = -Infinity;
+            for (let i = 0; i < waveLength; i++) {
+                minimum = Math.min(minimum, wave[i]);
+                maximum = Math.max(maximum, wave[i]);
+            }
+            const distance = maximum - minimum;
+            if (distance >= 7) {
+                foundNonZero = true;
+            }
+        }
+        if (!foundNonZero)
+            randomPulses(wave);
+    }
+    function randomChipWave(wave) {
+        let randomChip = new Float32Array(64);
+        let waveLength = 64;
+        let foundNonZero = false;
+        const chipType = (Math.random() * 2 + 1) | 0;
+        if (chipType == 1) {
+            let randomNumber1 = Math.random() * 3;
+            let randomNumber2 = Math.random() * 0.99 - 1;
+            let randomNumber3 = Math.random() * 9 + 2;
+            let randomNumber4 = Math.random() * 2 - 1;
+            for (let i = 0; i < waveLength; i++) {
+                randomChip[i] = clamp(-24, 24 + 1, (Math.round(Math.abs(randomNumber4 * mod(((randomNumber2 / randomNumber3) * randomNumber3) + (sigma(i / (randomNumber1 * randomNumber1), (i) => randomNumber3, randomNumber1 * -randomNumber2)) * randomNumber4, 24)))) * 2 - 24);
+            }
+        }
+        else if (chipType == 2) {
+            let randomNumber1 = Math.random() * 3;
+            let randomNumber2 = Math.random() * 2 - 1;
+            let randomNumber3 = Math.random() * 100;
+            for (let i = 0; i < waveLength; i++) {
+                randomChip[i] = clamp(-24, 24 + 1, mod(Math.round(mod((sigma(i / randomNumber1, (i) => (randomNumber1 * randomNumber3), 0)), 25 + randomNumber2) * 24), 48) - 24);
+            }
+        }
+        for (let i = 0; i < waveLength; i++) {
+            wave[i] = randomChip[i];
+            let minimum = Infinity;
+            let maximum = -Infinity;
+            for (let i = 0; i < waveLength; i++) {
+                minimum = Math.min(minimum, wave[i]);
+                maximum = Math.max(maximum, wave[i]);
+            }
+            const distance = maximum - minimum;
+            if (distance >= 7) {
+                foundNonZero = true;
+            }
+        }
+        if (!foundNonZero)
+            randomChipWave(wave);
+    }
+    function biasedFullyRandom(wave) {
+        let fullyRandomWave = new Float32Array(64);
+        let waveLength = 64;
+        let foundNonZero = false;
+        for (let i = 0; i < waveLength; i++) {
+            const v = Math.random() * 2 - 1;
+            const bias = 6;
+            const biased = v > 0 ? Math.pow(v, bias) : -Math.pow(-v, bias);
+            fullyRandomWave[i] = clamp(-24, 24 + 1, Math.floor(biased * 24));
+        }
+        for (let i = 0; i < waveLength; i++) {
+            wave[i] = fullyRandomWave[i];
+            let minimum = Infinity;
+            let maximum = -Infinity;
+            for (let i = 0; i < waveLength; i++) {
+                minimum = Math.min(minimum, wave[i]);
+                maximum = Math.max(maximum, wave[i]);
+            }
+            const distance = maximum - minimum;
+            if (distance >= 7) {
+                foundNonZero = true;
+            }
+        }
+        if (!foundNonZero)
+            biasedFullyRandom(wave);
+    }
+    function fullyRandom(wave) {
+        let fullyRandomWave = new Float32Array(64);
+        let waveLength = 64;
+        for (let i = 0; i < waveLength; i++) {
+            fullyRandomWave[i] = clamp(-24, 24 + 1, ((Math.random() * 48) | 0) - 24);
+        }
+        for (let i = 0; i < waveLength; i++) {
+            wave[i] = fullyRandomWave[i];
+        }
+    }
     class ChangeMoveAndOverflowNotes extends ChangeGroup {
         constructor(doc, newBeatsPerBar, partsToMove) {
             super();
@@ -24186,12 +23610,15 @@ li.select2-results__option[role=group] > strong:hover {
             ]);
             if (isNoise) {
                 const type = selectWeightedRandom([
-                    { item: 2, weight: 1 },
+                    { item: 2, weight: 3 },
                     { item: 3, weight: 3 },
+                    { item: 4, weight: 1 },
                 ]);
                 instrument.preset = instrument.type = type;
-                instrument.fadeIn = (Math.random() < 0.8) ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
-                instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
+                if (type != 4) {
+                    instrument.fadeIn = (Math.random() < 0.8) ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
+                    instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
+                }
                 if (Math.random() < 0.1) {
                     instrument.effects |= 1 << 10;
                     instrument.transition = Config.transitions.dictionary[selectWeightedRandom([
@@ -24295,6 +23722,50 @@ li.select2-results__option[role=group] > strong:hover {
                     instrument.effects |= 1 << 0;
                     instrument.reverb = selectCurvedDistribution(1, Config.reverbRange - 1, 1, 1);
                 }
+                if (type == 2 || type == 3) {
+                    instrument.unison = Config.unisons.dictionary[selectWeightedRandom([
+                        { item: "none", weight: 100 },
+                        { item: "shimmer", weight: 10 },
+                        { item: "hum", weight: 8 },
+                        { item: "honky tonk", weight: 6 },
+                        { item: "dissonant", weight: 2 },
+                        { item: "fifth", weight: 4 },
+                        { item: "octave", weight: 5 },
+                        { item: "bowed", weight: 4 },
+                        { item: "piano", weight: 10 },
+                        { item: "warbled", weight: 5 },
+                        { item: "hecking gosh", weight: 3 },
+                        { item: "spinner", weight: 6 },
+                        { item: "detune", weight: 4 },
+                        { item: "rising", weight: 2 },
+                        { item: "vibrate", weight: 3 },
+                        { item: "bass", weight: 2 },
+                        { item: "recurve", weight: 3 },
+                        { item: "inject", weight: 2 },
+                        { item: "FART", weight: 1 },
+                    ])].index;
+                    if (instrument.unison != Config.unisons.dictionary["none"].index && Math.random() > 0.4)
+                        instrument.addEnvelope(Config.instrumentAutomationTargets.dictionary["unison"].index, 0, Config.envelopes.dictionary[selectWeightedRandom([
+                            { item: "twang -1", weight: 3 },
+                            { item: "twang 1", weight: 3 },
+                            { item: "twang 2", weight: 2 },
+                            { item: "swell 1", weight: 1 },
+                            { item: "decay -1", weight: 3 },
+                            { item: "decay 1", weight: 3 },
+                            { item: "decay 2", weight: 2 },
+                            { item: "wibble-1", weight: 2 },
+                            { item: "wibble 1", weight: 2 },
+                            { item: "wibble 2", weight: 1 },
+                            { item: "wibble 3", weight: 1 },
+                            { item: "linear-2", weight: 2 },
+                            { item: "linear-1", weight: 2 },
+                            { item: "linear 1", weight: 2 },
+                            { item: "linear 2", weight: 1 },
+                            { item: "linear 3", weight: 1 },
+                            { item: "rise 1", weight: 1 },
+                            { item: "rise 2", weight: 1 },
+                        ])].index);
+                }
                 function normalize(harmonics) {
                     let max = 0;
                     for (const value of harmonics) {
@@ -24349,24 +23820,49 @@ li.select2-results__option[role=group] > strong:hover {
                             instrument.spectrumWave.markCustomWaveDirty();
                         }
                         break;
+                    case 4:
+                        {
+                            for (let i = 0; i < Config.drumCount; i++) {
+                                instrument.drumsetEnvelopes[i] = Math.floor(Math.random() * Config.envelopes.length);
+                                const spectrum = [];
+                                let randomFactor = Math.floor(Math.random() * 3);
+                                for (let j = 0; j < Config.spectrumControlPoints; j++) {
+                                    if (randomFactor == 0 || randomFactor == 3)
+                                        spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
+                                    else if (randomFactor == 1)
+                                        spectrum[j] = Math.pow(Math.random(), ((i / 8) + 1));
+                                    else if (randomFactor == 2)
+                                        spectrum[j] = (Math.pow(Math.random(), 2)) * ((i / 3) + 1);
+                                    else
+                                        spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
+                                }
+                                normalize(spectrum);
+                                for (let j = 0; j < Config.spectrumControlPoints; j++) {
+                                    instrument.drumsetSpectrumWaves[i].spectrum[j] = Math.round(spectrum[j]);
+                                }
+                                instrument.drumsetSpectrumWaves[i].markCustomWaveDirty();
+                            }
+                        }
+                        break;
                     default: throw new Error("Unhandled noise instrument type in random generator.");
                 }
             }
             else {
                 const type = selectWeightedRandom([
-                    { item: 0, weight: 4 },
-                    { item: 6, weight: 4 },
-                    { item: 8, weight: 5 },
-                    { item: 5, weight: 5 },
-                    { item: 7, weight: 5 },
-                    { item: 3, weight: 1 },
-                    { item: 1, weight: 5 },
-                    { item: 11, weight: 3 },
+                    { item: 0, weight: 2 },
+                    { item: 6, weight: 2 },
+                    { item: 8, weight: 2 },
+                    { item: 9, weight: 2 },
+                    { item: 5, weight: 2 },
+                    { item: 7, weight: 2 },
+                    { item: 3, weight: 2 },
+                    { item: 1, weight: 2 },
+                    { item: 11, weight: 2 },
                 ]);
                 instrument.preset = instrument.type = type;
                 instrument.fadeIn = (Math.random() < 0.5) ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
                 instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
-                if (type == 0 || type == 5 || type == 7) {
+                if (type == 0 || type == 5 || type == 7 || type == 9 || type == 6 || type == 3) {
                     instrument.unison = Config.unisons.dictionary[selectWeightedRandom([
                         { item: "none", weight: 25 },
                         { item: "shimmer", weight: 10 },
@@ -24677,7 +24173,7 @@ li.select2-results__option[role=group] > strong:hover {
                                     { item: "sawtooth", weight: 3 },
                                     { item: "ramp", weight: 3 },
                                     { item: "trapezoid", weight: 4 },
-                                    { item: "rounded", weight: 2 },
+                                    { item: "quasi-sine", weight: 2 },
                                 ])].index;
                                 if (instrument.operators[i].waveform == 2) {
                                     instrument.operators[i].pulseWidth = selectWeightedRandom([
@@ -24747,7 +24243,7 @@ li.select2-results__option[role=group] > strong:hover {
                                     { item: "sawtooth", weight: 3 },
                                     { item: "ramp", weight: 3 },
                                     { item: "trapezoid", weight: 4 },
-                                    { item: "rounded", weight: 2 },
+                                    { item: "quasi-sine", weight: 2 },
                                 ])].index;
                                 if (instrument.operators[i].waveform == 2) {
                                     instrument.operators[i].pulseWidth = selectWeightedRandom([
@@ -24768,7 +24264,7 @@ li.select2-results__option[role=group] > strong:hover {
                             instrument.feedbackAmplitude = (Math.pow(Math.random(), 3) * Config.operatorAmplitudeMax) | 0;
                             if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
                                 instrument.addEnvelope(Config.instrumentAutomationTargets.dictionary["feedbackAmplitude"].index, 0, Config.envelopes.dictionary[selectWeightedRandom([
-                                    { item: "steady", weight: 4 },
+                                    { item: "none", weight: 4 },
                                     { item: "punch", weight: 2 },
                                     { item: "flare -1", weight: 1 },
                                     { item: "flare 1", weight: 2 },
@@ -24809,6 +24305,34 @@ li.select2-results__option[role=group] > strong:hover {
                                     { item: "rise 3", weight: 1 },
                                 ])].index);
                             }
+                        }
+                        break;
+                    case 9:
+                        {
+                            let randomGeneratedArray = new Float32Array(64);
+                            let randomGeneratedArrayIntegral = new Float32Array(65);
+                            const algorithmFunction = selectWeightedRandom([
+                                { item: randomSineWave, weight: 4 },
+                                { item: randomPulses, weight: 4 },
+                                { item: randomChipWave, weight: 3 },
+                                { item: biasedFullyRandom, weight: 2 },
+                                { item: fullyRandom, weight: 1 },
+                            ]);
+                            algorithmFunction(randomGeneratedArray);
+                            let sum = 0.0;
+                            for (let i = 0; i < randomGeneratedArray.length; i++)
+                                sum += randomGeneratedArray[i];
+                            const average = sum / randomGeneratedArray.length;
+                            let cumulative = 0;
+                            let wavePrev = 0;
+                            for (let i = 0; i < randomGeneratedArray.length; i++) {
+                                cumulative += wavePrev;
+                                wavePrev = randomGeneratedArray[i] - average;
+                                randomGeneratedArrayIntegral[i] = cumulative;
+                            }
+                            randomGeneratedArrayIntegral[64] = 0.0;
+                            instrument.customChipWave = randomGeneratedArray;
+                            instrument.customChipWaveIntegral = randomGeneratedArrayIntegral;
                         }
                         break;
                     default: throw new Error("Unhandled pitched instrument type in random generator.");
@@ -25083,7 +24607,9 @@ li.select2-results__option[role=group] > strong:hover {
             const newNoiseChannelCount = doc.song.noiseChannelCount + (!isNoise || isMod ? 0 : 1);
             const newModChannelCount = doc.song.modChannelCount + (isNoise || !isMod ? 0 : 1);
             if (newPitchChannelCount <= Config.pitchChannelCountMax && newNoiseChannelCount <= Config.noiseChannelCountMax && newModChannelCount <= Config.modChannelCountMax) {
-                const addedChannelIndex = isNoise ? doc.song.pitchChannelCount + doc.song.noiseChannelCount : doc.song.pitchChannelCount;
+                const addedChannelIndex = doc.song.pitchChannelCount
+                    + (isNoise ? doc.song.noiseChannelCount : 0)
+                    + (isMod ? doc.song.modChannelCount : 0);
                 this.append(new ChangeChannelCount(doc, newPitchChannelCount, newNoiseChannelCount, newModChannelCount));
                 if (addedChannelIndex - 1 >= index) {
                     this.append(new ChangeChannelOrder(doc, index, addedChannelIndex - 1, 1));
@@ -25183,6 +24709,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevUnison != Config.unisons.length) {
                 instrument.unisonVoices = newValue;
                 instrument.unison = Config.unisons.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25196,6 +24723,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevUnison != Config.unisons.length) {
                 instrument.unisonSpread = newValue;
                 instrument.unison = Config.unisons.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25209,6 +24737,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevUnison != Config.unisons.length) {
                 instrument.unisonOffset = newValue;
                 instrument.unison = Config.unisons.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25222,6 +24751,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevUnison != Config.unisons.length) {
                 instrument.unisonExpression = newValue;
                 instrument.unison = Config.unisons.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25235,6 +24765,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevUnison != Config.unisons.length) {
                 instrument.unisonSign = newValue;
                 instrument.unison = Config.unisons.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25280,6 +24811,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
                 instrument.vibratoDepth = newValue / 25;
                 instrument.vibrato = Config.vibratos.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25293,6 +24825,7 @@ li.select2-results__option[role=group] > strong:hover {
             doc.notifier.changed();
             if (oldValue != newValue) {
                 instrument.envelopeSpeed = newValue;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25308,6 +24841,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
                 instrument.vibratoSpeed = newValue;
                 instrument.vibrato = Config.vibratos.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25323,6 +24857,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
                 instrument.vibratoDelay = newValue;
                 instrument.vibrato = Config.vibratos.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25338,6 +24873,7 @@ li.select2-results__option[role=group] > strong:hover {
             if (oldValue != newValue || prevVibrato != Config.vibratos.length) {
                 instrument.vibratoType = newValue;
                 instrument.vibrato = Config.vibratos.length;
+                instrument.preset = instrument.type;
                 doc.notifier.changed();
                 this._didSomething();
             }
@@ -25350,8 +24886,10 @@ li.select2-results__option[role=group] > strong:hover {
             instrument.arpeggioSpeed = newValue;
             doc.synth.unsetMod(Config.modulators.dictionary["arp speed"].index, doc.channel, doc.getCurrentInstrument());
             doc.notifier.changed();
-            if (oldValue != newValue)
+            if (oldValue != newValue) {
+                instrument.preset = instrument.type;
                 this._didSomething();
+            }
         }
     }
     class ChangeFastTwoNoteArp extends Change {
@@ -25362,6 +24900,7 @@ li.select2-results__option[role=group] > strong:hover {
             doc.notifier.changed();
             if (oldValue != newValue) {
                 instrument.fastTwoNoteArp = newValue;
+                instrument.preset = instrument.type;
                 this._didSomething();
             }
         }
@@ -25374,6 +24913,7 @@ li.select2-results__option[role=group] > strong:hover {
             doc.notifier.changed();
             if (oldValue != newValue) {
                 instrument.clicklessTransition = newValue;
+                instrument.preset = instrument.type;
                 this._didSomething();
             }
         }
@@ -25386,6 +24926,7 @@ li.select2-results__option[role=group] > strong:hover {
             doc.notifier.changed();
             if (oldValue != newValue) {
                 instrument.aliases = newValue;
+                instrument.preset = instrument.type;
                 this._didSomething();
             }
         }
@@ -25398,6 +24939,7 @@ li.select2-results__option[role=group] > strong:hover {
             doc.notifier.changed();
             if (oldValue != newValue) {
                 instrument.discreteEnvelope = newValue;
+                instrument.preset = instrument.type;
                 this._didSomething();
             }
         }
@@ -25580,6 +25122,7 @@ li.select2-results__option[role=group] > strong:hover {
                 instrument.tmpEqFilterEnd = null;
             }
             instrument.clearInvalidEnvelopeTargets();
+            instrument.preset = instrument.type;
             doc.notifier.changed();
             this._didSomething();
         }
@@ -25599,6 +25142,7 @@ li.select2-results__option[role=group] > strong:hover {
                 instrument.tmpNoteFilterEnd = null;
             }
             instrument.clearInvalidEnvelopeTargets();
+            instrument.preset = instrument.type;
             doc.notifier.changed();
             this._didSomething();
         }
@@ -25923,9 +25467,9 @@ li.select2-results__option[role=group] > strong:hover {
             super();
             const instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
             instrument.operators[operatorIndex].pulseWidth = newValue;
-            instrument.preset = instrument.type;
             doc.notifier.changed();
             if (oldValue != newValue) {
+                instrument.preset = instrument.type;
                 this._didSomething();
             }
         }
@@ -27789,15 +27333,15 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$n, div: div$n, span: span$6, h2: h2$m, input: input$h, br: br$4, select: select$c, option: option$c } = HTML;
+    const { button: button$o, div: div$o, span: span$6, h2: h2$n, input: input$h, br: br$4, select: select$d, option: option$d } = HTML;
     class BeatsPerBarPrompt {
         constructor(_doc) {
             this._doc = _doc;
             this._beatsStepper = input$h({ style: "width: 3em; margin-left: 1em;", type: "number", step: "1" });
-            this._conversionStrategySelect = select$c({ style: "width: 100%;" }, option$c({ value: "splice" }, "Splice beats at end of bars."), option$c({ value: "stretch" }, "Stretch notes to fit in bars."), option$c({ value: "overflow" }, "Overflow notes across bars."));
-            this._cancelButton = button$n({ class: "cancelButton" });
-            this._okayButton = button$n({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.container = div$n({ class: "prompt noSelection", style: "width: 250px;" }, h2$m("Beats Per Bar"), div$n({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$n({ style: "text-align: right;" }, "Beats per bar:", br$4(), span$6({ style: "font-size: smaller; color: ${ColorConfig.secondaryText};" }, "(Multiples of 3 or 4 are recommended)")), this._beatsStepper), div$n({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$n({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)), div$n({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._conversionStrategySelect = select$d({ style: "width: 100%;" }, option$d({ value: "splice" }, "Splice beats at end of bars."), option$d({ value: "stretch" }, "Stretch notes to fit in bars."), option$d({ value: "overflow" }, "Overflow notes across bars."));
+            this._cancelButton = button$o({ class: "cancelButton" });
+            this._okayButton = button$o({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$o({ class: "prompt noSelection", style: "width: 250px;" }, h2$n("Beats Per Bar"), div$o({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$o({ style: "text-align: right;" }, "Beats per bar:", br$4(), span$6({ style: "font-size: smaller; color: ${ColorConfig.secondaryText};" }, "(Multiples of 3 or 4 are recommended)")), this._beatsStepper), div$o({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$o({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)), div$o({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -27850,7 +27394,7 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$m, div: div$m, label: label$3, br: br$3, h2: h2$l, input: input$g } = HTML;
+    const { button: button$n, div: div$n, label: label$3, br: br$3, h2: h2$m, input: input$g } = HTML;
     class ChannelSettingsPrompt {
         constructor(_doc) {
             this._doc = _doc;
@@ -27860,9 +27404,9 @@ li.select2-results__option[role=group] > strong:hover {
             this._modChannelStepper = input$g({ style: "width: 3em; margin-left: 1em;", type: "number", step: "1" });
             this._layeredInstrumentsBox = input$g({ style: "width: 3em; margin-left: 1em;", type: "checkbox" });
             this._patternInstrumentsBox = input$g({ style: "width: 3em; margin-left: 1em;", type: "checkbox" });
-            this._cancelButton = button$m({ class: "cancelButton" });
-            this._okayButton = button$m({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.container = div$m({ class: "prompt noSelection", style: "width: 250px; text-align: right;" }, h2$l("Channel Settings"), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Pitch channels:", this._pitchChannelStepper), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Drum channels:", this._drumChannelStepper), div$m({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Mod channels:", this._modChannelStepper), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Available patterns per channel:", this._patternsStepper), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Simultaneous instruments", br$3(), "per channel:", this._layeredInstrumentsBox), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Different instruments", br$3(), "per pattern:", this._patternInstrumentsBox), div$m({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._cancelButton = button$n({ class: "cancelButton" });
+            this._okayButton = button$n({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$n({ class: "prompt noSelection", style: "width: 250px; text-align: right;" }, h2$m("Channel Settings"), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Pitch channels:", this._pitchChannelStepper), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Drum channels:", this._drumChannelStepper), div$n({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Mod channels:", this._modChannelStepper), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Available patterns per channel:", this._patternsStepper), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Simultaneous instruments", br$3(), "per channel:", this._layeredInstrumentsBox), label$3({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Different instruments", br$3(), "per pattern:", this._patternInstrumentsBox), div$n({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -27937,7 +27481,7 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$l, div: div$l, h2: h2$k } = HTML;
+    const { button: button$m, div: div$m, h2: h2$l } = HTML;
     class CustomChipPromptCanvas {
         constructor(doc) {
             this._mouseX = 0;
@@ -28130,24 +27674,24 @@ li.select2-results__option[role=group] > strong:hover {
             this._doc = _doc;
             this._songEditor = _songEditor;
             this.customChipCanvas = new CustomChipPromptCanvas(this._doc);
-            this._playButton = button$l({ style: "width: 55%;", type: "button" });
-            this._cancelButton = button$l({ class: "cancelButton" });
-            this._okayButton = button$l({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.copyButton = button$l({ style: "width:86px; margin-right: 5px;", class: "copyButton" }, [
+            this._playButton = button$m({ style: "width: 55%;", type: "button" });
+            this._cancelButton = button$m({ class: "cancelButton" });
+            this._okayButton = button$m({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.copyButton = button$m({ style: "width:86px; margin-right: 5px;", class: "copyButton" }, [
                 "Copy",
                 SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "-5 -21 26 26" }, [
                     SVG.path({ d: "M 0 -15 L 1 -15 L 1 0 L 13 0 L 13 1 L 0 1 L 0 -15 z M 2 -1 L 2 -17 L 10 -17 L 14 -13 L 14 -1 z M 3 -2 L 13 -2 L 13 -12 L 9 -12 L 9 -16 L 3 -16 z", fill: "currentColor" }),
                 ]),
             ]);
-            this.pasteButton = button$l({ style: "width:86px;", class: "pasteButton" }, [
+            this.pasteButton = button$m({ style: "width:86px;", class: "pasteButton" }, [
                 "Paste",
                 SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "0 0 26 26" }, [
                     SVG.path({ d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z", stroke: "currentColor", fill: "none" }),
                     SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor", }),
                 ]),
             ]);
-            this.copyPasteContainer = div$l({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
-            this.container = div$l({ class: "prompt noSelection", style: "width: 600px;" }, h2$k("Edit Custom Chip Instrument"), div$l({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), div$l({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.customChipCanvas.container), div$l({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer), this._cancelButton);
+            this.copyPasteContainer = div$m({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
+            this.container = div$m({ class: "prompt noSelection", style: "width: 600px;" }, h2$l("Edit Custom Chip Instrument"), div$m({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), div$m({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.customChipCanvas.container), div$m({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer), this._cancelButton);
             this._togglePlay = () => {
                 this._songEditor.togglePlay();
                 this.updatePlayButton();
@@ -28824,7 +28368,7 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$k, div: div$k, h2: h2$j, p: p$7 } = HTML;
+    const { button: button$l, div: div$l, h2: h2$k, p: p$8 } = HTML;
     class CustomFilterPrompt {
         constructor(_doc, _songEditor, _useNoteFilter) {
             this._doc = _doc;
@@ -28833,29 +28377,29 @@ li.select2-results__option[role=group] > strong:hover {
             this.filterData = new FilterSettings;
             this.startingFilterData = new FilterSettings;
             this._subfilterIndex = 0;
-            this._playButton = button$k({ style: "width: 55%;", type: "button" });
+            this._playButton = button$l({ style: "width: 55%;", type: "button" });
             this._filterButtons = [];
-            this._filterButtonContainer = div$k({ class: "instrument-bar", style: "justify-content: center;" });
-            this._cancelButton = button$k({ class: "cancelButton" });
-            this._okayButton = button$k({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this._filterContainer = div$k({ style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: center;" });
-            this._editorTitle = div$k({}, h2$j("Edit Filter"));
-            this._filterCopyButton = button$k({ style: "width:86px; margin-right: 5px;", class: "copyButton" }, [
+            this._filterButtonContainer = div$l({ class: "instrument-bar", style: "justify-content: center;" });
+            this._cancelButton = button$l({ class: "cancelButton" });
+            this._okayButton = button$l({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this._filterContainer = div$l({ style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: center;" });
+            this._editorTitle = div$l({}, h2$k("Edit Filter"));
+            this._filterCopyButton = button$l({ style: "width:86px; margin-right: 5px;", class: "copyButton" }, [
                 "Copy",
                 SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "-5 -21 26 26" }, [
                     SVG.path({ d: "M 0 -15 L 1 -15 L 1 0 L 13 0 L 13 1 L 0 1 L 0 -15 z M 2 -1 L 2 -17 L 10 -17 L 14 -13 L 14 -1 z M 3 -2 L 13 -2 L 13 -12 L 9 -12 L 9 -16 L 3 -16 z", fill: "currentColor" }),
                 ]),
             ]);
-            this._filterPasteButton = button$k({ style: "width:86px;", class: "pasteButton" }, [
+            this._filterPasteButton = button$l({ style: "width:86px;", class: "pasteButton" }, [
                 "Paste",
                 SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "0 0 26 26" }, [
                     SVG.path({ d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z", stroke: "currentColor", fill: "none" }),
                     SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor", }),
                 ]),
             ]);
-            this._filterCopyPasteContainer = div$k({ style: "width: 185px;" }, this._filterCopyButton, this._filterPasteButton);
-            this._filterCoordinateText = div$k({ style: "text-align: left; margin-bottom: 0px; font-size: x-small; height: 1.3em; color: " + ColorConfig.secondaryText + ";" }, p$7(""));
-            this.container = div$k({ class: "prompt noSelection", style: "width: 600px;" }, this._editorTitle, div$k({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), this._filterButtonContainer, this._filterContainer, div$k({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this._filterCopyPasteContainer), this._cancelButton);
+            this._filterCopyPasteContainer = div$l({ style: "width: 185px;" }, this._filterCopyButton, this._filterPasteButton);
+            this._filterCoordinateText = div$l({ style: "text-align: left; margin-bottom: 0px; font-size: x-small; height: 1.3em; color: " + ColorConfig.secondaryText + ";" }, p$8(""));
+            this.container = div$l({ class: "prompt noSelection", style: "width: 600px;" }, this._editorTitle, div$l({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), this._filterButtonContainer, this._filterContainer, div$l({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this._filterCopyPasteContainer), this._cancelButton);
             this._setSubfilter = (index, useHistory = true, doSwap = true) => {
                 this._filterButtons[this._subfilterIndex].classList.remove("selected-instrument");
                 if (doSwap)
@@ -28957,12 +28501,12 @@ li.select2-results__option[role=group] > strong:hover {
             this.filterEditor.container.insertBefore(this._filterCoordinateText, this.filterEditor.container.firstChild);
             this.filterEditor.coordText = this._filterCoordinateText;
             this._editorTitle.children[0].innerHTML = (_useNoteFilter) ? "Edit Note Filter" : "Edit EQ Filter";
-            let newButton = button$k({ class: "no-underline", style: "max-width: 5em;" }, "Main");
+            let newButton = button$l({ class: "no-underline", style: "max-width: 5em;" }, "Main");
             this._filterButtonContainer.appendChild(newButton);
             this._filterButtons.push(newButton);
             newButton.addEventListener("click", () => { this._setSubfilter(0); });
             for (let i = 1; i < Config.filterMorphCount; i++) {
-                let newSubButton = button$k({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
+                let newSubButton = button$l({ class: "no-underline", style: "max-width: 2em;" }, "" + i);
                 this._filterButtons.push(newSubButton);
                 this._filterButtonContainer.appendChild(newSubButton);
                 newSubButton.addEventListener("click", () => { this._setSubfilter(i); });
@@ -28995,16 +28539,16 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$j, div: div$j, h2: h2$i, input: input$f, label: label$2, br: br$2 } = HTML;
+    const { button: button$k, div: div$k, h2: h2$j, input: input$f, label: label$2, br: br$2 } = HTML;
     class InstrumentExportPrompt {
         constructor(_doc) {
             this._doc = _doc;
-            this._cancelButton = button$j({ class: "cancelButton" });
-            this._exportButton = button$j({ class: "exportButton", style: "width:45%;" }, "Export");
+            this._cancelButton = button$k({ class: "cancelButton" });
+            this._exportButton = button$k({ class: "exportButton", style: "width:45%;" }, "Export");
             this._exportMultipleBox = input$f({ style: "width: 3em; margin-left: 1em;", type: "checkbox" });
             this._channelName = this._doc.song.channels[this._doc.channel].name == "" ? Config.jsonFormat + "-Instrument" : this._doc.song.channels[this._doc.channel].name;
             this._fileName = input$f({ type: "text", style: "width: 10em;", value: this._channelName, maxlength: 250, "autofocus": "autofocus" });
-            this.container = div$j({ class: "prompt noSelection", style: "width: 200px;" }, h2$i("Export Instruments Options"), div$j({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName), label$2({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Export all instruments", br$2(), "in channel:", this._exportMultipleBox), div$j({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._exportButton), this._cancelButton);
+            this.container = div$k({ class: "prompt noSelection", style: "width: 200px;" }, h2$j("Export Instruments Options"), div$k({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName), label$2({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, "Export all instruments", br$2(), "in channel:", this._exportMultipleBox), div$k({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._exportButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -29071,15 +28615,15 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$i, div: div$i, h2: h2$h, input: input$e, select: select$b, option: option$b, code: code$1 } = HTML;
+    const { button: button$j, div: div$j, h2: h2$i, input: input$e, select: select$c, option: option$c, code: code$1 } = HTML;
     class InstrumentImportPrompt {
         constructor(_doc) {
             this._doc = _doc;
-            this._cancelButton = button$i({ class: "cancelButton" });
-            this._importStrategySelect = select$b({ style: "width: 100%;" }, option$b({ value: "append" }, "Append instruments to the end of the list."), option$b({ value: "replace" }, "Replace only the selected instrument."), option$b({ value: "all" }, "Replace all instruments in the channel."));
+            this._cancelButton = button$j({ class: "cancelButton" });
+            this._importStrategySelect = select$c({ style: "width: 100%;" }, option$c({ value: "append" }, "Append instruments to the end of the list."), option$c({ value: "replace" }, "Replace only the selected instrument."), option$c({ value: "all" }, "Replace all instruments in the channel."));
             this._fileInput = input$e({ type: "file", accept: ".json,application/json" });
-            this._strategyInfoText = div$i({ style: "text-align: left;" }, "You must enable either ", code$1("Simultaneous instruments per channel"), " or ", code$1("Different instruments per pattern"), " to change the import strategy.");
-            this.container = div$i({ class: "prompt noSelection", style: "width: 300px;" }, h2$h("Import Instrument(s)"), this._strategyInfoText, div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$i({ class: "selectContainer", style: "width: 100%;" }, this._importStrategySelect)), this._fileInput, this._cancelButton);
+            this._strategyInfoText = div$j({ style: "text-align: left;" }, "You must enable either ", code$1("Simultaneous instruments per channel"), " or ", code$1("Different instruments per pattern"), " to change the import strategy.");
+            this.container = div$j({ class: "prompt noSelection", style: "width: 300px;" }, h2$i("Import Instrument(s)"), this._strategyInfoText, div$j({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$j({ class: "selectContainer", style: "width: 100%;" }, this._importStrategySelect)), this._fileInput, this._cancelButton);
             this._whenFileSelected = () => {
                 const file = this._fileInput.files[0];
                 if (!file)
@@ -29220,7 +28764,7 @@ li.select2-results__option[role=group] > strong:hover {
         }
     }
 
-    const { button: button$h, div: div$h, h2: h2$g, input: input$d } = HTML;
+    const { button: button$i, div: div$i, h2: h2$h, input: input$d } = HTML;
     function gcd(x, y) {
         while (y !== 0) {
             const z = x % y;
@@ -29326,16 +28870,16 @@ li.select2-results__option[role=group] > strong:hover {
             this._clockPadding = this._clockWidth / this._maxSteps;
             this._clockRadius = this._clockWidth / 2 - this._clockPointMaxRadius - this._clockPadding;
             this._sequenceButtons = [];
-            this._sequenceRemoveButton = button$h({ class: "no-underline", style: "flex-grow: 0; flex-basis: 30px;" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -13 26 26", "pointer-events": "none" }, SVG.path({ d: "M -7.07 -5.66 L -5.66 -7.07 L 0 -1.4 L 5.66 -7.07 L 7.07 -5.66 L 1.4 0 L 7.07 5.66 L 5.66 7.07 L 0 1.4 L -5.66 7.07 L -7.07 5.66 L -1.4 0 z", fill: ColorConfig.primaryText })));
-            this._sequenceAddButton = button$h({ class: "no-underline last-button", style: "flex-grow: 0; flex-basis: 30px;" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -13 26 26", "pointer-events": "none" }, SVG.path({ d: "M -8 -1 L -1 -1 L -1 -8 L 1 -8 L 1 -1 L 8 -1 L 8 1 L 1 1 L 1 8 L -1 8 L -1 1 L -8 1 z", fill: ColorConfig.primaryText })));
-            this._sequenceButtonContainer = div$h({ class: "instrument-bar", style: "justify-content: center; width: 100%;" }, this._sequenceRemoveButton, this._sequenceAddButton);
+            this._sequenceRemoveButton = button$i({ class: "no-underline", style: "flex-grow: 0; flex-basis: 30px;" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -13 26 26", "pointer-events": "none" }, SVG.path({ d: "M -7.07 -5.66 L -5.66 -7.07 L 0 -1.4 L 5.66 -7.07 L 7.07 -5.66 L 1.4 0 L 7.07 5.66 L 5.66 7.07 L 0 1.4 L -5.66 7.07 L -7.07 5.66 L -1.4 0 z", fill: ColorConfig.primaryText })));
+            this._sequenceAddButton = button$i({ class: "no-underline last-button", style: "flex-grow: 0; flex-basis: 30px;" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -13 26 26", "pointer-events": "none" }, SVG.path({ d: "M -8 -1 L -1 -1 L -1 -8 L 1 -8 L 1 -1 L 8 -1 L 8 1 L 1 1 L 1 8 L -1 8 L -1 1 L -8 1 z", fill: ColorConfig.primaryText })));
+            this._sequenceButtonContainer = div$i({ class: "instrument-bar", style: "justify-content: center; width: 100%;" }, this._sequenceRemoveButton, this._sequenceAddButton);
             this._barPreviewBackground = SVG.svg({ "pointer-events": "none" });
             this._barPreviewSteps = SVG.svg({ "pointer-events": "none" });
-            this._barPreviewLabel = div$h({ style: `flex-grow: 1; color: ${ColorConfig.secondaryText}` });
-            this._barPreviewGoToFirstButton = button$h({ style: "height: auto; min-height: var(--button-size);" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -14 26 26", "pointer-events": "none" }, SVG.rect({ x: "-6", y: "-6", width: "2", height: "12", fill: ColorConfig.primaryText }), SVG.path({ d: "M 6 -6 L 6 6 L -3 0 z", fill: ColorConfig.primaryText })));
-            this._barPreviewGoBackButton = button$h({ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" }, SVG.svg({ width: "24", height: "26", viewBox: "-10 -14 24 26", "pointer-events": "none" }, SVG.path({ d: "M 6 -6 L 6 6 L -3 0 z", fill: ColorConfig.primaryText })));
-            this._barPreviewGoForwardButton = button$h({ style: "height: auto; min-height: var(--button-size);" }, SVG.svg({ width: "24", height: "26", viewBox: "-14 -14 24 26", "pointer-events": "none" }, SVG.path({ d: "M -6 -6 L -6 6 L 3 0 z", fill: ColorConfig.primaryText })));
-            this._barPreviewGoToLastButton = button$h({ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -14 26 26", "pointer-events": "none" }, SVG.rect({ x: "4", y: "-6", width: "2", height: "12", fill: ColorConfig.primaryText }), SVG.path({ d: "M -6 -6 L -6 6 L 3 0 z", fill: ColorConfig.primaryText })));
+            this._barPreviewLabel = div$i({ style: `flex-grow: 1; color: ${ColorConfig.secondaryText}` });
+            this._barPreviewGoToFirstButton = button$i({ style: "height: auto; min-height: var(--button-size);" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -14 26 26", "pointer-events": "none" }, SVG.rect({ x: "-6", y: "-6", width: "2", height: "12", fill: ColorConfig.primaryText }), SVG.path({ d: "M 6 -6 L 6 6 L -3 0 z", fill: ColorConfig.primaryText })));
+            this._barPreviewGoBackButton = button$i({ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" }, SVG.svg({ width: "24", height: "26", viewBox: "-10 -14 24 26", "pointer-events": "none" }, SVG.path({ d: "M 6 -6 L 6 6 L -3 0 z", fill: ColorConfig.primaryText })));
+            this._barPreviewGoForwardButton = button$i({ style: "height: auto; min-height: var(--button-size);" }, SVG.svg({ width: "24", height: "26", viewBox: "-14 -14 24 26", "pointer-events": "none" }, SVG.path({ d: "M -6 -6 L -6 6 L 3 0 z", fill: ColorConfig.primaryText })));
+            this._barPreviewGoToLastButton = button$i({ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" }, SVG.svg({ width: "26", height: "26", viewBox: "-13 -14 26 26", "pointer-events": "none" }, SVG.rect({ x: "4", y: "-6", width: "2", height: "12", fill: ColorConfig.primaryText }), SVG.path({ d: "M -6 -6 L -6 6 L 3 0 z", fill: ColorConfig.primaryText })));
             this._clockWire = SVG.circle({ cx: this._clockWidth / 2, cy: this._clockHeight / 2, r: this._clockRadius, stroke: ColorConfig.primaryText, "stroke-width": "0.5", fill: "none" });
             this._clockPoints = SVG.svg({ "pointer-events": "none" });
             this._stepsStepper = input$d({ style: "width: 3em; margin-left: 1em;", type: "number", min: this._minSteps, max: this._maxSteps, value: "8", step: "1" });
@@ -29346,12 +28890,12 @@ li.select2-results__option[role=group] > strong:hover {
             this._channelStepper = input$d({ style: "width: 3em; margin-left: 1em;", type: "number", min: "1", max: this._maxChannel + 1, value: "1", step: "1" });
             this._pitchStepper = input$d({ style: "width: 3em; margin-left: 1em;", type: "number", min: "0", max: Config.maxPitch, value: "0", step: "1" });
             this._barAmountStepper = input$d({ style: "width: 3em; margin-left: 1em;", type: "number", min: "1", max: Config.barCountMax, value: "1", step: "1" });
-            this._extendUntilLoopButton = button$h({ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" }, "Extend until loop");
+            this._extendUntilLoopButton = button$i({ style: "height: auto; min-height: var(--button-size); margin-left: 1em;" }, "Extend until loop");
             this._generateFadingNotesBox = input$d({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1em;" });
             this._invertBox = input$d({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1em;" });
-            this._okayButton = button$h({ class: "okayButton", style: "width: 45%;" }, "Okay");
-            this._cancelButton = button$h({ class: "cancelButton" });
-            this.container = div$h({ class: "prompt noSelection", style: "width: 600px;" }, h2$g("Generate Euclidean Rhythm"), div$h({ style: "display: flex; flex-direction: row; align-items: center;" }, this._sequenceButtonContainer), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, div$h({ style: "flex-grow: 0; flex-shrink: 0;" }, this._barPreviewGoToFirstButton, this._barPreviewGoBackButton), this._barPreviewLabel, div$h({ style: "flex-grow: 0; flex-shrink: 0;" }, this._barPreviewGoForwardButton, this._barPreviewGoToLastButton)), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, SVG.svg({ "pointer-events": "none", style: "touch-action: none; overflow: hidden;", width: "100%", height: "20px", viewBox: `0 0 ${this._barPreviewWidth} ${this._barPreviewHeight}`, preserveAspectRatio: "none" }, this._barPreviewBackground, this._barPreviewSteps)), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;" }, div$h({ style: "max-width: 150px; height: 100%;" }, SVG.svg({ "pointer-events": "none", width: "100%", height: "100%", style: "touch-action: none; overflow: hidden; margin-right: 1.5em; max-width: 150px; height: 100%;", viewBox: `0 0 ${this._clockWidth} ${this._clockHeight}`, preserveAspectRatio: "none" }, this._clockWire, this._clockPoints)), div$h({ style: "display: flex; height: 100%;" }, div$h({ style: "flex-grow: 1; " }, div$h({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end;" }, div$h({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Steps"), this._stepsStepper), div$h({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$h({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Pulses"), this._pulsesStepper), div$h({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$h({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Rotation"), this._rotationStepper)), div$h({ style: "flex-grow: 1; margin-left: 1em;" }, div$h({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-bottom: 1em;" }, div$h({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Size"), div$h({ style: "display: flex; flex-direction: column;" }, this._stepSizeNumeratorStepper, this._stepSizeDenominatorStepper)), div$h({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$h({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Channel"), this._channelStepper), div$h({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$h({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Pitch"), this._pitchStepper)))), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, div$h({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Generate fading notes"), this._generateFadingNotesBox, div$h({ style: `text-align: right; color: ${ColorConfig.primaryText}; margin-left: 1em;` }, "Invert"), this._invertBox), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, div$h({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Length (in bars)"), this._barAmountStepper, this._extendUntilLoopButton), div$h({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._okayButton = button$i({ class: "okayButton", style: "width: 45%;" }, "Okay");
+            this._cancelButton = button$i({ class: "cancelButton" });
+            this.container = div$i({ class: "prompt noSelection", style: "width: 600px;" }, h2$h("Generate Euclidean Rhythm"), div$i({ style: "display: flex; flex-direction: row; align-items: center;" }, this._sequenceButtonContainer), div$i({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, div$i({ style: "flex-grow: 0; flex-shrink: 0;" }, this._barPreviewGoToFirstButton, this._barPreviewGoBackButton), this._barPreviewLabel, div$i({ style: "flex-grow: 0; flex-shrink: 0;" }, this._barPreviewGoForwardButton, this._barPreviewGoToLastButton)), div$i({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, SVG.svg({ "pointer-events": "none", style: "touch-action: none; overflow: hidden;", width: "100%", height: "20px", viewBox: `0 0 ${this._barPreviewWidth} ${this._barPreviewHeight}`, preserveAspectRatio: "none" }, this._barPreviewBackground, this._barPreviewSteps)), div$i({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;" }, div$i({ style: "max-width: 150px; height: 100%;" }, SVG.svg({ "pointer-events": "none", width: "100%", height: "100%", style: "touch-action: none; overflow: hidden; margin-right: 1.5em; max-width: 150px; height: 100%;", viewBox: `0 0 ${this._clockWidth} ${this._clockHeight}`, preserveAspectRatio: "none" }, this._clockWire, this._clockPoints)), div$i({ style: "display: flex; height: 100%;" }, div$i({ style: "flex-grow: 1; " }, div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end;" }, div$i({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Steps"), this._stepsStepper), div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$i({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Pulses"), this._pulsesStepper), div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$i({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Rotation"), this._rotationStepper)), div$i({ style: "flex-grow: 1; margin-left: 1em;" }, div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-bottom: 1em;" }, div$i({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Size"), div$i({ style: "display: flex; flex-direction: column;" }, this._stepSizeNumeratorStepper, this._stepSizeDenominatorStepper)), div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$i({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Channel"), this._channelStepper), div$i({ style: "display: flex; flex-direction: row; align-items: center; height: 3em; justify-content: flex-end; margin-top: 0.5em;" }, div$i({ style: `text-align: right; flex-grow: 1; color: ${ColorConfig.primaryText};` }, "Pitch"), this._pitchStepper)))), div$i({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, div$i({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Generate fading notes"), this._generateFadingNotesBox, div$i({ style: `text-align: right; color: ${ColorConfig.primaryText}; margin-left: 1em;` }, "Invert"), this._invertBox), div$i({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, div$i({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Length (in bars)"), this._barAmountStepper, this._extendUntilLoopButton), div$i({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this.cleanUp = () => {
                 this._okayButton.removeEventListener("click", this._saveChanges);
                 this._cancelButton.removeEventListener("click", this._close);
@@ -29938,7 +29482,7 @@ li.select2-results__option[role=group] > strong:hover {
             this._renderSequenceButtons = () => {
                 const container = this._sequenceButtonContainer;
                 while (this._sequenceButtons.length < this._sequences.length) {
-                    const sequenceButton = button$h({ class: "no-underline" }, (this._sequenceButtons.length + 1) + "");
+                    const sequenceButton = button$i({ class: "no-underline" }, (this._sequenceButtons.length + 1) + "");
                     this._sequenceButtons.push(sequenceButton);
                     container.insertBefore(sequenceButton, this._sequenceRemoveButton);
                 }
@@ -30427,7 +29971,7 @@ li.select2-results__option[role=group] > strong:hover {
         return Math.pow(volumeMult, 0.25) * 127;
     }
 
-    const { button: button$g, div: div$g, h2: h2$f, input: input$c, select: select$a, option: option$a } = HTML;
+    const { button: button$h, div: div$h, h2: h2$g, input: input$c, select: select$b, option: option$b } = HTML;
     function lerp(low, high, t) {
         return low + t * (high - low);
     }
@@ -30456,17 +30000,19 @@ li.select2-results__option[role=group] > strong:hover {
             this._doc = _doc;
             this.outputStarted = false;
             this._fileName = input$c({ type: "text", style: "width: 10em;", value: Config.jsonFormat + "-Song", maxlength: 250, "autofocus": "autofocus" });
-            this._computedSamplesLabel = div$g({ style: "width: 10em;" }, new Text("0:00"));
+            this._computedSamplesLabel = div$h({ style: "width: 10em;" }, new Text("0:00"));
             this._enableIntro = input$c({ type: "checkbox" });
             this._loopDropDown = input$c({ style: "width: 2em;", type: "number", min: "1", max: "4", step: "1" });
             this._enableOutro = input$c({ type: "checkbox" });
-            this._formatSelect = select$a({ style: "width: 100%;" }, option$a({ value: "wav" }, "Export to .wav file."), option$a({ value: "mp3" }, "Export to .mp3 file."), option$a({ value: "midi" }, "Export to .mid file."), option$a({ value: "json" }, "Export to .json file."), option$a({ value: "html" }, "Export to .html file."));
-            this._cancelButton = button$g({ class: "cancelButton" });
-            this._exportButton = button$g({ class: "exportButton", style: "width:45%;" }, "Export");
-            this._outputProgressBar = div$g({ style: `width: 0%; background: ${ColorConfig.loopAccent}; height: 100%; position: absolute; z-index: 2;` });
-            this._outputProgressLabel = div$g({ style: `position: relative; top: -1px; z-index: 3;` }, "0%");
-            this._outputProgressContainer = div$g({ style: `height: 12px; background: ${ColorConfig.uiWidgetBackground}; display: block; position: relative; z-index: 1;` }, this._outputProgressBar, this._outputProgressLabel);
-            this.container = div$g({ class: "prompt noSelection", style: "width: 200px;" }, h2$f("Export Options"), div$g({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName), div$g({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel), div$g({ style: "display: table; width: 100%;" }, div$g({ style: "display: table-row;" }, div$g({ style: "display: table-cell;" }, "Intro:"), div$g({ style: "display: table-cell;" }, "Loop Count:"), div$g({ style: "display: table-cell;" }, "Outro:")), div$g({ style: "display: table-row;" }, div$g({ style: "display: table-cell; vertical-align: middle;" }, this._enableIntro), div$g({ style: "display: table-cell; vertical-align: middle;" }, this._loopDropDown), div$g({ style: "display: table-cell; vertical-align: middle;" }, this._enableOutro))), div$g({ class: "selectContainer", style: "width: 100%;" }, this._formatSelect), div$g({ style: "text-align: left;" }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."), this._outputProgressContainer, div$g({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._exportButton), this._cancelButton);
+            this._formatSelect = select$b({ style: "width: 100%;" }, option$b({ value: "wav" }, "Export to .wav file."), option$b({ value: "mp3" }, "Export to .mp3 file."), option$b({ value: "midi" }, "Export to .mid file."), option$b({ value: "json" }, "Export to .json file."), option$b({ value: "html" }, "Export to .html file."));
+            this._removeWhitespace = input$c({ type: "checkbox" });
+            this._removeWhitespaceDiv = div$h({ style: "vertical-align: middle; align-items: center; justify-content: space-between; margin-bottom: 14px;" }, "Remove Whitespace: ", this._removeWhitespace);
+            this._cancelButton = button$h({ class: "cancelButton" });
+            this._exportButton = button$h({ class: "exportButton", style: "width:45%;" }, "Export");
+            this._outputProgressBar = div$h({ style: `width: 0%; background: ${ColorConfig.loopAccent}; height: 100%; position: absolute; z-index: 2;` });
+            this._outputProgressLabel = div$h({ style: `position: relative; top: -1px; z-index: 3;` }, "0%");
+            this._outputProgressContainer = div$h({ style: `height: 12px; background: ${ColorConfig.uiWidgetBackground}; display: block; position: relative; z-index: 1;` }, this._outputProgressBar, this._outputProgressLabel);
+            this.container = div$h({ class: "prompt noSelection", style: "width: 200px;" }, h2$g("Export Options"), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "File name:", this._fileName), div$h({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between;" }, "Length:", this._computedSamplesLabel), div$h({ style: "display: table; width: 100%;" }, div$h({ style: "display: table-row;" }, div$h({ style: "display: table-cell;" }, "Intro:"), div$h({ style: "display: table-cell;" }, "Loop Count:"), div$h({ style: "display: table-cell;" }, "Outro:")), div$h({ style: "display: table-row;" }, div$h({ style: "display: table-cell; vertical-align: middle;" }, this._enableIntro), div$h({ style: "display: table-cell; vertical-align: middle;" }, this._loopDropDown), div$h({ style: "display: table-cell; vertical-align: middle;" }, this._enableOutro))), div$h({ class: "selectContainer", style: "width: 100%;" }, this._formatSelect), this._removeWhitespaceDiv, div$h({ style: "text-align: left;" }, "Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient."), this._outputProgressContainer, div$h({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._exportButton), this._cancelButton);
             this._close = () => {
                 if (this.synth != null)
                     this.synth.renderingSong = false;
@@ -30489,6 +30035,7 @@ li.select2-results__option[role=group] > strong:hover {
                 if (this.outputStarted == true)
                     return;
                 window.localStorage.setItem("exportFormat", this._formatSelect.value);
+                window.localStorage.setItem("exportWhitespace", this._removeWhitespace.value);
                 switch (this._formatSelect.value) {
                     case "wav":
                         this.outputStarted = true;
@@ -30534,6 +30081,16 @@ li.select2-results__option[role=group] > strong:hover {
             if (lastExportFormat != null) {
                 this._formatSelect.value = lastExportFormat;
             }
+            const lastExportWhitespace = window.localStorage.getItem("exportWhitespace") != "false";
+            if (lastExportWhitespace != null) {
+                this._removeWhitespace.checked = lastExportWhitespace;
+            }
+            if (this._formatSelect.value == "json") {
+                this._removeWhitespaceDiv.style.display = "block";
+            }
+            else {
+                this._removeWhitespaceDiv.style.display = "none";
+            }
             this._fileName.select();
             setTimeout(() => this._fileName.focus());
             this._fileName.addEventListener("input", ExportPrompt._validateFileName);
@@ -30543,6 +30100,12 @@ li.select2-results__option[role=group] > strong:hover {
             this._enableOutro.addEventListener("click", () => { this._computedSamplesLabel.firstChild.textContent = this.samplesToTime(this._doc.synth.getTotalSamples(this._enableIntro.checked, this._enableOutro.checked, +this._loopDropDown.value - 1)); });
             this._enableIntro.addEventListener("click", () => { this._computedSamplesLabel.firstChild.textContent = this.samplesToTime(this._doc.synth.getTotalSamples(this._enableIntro.checked, this._enableOutro.checked, +this._loopDropDown.value - 1)); });
             this._loopDropDown.addEventListener("change", () => { this._computedSamplesLabel.firstChild.textContent = this.samplesToTime(this._doc.synth.getTotalSamples(this._enableIntro.checked, this._enableOutro.checked, +this._loopDropDown.value - 1)); });
+            this._formatSelect.addEventListener("change", () => { if (this._formatSelect.value == "json") {
+                this._removeWhitespaceDiv.style.display = "block";
+            }
+            else {
+                this._removeWhitespaceDiv.style.display = "none";
+            } });
             this.container.addEventListener("keydown", this._whenKeyPressed);
             this._fileName.value = _doc.song.title;
             ExportPrompt._validateFileName(null, this._fileName);
@@ -31115,7 +30678,8 @@ li.select2-results__option[role=group] > strong:hover {
         }
         _exportToJson() {
             const jsonObject = this._doc.song.toJsonObject(this._enableIntro.checked, Number(this._loopDropDown.value), this._enableOutro.checked);
-            const jsonString = JSON.stringify(jsonObject, null, '\t');
+            let whiteSpaceParam = this._removeWhitespace.checked ? undefined : '\t';
+            const jsonString = JSON.stringify(jsonObject, null, whiteSpaceParam);
             const blob = new Blob([jsonString], { type: "application/json" });
             save(blob, this._fileName.value.trim() + ".json");
             this._close();
@@ -31178,6 +30742,7 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					padding-top: 0px;
 				}
 				.beepboxEditor {
 					width: 100%;
@@ -31231,9 +30796,6 @@ You should be redirected to the song at:<br /><br />
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
-				.beepboxEditor .operatorRow {
-					heiht: 2em;
-				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
 				}
@@ -31243,7 +30805,6 @@ You should be redirected to the song at:<br /><br />
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
-					scrollbar-color: ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 				}
 				.beepboxEditor .trackAndMuteContainer::-webkit-scrollbar {
 					width: 20px;
@@ -31267,6 +30828,7 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					padding-top: 0px;
 				}
 				.beepboxEditor {
 					width: 100%;
@@ -31340,7 +30902,6 @@ You should be redirected to the song at:<br /><br />
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
-					scrollbar-color: ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 				}
 				.beepboxEditor .trackAndMuteContainer::-webkit-scrollbar {
 					width: 20px;
@@ -31364,6 +30925,7 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					padding-top: 0px;
 				}
 				.beepboxEditor {
 					width: 100%;
@@ -31446,6 +31008,7 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					padding-top: 0px;
 				}
 				.beepboxEditor {
 					width: 100%;
@@ -31499,9 +31062,6 @@ You should be redirected to the song at:<br /><br />
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
-				.beepboxEditor .operatorRow {
-					heiht: 2em;
-				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
 				}
@@ -31511,7 +31071,6 @@ You should be redirected to the song at:<br /><br />
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
-					scrollbar-color: ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 				}
 				.beepboxEditor .trackAndMuteContainer::-webkit-scrollbar {
 					width: 20px;
@@ -31535,17 +31094,21 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					padding-top: 0px;
 				}
 				.beepboxEditor {
 					width: 100%;
 					height: 100vh;
 					grid-template-columns: minmax(0, 1fr) 390px; /* minmax(0, 1fr) min-content; Chrome 80 grid layout regression. https://bugs.chromium.org/p/chromium/issues/detail?id=1050307 */
 					grid-template-rows: minmax(481px, 1fr) minmax(0, min-content);
-					grid-template-areas: "pattern-area settings-area" "track-area";
+					grid-template-areas: "pattern-area settings-area" "track-area settings-area";
 				}
 				.beepboxEditor .pattern-area {
 					width: 100%;
 					height: 100%;
+				}
+				.beepboxEditor .track-area {
+					display: flex;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					width: 100%;
@@ -31583,9 +31146,6 @@ You should be redirected to the song at:<br /><br />
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
-				.beepboxEditor .operatorRow {
-					heiht: 2em;
-				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
 				}
@@ -31595,7 +31155,6 @@ You should be redirected to the song at:<br /><br />
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
-					scrollbar-color: ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 				}
 				.beepboxEditor .trackAndMuteContainer::-webkit-scrollbar {
 					width: 20px;
@@ -31620,17 +31179,21 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					padding-top: 0px;
 				}
 				.beepboxEditor {
 					width: 100%;
 					height: 100vh;
 					grid-template-columns: minmax(0, 1fr) 190px; 
 					grid-template-rows: minmax(481px, 1fr) minmax(0, min-content);
-					grid-template-areas: "pattern-area settings-area" "track-area";
+					grid-template-areas: "pattern-area settings-area" "track-area settings-area";
 				}
 				.beepboxEditor .pattern-area {
 					width: 100%;
 					height: 100%;
+				}
+				.beepboxEditor .track-area {
+					display: flex;
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					width: 100%;
@@ -31652,7 +31215,7 @@ You should be redirected to the song at:<br /><br />
 					position: absolute;
 					width: 100%;
 				}
-				
+
 				.beepboxEditor .settings-area {
 					width: 100%;
 					position: relative;
@@ -31672,9 +31235,6 @@ You should be redirected to the song at:<br /><br />
 				.beepboxEditor.selectRow {
 					height: 2em;
 				}
-				.beepboxEditor .operatorRow {
-					heiht: 2em;
-				}
 				.beepboxEditor .trackAndMuteContainer {
 					max-height: 446px;
 				}
@@ -31684,7 +31244,6 @@ You should be redirected to the song at:<br /><br />
 				}
 				.beepboxEditor .trackAndMuteContainer {
 					scrollbar-width: auto;
-					scrollbar-color: ${ColorConfig.uiWidgetBackground} ${ColorConfig.editorBackground};
 				}
 				.beepboxEditor .trackAndMuteContainer::-webkit-scrollbar {
 					width: 20px;
@@ -31706,8 +31265,9 @@ You should be redirected to the song at:<br /><br />
     Layout._styleElement = document.head.appendChild(HTML.style({ type: "text/css" }));
 
     class HarmonicsEditor {
-        constructor(_doc) {
+        constructor(_doc, _isPrompt = false) {
             this._doc = _doc;
+            this._isPrompt = _isPrompt;
             this._editorWidth = 120;
             this._editorHeight = 26;
             this._octaves = SVG.svg({ "pointer-events": "none" });
@@ -31725,6 +31285,43 @@ You should be redirected to the song at:<br /><br />
             this._change = null;
             this._renderedPath = "";
             this._renderedFifths = true;
+            this.instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            this._initial = this.instrument.harmonicsWave;
+            this._undoHistoryState = 0;
+            this._changeQueue = [];
+            this.storeChange = () => {
+                var sameCheck = true;
+                if (this._changeQueue.length > 0) {
+                    for (var i = 0; i < Config.harmonicsControlPoints; i++) {
+                        if (this._changeQueue[this._undoHistoryState][i] != this.instrument.harmonicsWave.harmonics[i]) {
+                            sameCheck = false;
+                            i = Config.harmonicsControlPoints;
+                        }
+                    }
+                }
+                if (sameCheck == false || this._changeQueue.length == 0) {
+                    this._changeQueue.splice(0, this._undoHistoryState);
+                    this._undoHistoryState = 0;
+                    this._changeQueue.unshift(this.instrument.harmonicsWave.harmonics.slice());
+                    if (this._changeQueue.length > 32) {
+                        this._changeQueue.pop();
+                    }
+                }
+            };
+            this.undo = () => {
+                if (this._undoHistoryState < this._changeQueue.length - 1) {
+                    this._undoHistoryState++;
+                    const harmonics = this._changeQueue[this._undoHistoryState].slice();
+                    this.setHarmonicsWave(harmonics);
+                }
+            };
+            this.redo = () => {
+                if (this._undoHistoryState > 0) {
+                    this._undoHistoryState--;
+                    const harmonics = this._changeQueue[this._undoHistoryState].slice();
+                    this.setHarmonicsWave(harmonics);
+                }
+            };
             this._whenMousePressed = (event) => {
                 event.preventDefault();
                 this._mouseDown = true;
@@ -31779,10 +31376,14 @@ You should be redirected to the song at:<br /><br />
                 if (isNaN(this._mouseY))
                     this._mouseY = 0;
                 this._whenCursorMoved();
+                this.render();
             };
             this._whenCursorReleased = (event) => {
                 if (this._mouseDown) {
-                    this._doc.record(this._change);
+                    if (!this._isPrompt) {
+                        this._doc.record(this._change);
+                    }
+                    this.storeChange();
                     this._change = null;
                 }
                 this._mouseDown = false;
@@ -31798,6 +31399,7 @@ You should be redirected to the song at:<br /><br />
                 this._lastControlPoints.push(rect);
                 this._lastControlPointContainer.appendChild(rect);
             }
+            this.storeChange();
             this.container.addEventListener("mousedown", this._whenMousePressed);
             document.addEventListener("mousemove", this._whenMouseMoved);
             document.addEventListener("mouseup", this._whenCursorReleased);
@@ -31836,6 +31438,27 @@ You should be redirected to the song at:<br /><br />
                 this._doc.setProspectiveChange(this._change);
             }
         }
+        getHarmonicsWave() {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            return instrument.harmonicsWave;
+        }
+        setHarmonicsWave(harmonics) {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            for (let i = 0; i < Config.harmonicsControlPoints; i++) {
+                instrument.harmonicsWave.harmonics[i] = harmonics[i];
+            }
+            this._doc.record(new ChangeHarmonics(this._doc, instrument, instrument.harmonicsWave));
+            this.render();
+        }
+        saveSettings() {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            return new ChangeHarmonics(this._doc, instrument, instrument.harmonicsWave);
+        }
+        resetToInitial() {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            this.setHarmonicsWave(this._initial.harmonics);
+            this._doc.record(new ChangeHarmonics(this._doc, instrument, this._initial));
+        }
         render() {
             const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
             const harmonicsWave = instrument.harmonicsWave;
@@ -31864,6 +31487,110 @@ You should be redirected to the song at:<br /><br />
             if (this._renderedFifths != this._doc.prefs.showFifth) {
                 this._renderedFifths = this._doc.prefs.showFifth;
                 this._fifths.style.display = this._doc.prefs.showFifth ? "" : "none";
+            }
+        }
+    }
+    class HarmonicsEditorPrompt {
+        constructor(_doc, _songEditor) {
+            this._doc = _doc;
+            this._songEditor = _songEditor;
+            this.harmonicsEditor = new HarmonicsEditor(this._doc, true);
+            this._playButton = HTML.button({ style: "width: 55%;", type: "button" });
+            this._cancelButton = HTML.button({ class: "cancelButton" });
+            this._okayButton = HTML.button({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.copyButton = HTML.button({ style: "width:86px; margin-right: 5px;", class: "copyButton" }, [
+                "Copy",
+                SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "-5 -21 26 26" }, [
+                    SVG.path({ d: "M 0 -15 L 1 -15 L 1 0 L 13 0 L 13 1 L 0 1 L 0 -15 z M 2 -1 L 2 -17 L 10 -17 L 14 -13 L 14 -1 z M 3 -2 L 13 -2 L 13 -12 L 9 -12 L 9 -16 L 3 -16 z", fill: "currentColor" }),
+                ]),
+            ]);
+            this.pasteButton = HTML.button({ style: "width:86px;", class: "pasteButton" }, [
+                "Paste",
+                SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "0 0 26 26" }, [
+                    SVG.path({ d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z", stroke: "currentColor", fill: "none" }),
+                    SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor", }),
+                ]),
+            ]);
+            this.copyPasteContainer = HTML.div({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
+            this.container = HTML.div({ class: "prompt noSelection", style: "width: 500px;" }, HTML.h2("Edit Harmonics Instrument"), HTML.div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), HTML.div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.harmonicsEditor.container), HTML.div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer), this._cancelButton);
+            this._togglePlay = () => {
+                this._songEditor.togglePlay();
+                this.updatePlayButton();
+            };
+            this._close = () => {
+                this._doc.prompt = null;
+                this._doc.undo();
+            };
+            this.cleanUp = () => {
+                this._okayButton.removeEventListener("click", this._saveChanges);
+                this._cancelButton.removeEventListener("click", this._close);
+                this.container.removeEventListener("keydown", this.whenKeyPressed);
+                this.harmonicsEditor.container.removeEventListener("mousemove", () => this.harmonicsEditor.render());
+                this._playButton.removeEventListener("click", this._togglePlay);
+            };
+            this._copySettings = () => {
+                const harmonicsCopy = this.harmonicsEditor.getHarmonicsWave();
+                window.localStorage.setItem("harmonicsCopy", JSON.stringify(harmonicsCopy.harmonics));
+            };
+            this._pasteSettings = () => {
+                const storedHarmonicsWave = JSON.parse(String(window.localStorage.getItem("harmonicsCopy")));
+                this.harmonicsEditor.setHarmonicsWave(storedHarmonicsWave);
+                this.harmonicsEditor.storeChange();
+            };
+            this.whenKeyPressed = (event) => {
+                if (event.target.tagName != "BUTTON" && event.keyCode == 13) {
+                    this._saveChanges();
+                }
+                else if (event.keyCode == 32) {
+                    this._togglePlay();
+                    event.preventDefault();
+                }
+                else if (event.keyCode == 90) {
+                    this.harmonicsEditor.undo();
+                    event.stopPropagation();
+                }
+                else if (event.keyCode == 89) {
+                    this.harmonicsEditor.redo();
+                    event.stopPropagation();
+                }
+                else if (event.keyCode == 219) {
+                    this._doc.synth.goToPrevBar();
+                }
+                else if (event.keyCode == 221) {
+                    this._doc.synth.goToNextBar();
+                }
+            };
+            this._saveChanges = () => {
+                this._doc.prompt = null;
+                this._doc.record(this.harmonicsEditor.saveSettings(), true);
+                this._doc.prompt = null;
+            };
+            this._okayButton.addEventListener("click", this._saveChanges);
+            this._cancelButton.addEventListener("click", this._close);
+            this.container.addEventListener("keydown", this.whenKeyPressed);
+            this.copyButton.addEventListener("click", this._copySettings);
+            this.pasteButton.addEventListener("click", this._pasteSettings);
+            this._playButton.addEventListener("click", this._togglePlay);
+            this.harmonicsEditor.container.addEventListener("mousemove", () => this.harmonicsEditor.render());
+            this.harmonicsEditor.container.addEventListener("mousedown", () => this.harmonicsEditor.render());
+            this.container.addEventListener("mousemove", () => this.harmonicsEditor.render());
+            this.container.addEventListener("mousedown", () => this.harmonicsEditor.render());
+            this.updatePlayButton();
+            setTimeout(() => this._playButton.focus());
+            this.harmonicsEditor.render();
+        }
+        updatePlayButton() {
+            if (this._doc.synth.playing) {
+                this._playButton.classList.remove("playButton");
+                this._playButton.classList.add("pauseButton");
+                this._playButton.title = "Pause (Space)";
+                this._playButton.innerText = "Pause";
+            }
+            else {
+                this._playButton.classList.remove("pauseButton");
+                this._playButton.classList.add("playButton");
+                this._playButton.title = "Play (Space)";
+                this._playButton.innerText = "Play";
             }
         }
     }
@@ -32011,14 +31738,14 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$f, p: p$6, div: div$f, h2: h2$e, input: input$b, select: select$9, option: option$9 } = HTML;
+    const { button: button$g, p: p$7, div: div$g, h2: h2$f, input: input$b, select: select$a, option: option$a } = HTML;
     class ImportPrompt {
         constructor(_doc) {
             this._doc = _doc;
             this._fileInput = input$b({ type: "file", accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi" });
-            this._cancelButton = button$f({ class: "cancelButton" });
-            this._modeImportSelect = select$9({ style: "width: 100%;" }, option$9({ value: "auto" }, "Auto-detect mode (for json)"), option$9({ value: "BeepBox" }, "BeepBox"), option$9({ value: "ModBox" }, "ModBox"), option$9({ value: "JummBox" }, "JummBox"), option$9({ value: "SynthBox" }, "SynthBox"), option$9({ value: "UltraBox" }, "UltraBox"));
-            this.container = div$f({ class: "prompt noSelection", style: "width: 300px;" }, h2$e("Import"), p$6({ style: "text-align: left; margin: 0.5em 0;" }, "BeepBox songs can be exported and re-imported as .json files. You could also use other means to make .json files for BeepBox as long as they follow the same structure."), p$6({ style: "text-align: left; margin: 0.5em 0;" }, "BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well."), this._modeImportSelect, this._fileInput, this._cancelButton);
+            this._cancelButton = button$g({ class: "cancelButton" });
+            this._modeImportSelect = select$a({ style: "width: 100%;" }, option$a({ value: "auto" }, "Auto-detect mode (for json)"), option$a({ value: "BeepBox" }, "BeepBox"), option$a({ value: "ModBox" }, "ModBox"), option$a({ value: "JummBox" }, "JummBox"), option$a({ value: "SynthBox" }, "SynthBox"), option$a({ value: "GoldBox" }, "GoldBox"), option$a({ value: "PaandorasBox" }, "PaandorasBox"), option$a({ value: "UltraBox" }, "UltraBox"));
+            this.container = div$g({ class: "prompt noSelection", style: "width: 300px;" }, h2$f("Import"), p$7({ style: "text-align: left; margin: 0.5em 0;" }, "BeepBox songs can be exported and re-imported as .json files. You could also use other means to make .json files for BeepBox as long as they follow the same structure."), p$7({ style: "text-align: left; margin: 0.5em 0;" }, "BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well."), this._modeImportSelect, this._fileInput, this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -32782,7 +32509,7 @@ You should be redirected to the song at:<br /><br />
                     song.beatsPerBar = beatsPerBar;
                     song.key = key;
                     song.scale = 0;
-                    song.rhythm = 5;
+                    song.rhythm = 2;
                     song.layeredInstruments = false;
                     song.patternInstruments = pitchChannels.some(channel => channel.instruments.length > 1) || noiseChannels.some(channel => channel.instruments.length > 1);
                     removeDuplicatePatterns(pitchChannels);
@@ -32810,6 +32537,9 @@ You should be redirected to the song at:<br /><br />
             this.container = HTML.div({ class: "channelBox", style: `margin: 1px; height: ${ChannelRow.patternHeight - 2}px;` }, this._label);
             this._renderedIndex = -1;
             this._renderedLabelColor = "?";
+            this._renderedVisibility = "?";
+            this._renderedBorderLeft = "?";
+            this._renderedBorderRight = "?";
             this._renderedBackgroundColor = "?";
             this.container.style.background = ColorConfig.uiWidgetBackground;
             this._label.style.color = color;
@@ -32850,6 +32580,24 @@ You should be redirected to the song at:<br /><br />
             if (this._renderedBackgroundColor != color) {
                 this.container.style.background = color;
                 this._renderedBackgroundColor = color;
+            }
+        }
+        setVisibility(visibility) {
+            if (this._renderedVisibility != visibility) {
+                this.container.style.visibility = visibility;
+                this._renderedVisibility = visibility;
+            }
+        }
+        setBorderLeft(borderLeft) {
+            if (this._renderedBorderLeft != borderLeft) {
+                this.container.style.setProperty("border-left", borderLeft);
+                this._renderedBorderLeft = borderLeft;
+            }
+        }
+        setBorderRight(borderRight) {
+            if (this._renderedBorderRight != borderRight) {
+                this.container.style.setProperty("border-right", borderRight);
+                this._renderedBorderRight = borderRight;
             }
         }
     }
@@ -32897,35 +32645,35 @@ You should be redirected to the song at:<br /><br />
                 if (i < this._doc.song.barCount) {
                     const colors = ColorConfig.getChannelColor(this._doc.song, this.index);
                     box.setIndex(this._doc.song.channels[this.index].bars[i], selected, dim, dim && !selected ? colors.secondaryChannel : colors.primaryChannel, this.index >= this._doc.song.pitchChannelCount && this.index < this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount, this.index >= this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount);
-                    box.container.style.visibility = "visible";
+                    box.setVisibility("visible");
                 }
                 else {
-                    box.container.style.visibility = "hidden";
+                    box.setVisibility("hidden");
                 }
                 if (i == this._doc.synth.loopBarStart) {
-                    box.container.style.setProperty("border-left", `1px dashed ${ColorConfig.uiWidgetFocus}`);
+                    box.setBorderLeft(`1px dashed ${ColorConfig.uiWidgetFocus}`);
                 }
                 else {
-                    box.container.style.setProperty("border-left", "none");
+                    box.setBorderLeft("none");
                 }
                 if (i == this._doc.synth.loopBarEnd) {
-                    box.container.style.setProperty("border-right", `1px dashed ${ColorConfig.uiWidgetFocus}`);
+                    box.setBorderRight(`1px dashed ${ColorConfig.uiWidgetFocus}`);
                 }
                 else {
-                    box.container.style.setProperty("border-right", "none");
+                    box.setBorderRight("none");
                 }
             }
         }
     }
     ChannelRow.patternHeight = 28;
 
-    const { button: button$e, label: label$1, div: div$e, form, h2: h2$d, input: input$a } = HTML;
+    const { button: button$f, label: label$1, div: div$f, form, h2: h2$e, input: input$a } = HTML;
     class LayoutPrompt {
         constructor(_doc) {
             this._doc = _doc;
             this._fileInput = input$a({ type: "file", accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi" });
-            this._okayButton = button$e({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this._cancelButton = button$e({ class: "cancelButton" });
+            this._okayButton = button$f({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this._cancelButton = button$f({ class: "cancelButton" });
             this._form = form({ style: "display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;" }, label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "small" }), SVG(`\
 					<svg viewBox="-4 -1 28 22">
 						<rect x="0" y="0" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
@@ -32933,7 +32681,7 @@ You should be redirected to the song at:<br /><br />
 						<rect x="14" y="2" width="4" height="16" fill="currentColor"/>
 						<rect x="2" y="13" width="11" height="5" fill="currentColor"/>
 					</svg>
-				`), div$e("Small")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "long" }), SVG(`\
+				`), div$f("Small")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "long" }), SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="12" height="10" fill="currentColor"/>
@@ -32941,14 +32689,14 @@ You should be redirected to the song at:<br /><br />
 						<rect x="20" y="2" width="4" height="10" fill="currentColor"/>
 						<rect x="2" y="13" width="22" height="5" fill="currentColor"/>
 					</svg>
-				`), div$e("Long")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "tall" }), SVG(`\
+				`), div$f("Long")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "tall" }), SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="11" y="2" width="8" height="16" fill="currentColor"/>
 						<rect x="20" y="2" width="4" height="16" fill="currentColor"/>
 						<rect x="2" y="2" width="8" height="16" fill="currentColor"/>
 					</svg>
-				`), div$e("Tall")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "wide" }), SVG(`\
+				`), div$f("Tall")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "wide" }), SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="4" height="16" fill="currentColor"/>
@@ -32956,7 +32704,7 @@ You should be redirected to the song at:<br /><br />
 						<rect x="21.5" y="2" width="2.5" height="16" fill="currentColor"/>
 						<rect x="7" y="2" width="10" height="16" fill="currentColor"/>
 					</svg>
-				`), div$e("Wide (JB)")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "wide long" }), SVG(`\
+				`), div$f("Wide (JB)")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "wide long" }), SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="12" height="10" fill="currentColor"/>
@@ -32964,7 +32712,7 @@ You should be redirected to the song at:<br /><br />
 						<rect x="20" y="2" width="4" height="16" fill="currentColor"/>
 						<rect x="2" y="13" width="12" height="5" fill="currentColor"/>
 					</svg>
-				`), div$e("Wide Long (AB)")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "flipped long" }), SVG(`\
+				`), div$f("Wide Long (AB)")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "flipped long" }), SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="22" height="2" fill="currentColor"/>
@@ -32972,15 +32720,15 @@ You should be redirected to the song at:<br /><br />
 						<rect x="7" y="5" width="17" height="8" fill="currentColor"/>
 						<rect x="2" y="14" width="22" height="4" fill="currentColor"/>
 					</svg>
-				`), div$e("Flipped Long (AB)")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "focused long" }), SVG(`\
+				`), div$f("Flipped Long (AB)")), label$1({ class: "layout-option" }, input$a({ type: "radio", name: "layout", value: "focused long" }), SVG(`\
 					<svg viewBox="-1 -1 28 22">
 						<rect x="0" y="0" width="26" height="20" fill="none" stroke="currentColor" stroke-width="1"/>
 						<rect x="2" y="2" width="17" height="10" fill="currentColor"/>
 						<rect x="20" y="2" width="4" height="16" fill="currentColor"/>
 						<rect x="2" y="13" width="17" height="5" fill="currentColor"/>
 					</svg>
-				`), div$e("Focused long (AB)")));
-            this.container = div$e({ class: "prompt noSelection", style: "width: 300px;" }, h2$d("Layout"), this._form, div$e({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+				`), div$f("Focused long (AB)")));
+            this.container = div$f({ class: "prompt noSelection", style: "width: 300px;" }, h2$e("Layout"), this._form, div$f({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -33279,7 +33027,7 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$d, div: div$d, h2: h2$c, input: input$9 } = HTML;
+    const { button: button$e, div: div$e, h2: h2$d, input: input$9 } = HTML;
     class LimiterCanvas {
         constructor(lim) {
             this._editorWidth = 200;
@@ -33402,7 +33150,7 @@ You should be redirected to the song at:<br /><br />
             this._doc = _doc;
             this._songEditor = _songEditor;
             this.limiterCanvas = new LimiterCanvas(this);
-            this._playButton = button$d({ style: "width: 55%;", type: "button" });
+            this._playButton = button$e({ style: "width: 55%;", type: "button" });
             this.limitDecaySlider = input$9({ title: "limit decay", style: `width: 5em; flex-grow: 1; margin: 0;`, type: "range", min: "1", max: "30", value: "4", step: "1" });
             this.limitRiseSlider = input$9({ title: "limit rise", style: `width: 5em; flex-grow: 1; margin: 0;`, type: "range", min: "2000", max: "10000", value: "4000", step: "250" });
             this.compressionThresholdSlider = input$9({ title: "compressor threshold", style: `width: 100%; flex-grow: 1; margin: 0;`, type: "range", min: "0", max: "1.1", value: "1", step: "0.05" });
@@ -33414,10 +33162,10 @@ You should be redirected to the song at:<br /><br />
             this.inVolumeHistoricCap = 0.0;
             this.outVolumeHistoricTimer = 0.0;
             this.outVolumeHistoricCap = 0.0;
-            this._cancelButton = button$d({ class: "cancelButton" });
-            this._okayButton = button$d({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this._resetButton = button$d({ style: "width:45%;" }, "Reset");
-            this.container = div$d({ class: "prompt noSelection", style: "width: 250px;" }, h2$c("Limiter Options"), div$d({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), div$d({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.limiterCanvas.container), div$d({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; margin-top: 1.5em; justify-content: flex-end;" }, div$d({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, ""), div$d({ style: `text-align: center; width: 33%; margin-right: 4.5%; color: ${ColorConfig.textSelection};` }, "Boost"), div$d({ style: `text-align: center; width: 33%; margin-right: 0%; color: ${ColorConfig.linkAccent};` }, "Cutoff")), div$d({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; margin-top: 0.5em; justify-content: flex-end;" }, div$d({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Threshold:"), div$d({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionThresholdSlider), div$d({ style: `width: 33%; margin-right: 0%;` }, this.limitThresholdSlider)), div$d({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$d({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Ratio:"), div$d({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionRatioSlider), div$d({ style: `width: 33%; margin-right: 0%;` }, this.limitRatioSlider)), div$d({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$d({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Decay:"), this.limitDecaySlider), div$d({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$d({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Rise:"), this.limitRiseSlider), div$d({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$d({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Master Gain:"), this.masterGainSlider), div$d({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this._resetButton), this._cancelButton);
+            this._cancelButton = button$e({ class: "cancelButton" });
+            this._okayButton = button$e({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this._resetButton = button$e({ style: "width:45%;" }, "Reset");
+            this.container = div$e({ class: "prompt noSelection", style: "width: 250px;" }, h2$d("Limiter Options"), div$e({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), div$e({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center;" }, this.limiterCanvas.container), div$e({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; margin-top: 1.5em; justify-content: flex-end;" }, div$e({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, ""), div$e({ style: `text-align: center; width: 33%; margin-right: 4.5%; color: ${ColorConfig.textSelection};` }, "Boost"), div$e({ style: `text-align: center; width: 33%; margin-right: 0%; color: ${ColorConfig.linkAccent};` }, "Cutoff")), div$e({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; margin-top: 0.5em; justify-content: flex-end;" }, div$e({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Threshold:"), div$e({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionThresholdSlider), div$e({ style: `width: 33%; margin-right: 0%;` }, this.limitThresholdSlider)), div$e({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$e({ style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};` }, "Ratio:"), div$e({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionRatioSlider), div$e({ style: `width: 33%; margin-right: 0%;` }, this.limitRatioSlider)), div$e({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$e({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Decay:"), this.limitDecaySlider), div$e({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$e({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Limit Rise:"), this.limitRiseSlider), div$e({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$e({ style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};` }, "Master Gain:"), this.masterGainSlider), div$e({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this._resetButton), this._cancelButton);
             this._volumeUpdate = () => {
                 this.inVolumeHistoricTimer--;
                 if (this.inVolumeHistoricTimer <= 0) {
@@ -33560,15 +33308,15 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$c, div: div$c, h2: h2$b, input: input$8, p: p$5 } = HTML;
+    const { button: button$d, div: div$d, h2: h2$c, input: input$8, p: p$6 } = HTML;
     class CustomScalePrompt {
         constructor(_doc) {
             this._doc = _doc;
             this._flags = [];
             this._scaleFlags = [];
             this._scaleRows = [];
-            this._cancelButton = button$c({ class: "cancelButton" });
-            this._okayButton = button$c({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this._cancelButton = button$d({ class: "cancelButton" });
+            this._okayButton = button$d({ class: "okayButton", style: "width:45%;" }, "Okay");
             this._close = () => {
                 this._doc.undo();
             };
@@ -33590,15 +33338,15 @@ You should be redirected to the song at:<br /><br />
                 this._doc.record(new ChangeCustomScale(this._doc, this._flags));
             };
             this._flags = _doc.song.scaleCustom.slice();
-            let scaleHolder = div$c({});
+            let scaleHolder = div$d({});
             for (var i = 1; i < Config.pitchesPerOctave; i++) {
                 this._scaleFlags[i] = input$8({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;", "checked": this._flags[i], "value": i });
-                this._scaleRows[i] = div$c({ style: "text-align: right; height: 2em;" }, "Note " + i + ":", this._scaleFlags[i]);
+                this._scaleRows[i] = div$d({ style: "text-align: right; height: 2em;" }, "Note " + i + ":", this._scaleFlags[i]);
                 scaleHolder.appendChild(this._scaleRows[i]);
             }
             this._okayButton.addEventListener("click", this._saveChanges);
             this._cancelButton.addEventListener("click", this._close);
-            this.container = div$c({ class: "prompt noSelection", style: "width: 250px;" }, h2$b("Custom Scale"), p$5("Here, you can make your own scale to use in your song. Press the checkboxes below to toggle which notes of an octave are in the scale. For this to work, you'll need to have the \"Custom\" scale selected."), div$c({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, scaleHolder), div$c({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this.container = div$d({ class: "prompt noSelection", style: "width: 250px;" }, h2$c("Custom Scale"), p$6("Here, you can make your own scale to use in your song. Press the checkboxes below to toggle which notes of an octave are in the scale. For this to work, you'll need to have the \"Custom\" scale selected."), div$d({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, scaleHolder), div$d({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this.container.addEventListener("keydown", this.whenKeyPressed);
         }
     }
@@ -33910,15 +33658,15 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$b, div: div$b, span: span$4, h2: h2$a, input: input$7, br: br$1, select: select$8, option: option$8 } = HTML;
+    const { button: button$c, div: div$c, span: span$4, h2: h2$b, input: input$7, br: br$1, select: select$9, option: option$9 } = HTML;
     class MoveNotesSidewaysPrompt {
         constructor(_doc) {
             this._doc = _doc;
             this._beatsStepper = input$7({ style: "width: 3em; margin-left: 1em;", type: "number", step: "0.01", value: "0" });
-            this._conversionStrategySelect = select$8({ style: "width: 100%;" }, option$8({ value: "overflow" }, "Overflow notes across bars."), option$8({ value: "wrapAround" }, "Wrap notes around within bars."));
-            this._cancelButton = button$b({ class: "cancelButton" });
-            this._okayButton = button$b({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.container = div$b({ class: "prompt noSelection", style: "width: 250px;" }, h2$a("Move Notes Sideways"), div$b({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$b({ style: "text-align: right;" }, "Beats to move:", br$1(), span$4({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Negative is left, positive is right)")), this._beatsStepper), div$b({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$b({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)), div$b({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._conversionStrategySelect = select$9({ style: "width: 100%;" }, option$9({ value: "overflow" }, "Overflow notes across bars."), option$9({ value: "wrapAround" }, "Wrap notes around within bars."));
+            this._cancelButton = button$c({ class: "cancelButton" });
+            this._okayButton = button$c({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$c({ class: "prompt noSelection", style: "width: 250px;" }, h2$b("Move Notes Sideways"), div$c({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$c({ style: "text-align: right;" }, "Beats to move:", br$1(), span$4({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Negative is left, positive is right)")), this._beatsStepper), div$c({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$c({ class: "selectContainer", style: "width: 100%;" }, this._conversionStrategySelect)), div$c({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -34594,7 +34342,7 @@ You should be redirected to the song at:<br /><br />
                     pitchOffset = y * 5 + x * 2 - 2;
                     break;
                 case "songScale":
-                    const scaleFlags = Config.scales[doc.song.scale].flags;
+                    const scaleFlags = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
                     const scaleIndices = scaleFlags.map((flag, index) => flag ? index : null).filter((index) => index != null);
                     pitchOffset = (y - 1 + Math.floor(x / scaleIndices.length)) * Config.pitchesPerOctave + scaleIndices[(x + scaleIndices.length) % scaleIndices.length];
                     break;
@@ -35284,7 +35032,7 @@ You should be redirected to the song at:<br /><br />
                         this._modDragNote = this._cursor.curNote;
                         this._modDragPin = this._cursor.curNote.pins[pinIdx];
                         this._modDragLowerBound = Config.modulators[setting].convertRealFactor;
-                        this._modDragUpperBound = Config.modulators[setting].convertRealFactor + Config.modulators[setting].maxRawVol;
+                        this._modDragUpperBound = Config.modulators[setting].convertRealFactor + this._doc.song.getVolumeCapForSetting(true, setting, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument(this._barOffset)].modFilterTypes[mod]);
                         this._modDragSetting = setting;
                         this.modDragValueLabel.style.setProperty("left", "" + this._modDragValueLabelLeft + "px");
                         this.modDragValueLabel.style.setProperty("top", "" + this._modDragValueLabelTop + "px");
@@ -36091,8 +35839,12 @@ You should be redirected to the song at:<br /><br />
                                     }
                                     else {
                                         instrument.modChannels[mod] = this._doc.channel;
-                                        if (this._doc.song.channels[this._doc.channel].instruments.length > 1)
-                                            instrument.modInstruments[mod] = this._doc.song.channels[this._doc.channel].instruments.length + 1;
+                                        if (this._doc.song.channels[this._doc.channel].instruments.length > 1) {
+                                            if (!this.controlMode || !this.shiftMode)
+                                                instrument.modInstruments[mod] = this._doc.song.channels[this._doc.channel].instruments.length + 1;
+                                            else
+                                                instrument.modInstruments[mod] = this._doc.getCurrentInstrument();
+                                        }
                                         else
                                             instrument.modInstruments[mod] = 0;
                                         if (applyToFilterTargets.length > applyIndex) {
@@ -36953,7 +36705,7 @@ You should be redirected to the song at:<br /><br />
                 if (!this._doc.song.getChannelIsMod(this._doc.channel)) {
                     let noteFlashColor = "#ffffff77";
                     if (this._doc.prefs.notesFlashWhenPlayed)
-                        noteFlashColor = ColorConfig.getComputed("--note-flash-secondary") !== "" ? "var(--note-flash-secondary)" : "#ffffff77";
+                        noteFlashColor = ColorConfig.getComputed("--note-flash-secondary");
                     for (let channel = this._doc.song.pitchChannelCount + this._doc.song.noiseChannelCount - 1; channel >= 0; channel--) {
                         if (channel == this._doc.channel)
                             continue;
@@ -36993,7 +36745,7 @@ You should be redirected to the song at:<br /><br />
                 const displayNumberedChords = chord.customInterval || chord.arpeggiates || chord.strumParts > 0 || transition.slides;
                 let noteFlashColor = "#ffffff";
                 if (this._doc.prefs.notesFlashWhenPlayed)
-                    noteFlashColor = ColorConfig.getComputed("--note-flash") !== "" ? "var(--note-flash)" : "#ffffff";
+                    noteFlashColor = ColorConfig.getComputed("--note-flash");
                 for (const note of this._pattern.notes) {
                     let disabled = false;
                     if (this._doc.song.getChannelIsMod(this._doc.channel)) {
@@ -37629,15 +37381,15 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$a, div: div$a, span: span$3, h2: h2$9, input: input$6, br, select: select$7, option: option$7 } = HTML;
+    const { button: button$b, div: div$b, span: span$3, h2: h2$a, input: input$6, br, select: select$8, option: option$8 } = HTML;
     class SongDurationPrompt {
         constructor(_doc) {
             this._doc = _doc;
             this._barsStepper = input$6({ style: "width: 3em; margin-left: 1em;", type: "number", step: "1" });
-            this._positionSelect = select$7({ style: "width: 100%;" }, option$7({ value: "end" }, "Apply change at end of song."), option$7({ value: "beginning" }, "Apply change at beginning of song."));
-            this._cancelButton = button$a({ class: "cancelButton" });
-            this._okayButton = button$a({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.container = div$a({ class: "prompt noSelection", style: "width: 250px;" }, h2$9("Song Length"), div$a({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$a({ style: "display: inline-block; text-align: right;" }, "Bars per song:", br(), span$3({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 4 are recommended)")), this._barsStepper), div$a({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$a({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect)), div$a({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._positionSelect = select$8({ style: "width: 100%;" }, option$8({ value: "end" }, "Apply change at end of song."), option$8({ value: "beginning" }, "Apply change at beginning of song."));
+            this._cancelButton = button$b({ class: "cancelButton" });
+            this._okayButton = button$b({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$b({ class: "prompt noSelection", style: "width: 250px;" }, h2$a("Song Length"), div$b({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$b({ style: "display: inline-block; text-align: right;" }, "Bars per song:", br(), span$3({ style: `font-size: smaller; color: ${ColorConfig.secondaryText};` }, "(Multiples of 4 are recommended)")), this._barsStepper), div$b({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$b({ class: "selectContainer", style: "width: 100%;" }, this._positionSelect)), div$b({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -37692,14 +37444,14 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$9, div: div$9, h2: h2$8, p: p$4, select: select$6, option: option$6 } = HTML;
+    const { button: button$a, div: div$a, h2: h2$9, p: p$5, select: select$7, option: option$7 } = HTML;
     class SustainPrompt {
         constructor(_doc) {
             this._doc = _doc;
-            this._typeSelect = select$6({ style: "width: 100%;" }, option$6({ value: "acoustic" }, "(A) Acoustic"), option$6({ value: "bright" }, "(B) Bright"));
-            this._cancelButton = button$9({ class: "cancelButton" });
-            this._okayButton = button$9({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.container = div$9({ class: "prompt", style: "width: 300px;" }, div$9(h2$8("String Sustain"), p$4("This setting controls how quickly the picked string vibration decays."), p$4("Unlike most of BeepBox's instrument synthesizer features, a picked string cannot change frequency suddenly while maintaining its decay. If a tone's pitch changes suddenly (e.g. if the chord type is set to \"arpeggio\" or the transition type is set to \"continues\") then the string will be re-picked and start decaying from the beginning again, even if the envelopes don't otherwise restart.")), div$9({ style: { display: Config.enableAcousticSustain ? undefined : "none" } }, p$4("BeepBox comes with two slightly different sustain designs. You can select one here and press \"Okay\" to confirm it."), div$9({ class: "selectContainer", style: "width: 100%;" }, this._typeSelect)), div$9({ style: { display: Config.enableAcousticSustain ? "flex" : "none", "flex-direction": "row-reverse", "justify-content": "space-between" } }, this._okayButton), this._cancelButton);
+            this._typeSelect = select$7({ style: "width: 100%;" }, option$7({ value: "acoustic" }, "(A) Acoustic"), option$7({ value: "bright" }, "(B) Bright"));
+            this._cancelButton = button$a({ class: "cancelButton" });
+            this._okayButton = button$a({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$a({ class: "prompt", style: "width: 300px;" }, div$a(h2$9("String Sustain"), p$5("This setting controls how quickly the picked string vibration decays."), p$5("Unlike most of BeepBox's instrument synthesizer features, a picked string cannot change frequency suddenly while maintaining its decay. If a tone's pitch changes suddenly (e.g. if the chord type is set to \"arpeggio\" or the transition type is set to \"continues\") then the string will be re-picked and start decaying from the beginning again, even if the envelopes don't otherwise restart.")), div$a({ style: { display: Config.enableAcousticSustain ? undefined : "none" } }, p$5("BeepBox comes with two slightly different sustain designs. You can select one here and press \"Okay\" to confirm it."), div$a({ class: "selectContainer", style: "width: 100%;" }, this._typeSelect)), div$a({ style: { display: Config.enableAcousticSustain ? "flex" : "none", "flex-direction": "row-reverse", "justify-content": "space-between" } }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -37862,13 +37614,13 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$8, div: div$8, h2: h2$7, p: p$3, select: select$5, option: option$5, iframe } = HTML;
+    const { button: button$9, div: div$9, h2: h2$8, p: p$4, select: select$6, option: option$6, iframe } = HTML;
     class SongRecoveryPrompt {
         constructor(_doc) {
             this._doc = _doc;
-            this._songContainer = div$8();
-            this._cancelButton = button$8({ class: "cancelButton" });
-            this.container = div$8({ class: "prompt", style: "width: 300px;" }, h2$7("Song Recovery"), div$8({ style: "max-height: 385px; overflow-y: auto;" }, p$3("This is a TEMPORARY list of songs you have recently modified. Please keep your own backups of songs you care about! SONGS THAT USE SAMPLES WILL TAKE A WHILE TO LOAD, so be patient!"), this._songContainer, p$3("(If \"Display Song Data in URL\" is enabled in your preferences, then you may also be able to find song versions in your browser history. However, song recovery won't work if you were browsing in private/incognito mode.)")), this._cancelButton);
+            this._songContainer = div$9();
+            this._cancelButton = button$9({ class: "cancelButton" });
+            this.container = div$9({ class: "prompt", style: "width: 300px;" }, h2$8("Song Recovery"), div$9({ style: "max-height: 385px; overflow-y: auto;" }, p$4("This is a TEMPORARY list of songs you have recently modified. Please keep your own backups of songs you care about! SONGS THAT USE SAMPLES WILL TAKE A WHILE TO LOAD, so be patient!"), this._songContainer, p$4("(If \"Display Song Data in URL\" is enabled in your preferences, then you may also be able to find song versions in your browser history. However, song recovery won't work if you were browsing in private/incognito mode.)")), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -37878,43 +37630,43 @@ You should be redirected to the song at:<br /><br />
             this._cancelButton.addEventListener("click", this._close);
             const songs = SongRecovery.getAllRecoveredSongs();
             if (songs.length == 0) {
-                this._songContainer.appendChild(p$3("There are no recovered songs available yet. Try making a song!"));
+                this._songContainer.appendChild(p$4("There are no recovered songs available yet. Try making a song!"));
             }
             for (const song of songs) {
-                const versionMenu = select$5({ style: "width: 100%;" });
+                const versionMenu = select$6({ style: "width: 100%;" });
                 for (const version of song.versions) {
-                    versionMenu.appendChild(option$5({ value: version.time }, version.name + ": " + new Date(version.time).toLocaleString()));
+                    versionMenu.appendChild(option$6({ value: version.time }, version.name + ": " + new Date(version.time).toLocaleString()));
                 }
                 const player = iframe({ style: "width: 100%; height: 60px; border: none; display: block;" });
-                player.src = "player/#song=" + window.localStorage.getItem(versionToKey(song.versions[0]));
-                const container = div$8({ style: "margin: 4px 0;" }, div$8({ class: "selectContainer", style: "width: 100%; margin: 2px 0;" }, versionMenu), player);
+                player.src = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + window.localStorage.getItem(versionToKey(song.versions[0]));
+                const container = div$9({ style: "margin: 4px 0;" }, div$9({ class: "selectContainer", style: "width: 100%; margin: 2px 0;" }, versionMenu), player);
                 this._songContainer.appendChild(container);
                 versionMenu.addEventListener("change", () => {
                     const version = song.versions[versionMenu.selectedIndex];
-                    player.contentWindow.location.replace("player/#song=" + window.localStorage.getItem(versionToKey(version)));
+                    player.contentWindow.location.replace("player/" + (OFFLINE ? "index.html" : "") + "#song=" + window.localStorage.getItem(versionToKey(version)));
                     player.contentWindow.dispatchEvent(new Event("hashchange"));
                 });
             }
         }
     }
 
-    const { button: button$7, label, div: div$7, p: p$2, a: a$2, h2: h2$6, input: input$5, select: select$4, option: option$4 } = HTML;
+    const { button: button$8, label, div: div$8, p: p$3, a: a$2, h2: h2$7, input: input$5, select: select$5, option: option$5 } = HTML;
     class RecordingSetupPrompt {
         constructor(_doc) {
             this._doc = _doc;
-            this._keyboardMode = select$4({ style: "width: 100%;" }, option$4({ value: "useCapsLockForNotes" }, "simple shortcuts, use caps lock to play notes"), option$4({ value: "pressControlForShortcuts" }, "simple notes, press " + EditorConfig.ctrlName + " for shortcuts"));
-            this._keyboardLayout = select$4({ style: "width: 100%;" }, option$4({ value: "wickiHayden" }, "Wicki-Hayden"), option$4({ value: "songScale" }, "selected song scale"), option$4({ value: "pianoAtC" }, "piano starting at C :)"), option$4({ value: "pianoAtA" }, "piano starting at A :("), option$4({ value: "pianoTransposingC" }, "piano transposing C :) to song key"), option$4({ value: "pianoTransposingA" }, "piano transposing A :( to song key"));
-            this._bassOffset = select$4({ style: "width: 100%;" }, option$4({ value: "0" }, "disabled"), option$4({ value: "-1" }, "before"), option$4({ value: "1" }, "after"));
-            this._keyboardLayoutPreview = div$7({ style: "display: grid; row-gap: 4px; margin: 4px auto; font-size: 10px;" });
+            this._keyboardMode = select$5({ style: "width: 100%;" }, option$5({ value: "useCapsLockForNotes" }, "simple shortcuts, use caps lock to play notes"), option$5({ value: "pressControlForShortcuts" }, "simple notes, press " + EditorConfig.ctrlName + " for shortcuts"));
+            this._keyboardLayout = select$5({ style: "width: 100%;" }, option$5({ value: "wickiHayden" }, "Wicki-Hayden"), option$5({ value: "songScale" }, "selected song scale"), option$5({ value: "pianoAtC" }, "piano starting at C"), option$5({ value: "pianoAtA" }, "piano starting at A"), option$5({ value: "pianoTransposingC" }, "piano transposing C to song key"), option$5({ value: "pianoTransposingA" }, "piano transposing A to song key"));
+            this._bassOffset = select$5({ style: "width: 100%;" }, option$5({ value: "0" }, "disabled"), option$5({ value: "-1" }, "before"), option$5({ value: "1" }, "after"));
+            this._keyboardLayoutPreview = div$8({ style: "display: grid; row-gap: 4px; margin: 4px auto; font-size: 10px;" });
             this._enableMidi = input$5({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
             this._showRecordButton = input$5({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
             this._snapRecordedNotesToRhythm = input$5({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
             this._ignorePerformedNotesNotInScale = input$5({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
             this._metronomeCountIn = input$5({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
             this._metronomeWhileRecording = input$5({ style: "width: 2em; margin-left: 1em;", type: "checkbox" });
-            this._okayButton = button$7({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this._cancelButton = button$7({ class: "cancelButton" });
-            this.container = div$7({ class: "prompt noSelection recordingSetupPrompt", style: "width: 600px; text-align: right; max-height: 90%;" }, h2$6({ style: "align-self: center;" }, "Note Recording Setup"), div$7({ style: "display: grid; overflow-y: auto; overflow-x: hidden; flex-shrink: 1;" }, p$2("UltraBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or " + EditorConfig.ctrlSymbol + "P)."), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Add ● record button next to ▶ play button:", this._showRecordButton), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Ignore notes not in the song's scale:", this._ignorePerformedNotesNotInScale), p$2("While recording, you can perform notes on your keyboard!"), label({ style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;" }, "Keyboard layout:", div$7({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._keyboardLayout)), this._keyboardLayoutPreview, p$2("When not recording, you can use the computer keyboard either for shortcuts (like C and V for copy and paste) or for performing notes, depending on this mode:"), label({ style: "display: flex; margin-top: 0.5em; margin-bottom: 0.5em; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, div$7({ class: "selectContainer", style: "width: 50%;" }, this._keyboardMode)), p$2("Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm."), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Hear metronome while recording:", this._metronomeWhileRecording), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Count-in 1 bar of metronome before recording:", this._metronomeCountIn), p$2("If you have a ", a$2({ href: "https://caniuse.com/midi", target: "_blank" }, "compatible browser"), " on a device connected to a MIDI keyboard, you can use it to perform notes in UltraBox! (Or you could buy ", a$2({ href: "https://imitone.com/", target: "_blank" }, "Imitone"), " or ", a$2({ href: "https://vochlea.com/", target: "_blank" }, "Dubler"), " to hum notes into a microphone while wearing headphones!)"), label({ style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; height: 2em; justify-content: center;" }, "Enable MIDI performance:", this._enableMidi), p$2("The range of pitches available to play via your computer keyboard is affected by the octave scrollbar of the currently selected channel."), p$2("If you set the channel offset below to 'before' or 'after', notes below the middle octave in the view will be 'bass' notes, and placed in the channel before or after the viewed one. Using this, you can play bass and lead at the same time!"), label({ style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;" }, "Bass Offset:", div$7({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._bassOffset)), p$2("Once you enable the setting, the keyboard layout above will darken to denote the new bass notes. The notes will be recorded with independent timing and this works with MIDI devices, too. Be aware that the octave offset of both used channels will impact how high/low the bass/lead are relative to one another."), p$2("Recorded notes often overlap such that one note ends after the next note already started. In UltraBox, these notes get split into multiple notes which may sound different when re-played than they did when you were recording. To fix the sound, you can either manually clean up the notes in the pattern editor, or you could try enabling the \"transition type\" effect on the instrument and setting it to \"continue\"."), div$7({ style: `width: 100%; height: 80px; background: linear-gradient(rgba(0,0,0,0), ${ColorConfig.editorBackground}); position: sticky; bottom: 0; pointer-events: none;` })), div$7({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._okayButton = button$8({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this._cancelButton = button$8({ class: "cancelButton" });
+            this.container = div$8({ class: "prompt noSelection recordingSetupPrompt", style: "width: 600px; text-align: right; max-height: 90%;" }, h2$7({ style: "align-self: center;" }, "Note Recording Setup"), div$8({ style: "display: grid; overflow-y: auto; overflow-x: hidden; flex-shrink: 1;" }, p$3("UltraBox can record notes as you perform them. You can start recording by pressing Ctrl+Space (or " + EditorConfig.ctrlSymbol + "P)."), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Add ● record button next to ▶ play button:", this._showRecordButton), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Snap recorded notes to the song's rhythm:", this._snapRecordedNotesToRhythm), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Ignore notes not in the song's scale:", this._ignorePerformedNotesNotInScale), p$3("While recording, you can perform notes on your keyboard!"), label({ style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;" }, "Keyboard layout:", div$8({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._keyboardLayout)), this._keyboardLayoutPreview, p$3("When not recording, you can use the computer keyboard either for shortcuts (like C and V for copy and paste) or for performing notes, depending on this mode:"), label({ style: "display: flex; margin-top: 0.5em; margin-bottom: 0.5em; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, div$8({ class: "selectContainer", style: "width: 50%;" }, this._keyboardMode)), p$3("Performing music takes practice! Try slowing the tempo and using this metronome to help you keep a rhythm."), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Hear metronome while recording:", this._metronomeWhileRecording), label({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: center;" }, "Count-in 1 bar of metronome before recording:", this._metronomeCountIn), p$3("If you have a ", a$2({ href: "https://caniuse.com/midi", target: "_blank" }, "compatible browser"), " on a device connected to a MIDI keyboard, you can use it to perform notes in UltraBox! (Or you could buy ", a$2({ href: "https://imitone.com/", target: "_blank" }, "Imitone"), " or ", a$2({ href: "https://vochlea.com/", target: "_blank" }, "Dubler"), " to hum notes into a microphone while wearing headphones!)"), label({ style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; height: 2em; justify-content: center;" }, "Enable MIDI performance:", this._enableMidi), p$3("The range of pitches available to play via your computer keyboard is affected by the octave scrollbar of the currently selected channel."), p$3("If you set the channel offset below to 'before' or 'after', notes below the middle octave in the view will be 'bass' notes, and placed in the channel before or after the viewed one. Using this, you can play bass and lead at the same time!"), label({ style: "display: flex; flex-direction: row; align-items: center; margin-top: 0.5em; margin-bottom: 0.5em; height: 2em; justify-content: center;" }, "Bass Offset:", div$8({ class: "selectContainer", style: "width: 50%; margin-left: 1em;" }, this._bassOffset)), p$3("Once you enable the setting, the keyboard layout above will darken to denote the new bass notes. The notes will be recorded with independent timing and this works with MIDI devices, too. Be aware that the octave offset of both used channels will impact how high/low the bass/lead are relative to one another."), p$3("Recorded notes often overlap such that one note ends after the next note already started. In UltraBox, these notes get split into multiple notes which may sound different when re-played than they did when you were recording. To fix the sound, you can either manually clean up the notes in the pattern editor, or you could try enabling the \"transition type\" effect on the instrument and setting it to \"continue\"."), div$8({ style: `width: 100%; height: 80px; background: linear-gradient(rgba(0,0,0,0), ${ColorConfig.editorBackground}); position: sticky; bottom: 0; pointer-events: none;` })), div$8({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.undo();
             };
@@ -37946,14 +37698,14 @@ You should be redirected to the song at:<br /><br />
                     this._keyboardLayoutPreview.removeChild(this._keyboardLayoutPreview.firstChild);
                 }
                 const rowLengths = [12, 12, 11, 10];
-                const scale = Config.scales[this._doc.song.scale].flags;
+                const scale = this._doc.song.scale == Config.scales.dictionary["Custom"].index ? this._doc.song.scaleCustom : Config.scales[this._doc.song.scale].flags;
                 for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-                    const row = div$7({ style: "display: flex;" });
+                    const row = div$8({ style: "display: flex;" });
                     this._keyboardLayoutPreview.appendChild(row);
-                    const spacer = div$7({ style: "width: " + (rowIndex * 12) + "px; height: 20px; flex-shrink: 0;" });
+                    const spacer = div$8({ style: "width: " + (rowIndex * 12) + "px; height: 20px; flex-shrink: 0;" });
                     row.appendChild(spacer);
                     for (let colIndex = 0; colIndex < rowLengths[rowIndex]; colIndex++) {
-                        const key = div$7({ style: `width: 20px; height: 20px; margin: 0 2px; box-sizing: border-box; flex-shrink: 0; display: flex; justify-content: center; align-items: center;` });
+                        const key = div$8({ style: `width: 20px; height: 20px; margin: 0 2px; box-sizing: border-box; flex-shrink: 0; display: flex; justify-content: center; align-items: center;` });
                         row.appendChild(key);
                         const pitch = KeyboardLayout.keyPosToPitch(this._doc, colIndex, 3 - rowIndex, this._keyboardLayout.value);
                         if (pitch != null) {
@@ -38004,9 +37756,10 @@ You should be redirected to the song at:<br /><br />
     }
 
     class SpectrumEditor {
-        constructor(_doc, _spectrumIndex) {
+        constructor(_doc, _spectrumIndex, _isPrompt = false) {
             this._doc = _doc;
             this._spectrumIndex = _spectrumIndex;
+            this._isPrompt = _isPrompt;
             this._editorWidth = 120;
             this._editorHeight = 26;
             this._fill = SVG.path({ fill: ColorConfig.uiWidgetBackground, "pointer-events": "none" });
@@ -38024,6 +37777,43 @@ You should be redirected to the song at:<br /><br />
             this._change = null;
             this._renderedPath = "";
             this._renderedFifths = true;
+            this.instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            this._initial = new SpectrumWave(this._spectrumIndex != null);
+            this._undoHistoryState = 0;
+            this._changeQueue = [];
+            this.storeChange = () => {
+                var sameCheck = true;
+                if (this._changeQueue.length > 0) {
+                    for (var i = 0; i < Config.spectrumControlPoints; i++) {
+                        if (this._changeQueue[this._undoHistoryState][i] != this.instrument.spectrumWave.spectrum[i]) {
+                            sameCheck = false;
+                            i = Config.spectrumControlPoints;
+                        }
+                    }
+                }
+                if (sameCheck == false || this._changeQueue.length == 0) {
+                    this._changeQueue.splice(0, this._undoHistoryState);
+                    this._undoHistoryState = 0;
+                    this._changeQueue.unshift(this.instrument.spectrumWave.spectrum.slice());
+                    if (this._changeQueue.length > 32) {
+                        this._changeQueue.pop();
+                    }
+                }
+            };
+            this.undo = () => {
+                if (this._undoHistoryState < this._changeQueue.length - 1) {
+                    this._undoHistoryState++;
+                    const spectrum = this._changeQueue[this._undoHistoryState].slice();
+                    this.setSpectrumWave(spectrum);
+                }
+            };
+            this.redo = () => {
+                if (this._undoHistoryState > 0) {
+                    this._undoHistoryState--;
+                    const spectrum = this._changeQueue[this._undoHistoryState].slice();
+                    this.setSpectrumWave(spectrum);
+                }
+            };
             this._whenMousePressed = (event) => {
                 event.preventDefault();
                 this._mouseDown = true;
@@ -38078,20 +37868,26 @@ You should be redirected to the song at:<br /><br />
                 if (isNaN(this._mouseY))
                     this._mouseY = 0;
                 this._whenCursorMoved();
+                this.render();
             };
             this._whenCursorReleased = (event) => {
                 if (this._mouseDown) {
-                    this._doc.record(this._change);
+                    if (!this._isPrompt) {
+                        this._doc.record(this._change);
+                    }
+                    this.storeChange();
                     this._change = null;
                 }
                 this._mouseDown = false;
             };
+            this._initial.spectrum = this._spectrumIndex == null ? this.instrument.spectrumWave.spectrum.slice() : this.instrument.drumsetSpectrumWaves[this._spectrumIndex].spectrum.slice();
             for (let i = 0; i < Config.spectrumControlPoints; i += Config.spectrumControlPointsPerOctave) {
                 this._octaves.appendChild(SVG.rect({ fill: ColorConfig.tonic, x: (i + 1) * this._editorWidth / (Config.spectrumControlPoints + 2) - 1, y: 0, width: 2, height: this._editorHeight }));
             }
             for (let i = 4; i <= Config.spectrumControlPoints; i += Config.spectrumControlPointsPerOctave) {
                 this._fifths.appendChild(SVG.rect({ fill: ColorConfig.fifthNote, x: (i + 1) * this._editorWidth / (Config.spectrumControlPoints + 2) - 1, y: 0, width: 2, height: this._editorHeight }));
             }
+            this.storeChange();
             this.container.addEventListener("mousedown", this._whenMousePressed);
             document.addEventListener("mousemove", this._whenMouseMoved);
             document.addEventListener("mouseup", this._whenCursorReleased);
@@ -38130,6 +37926,50 @@ You should be redirected to the song at:<br /><br />
                 this._doc.setProspectiveChange(this._change);
             }
         }
+        getSpectrumWave() {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            if (this._spectrumIndex == null) {
+                return instrument.spectrumWave;
+            }
+            else {
+                return instrument.drumsetSpectrumWaves[this._spectrumIndex];
+            }
+        }
+        setSpectrumWave(spectrum, saveHistory = false) {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            if (this._spectrumIndex == null) {
+                for (let i = 0; i < Config.spectrumControlPoints; i++) {
+                    instrument.spectrumWave.spectrum[i] = spectrum[i];
+                }
+                const spectrumChange = new ChangeSpectrum(this._doc, instrument, instrument.spectrumWave);
+                if (saveHistory) {
+                    this._doc.record(spectrumChange);
+                }
+            }
+            else {
+                for (let i = 0; i < Config.spectrumControlPoints; i++) {
+                    instrument.drumsetSpectrumWaves[this._spectrumIndex].spectrum[i] = spectrum[i];
+                }
+                const spectrumChange = new ChangeSpectrum(this._doc, instrument, instrument.drumsetSpectrumWaves[this._spectrumIndex]);
+                if (saveHistory) {
+                    this._doc.record(spectrumChange);
+                }
+            }
+            this.render();
+        }
+        saveSettings() {
+            const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+            if (this._spectrumIndex == null || this._spectrumIndex == undefined) {
+                return new ChangeSpectrum(this._doc, instrument, instrument.spectrumWave);
+            }
+            else {
+                return new ChangeSpectrum(this._doc, instrument, instrument.drumsetSpectrumWaves[this._spectrumIndex]);
+            }
+        }
+        resetToInitial() {
+            this._changeQueue = [];
+            this._undoHistoryState = 0;
+        }
         render() {
             const instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
             const spectrumWave = (this._spectrumIndex == null) ? instrument.spectrumWave : instrument.drumsetSpectrumWaves[this._spectrumIndex];
@@ -38166,135 +38006,309 @@ You should be redirected to the song at:<br /><br />
             }
         }
     }
+    class SpectrumEditorPrompt {
+        constructor(_doc, _songEditor, _isDrumset) {
+            this._doc = _doc;
+            this._songEditor = _songEditor;
+            this._isDrumset = _isDrumset;
+            this.spectrumEditor = new SpectrumEditor(this._doc, null, true);
+            this.spectrumEditors = [];
+            this._drumsetSpectrumIndex = 0;
+            this._playButton = HTML.button({ style: "width: 55%;", type: "button" });
+            this._drumsetButtons = [];
+            this._drumsetButtonContainer = HTML.div({ class: "instrument-bar", style: "justify-content: center;" });
+            this._cancelButton = HTML.button({ class: "cancelButton" });
+            this._okayButton = HTML.button({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.copyButton = HTML.button({ style: "width:86px; margin-right: 5px;", class: "copyButton" }, [
+                "Copy",
+                SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "-5 -21 26 26" }, [
+                    SVG.path({ d: "M 0 -15 L 1 -15 L 1 0 L 13 0 L 13 1 L 0 1 L 0 -15 z M 2 -1 L 2 -17 L 10 -17 L 14 -13 L 14 -1 z M 3 -2 L 13 -2 L 13 -12 L 9 -12 L 9 -16 L 3 -16 z", fill: "currentColor" }),
+                ]),
+            ]);
+            this.pasteButton = HTML.button({ style: "width:86px;", class: "pasteButton" }, [
+                "Paste",
+                SVG.svg({ style: "flex-shrink: 0; position: absolute; left: 0; top: 50%; margin-top: -1em; pointer-events: none;", width: "2em", height: "2em", viewBox: "0 0 26 26" }, [
+                    SVG.path({ d: "M 8 18 L 6 18 L 6 5 L 17 5 L 17 7 M 9 8 L 16 8 L 20 12 L 20 22 L 9 22 z", stroke: "currentColor", fill: "none" }),
+                    SVG.path({ d: "M 9 3 L 14 3 L 14 6 L 9 6 L 9 3 z M 16 8 L 20 12 L 16 12 L 16 8 z", fill: "currentColor", }),
+                ]),
+            ]);
+            this.copyPasteContainer = HTML.div({ style: "width: 185px;" }, this.copyButton, this.pasteButton);
+            this.container = HTML.div({ class: "prompt noSelection", style: "width: 500px;" }, HTML.h2("Edit Spectrum Instrument"), HTML.div({ style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;" }, this._playButton), this._drumsetButtonContainer, HTML.div({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; height: 80%" }, this.spectrumEditor.container), HTML.div({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton, this.copyPasteContainer), this._cancelButton);
+            this._setDrumSpectrum = (index) => {
+                this._drumsetButtons[this._drumsetSpectrumIndex].classList.remove("selected-instrument");
+                this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(this.spectrumEditor.getSpectrumWave().spectrum);
+                this._drumsetSpectrumIndex = index;
+                this._drumsetButtons[index].classList.add("selected-instrument");
+                this.spectrumEditor.setSpectrumWave(this.spectrumEditors[this._drumsetSpectrumIndex].getSpectrumWave().spectrum);
+                this.spectrumEditor.render();
+            };
+            this._togglePlay = () => {
+                this._songEditor.togglePlay();
+                this.updatePlayButton();
+            };
+            this._close = () => {
+                this._doc.prompt = null;
+                this._doc.undo();
+            };
+            this.cleanUp = () => {
+                this._okayButton.removeEventListener("click", this._saveChanges);
+                this._cancelButton.removeEventListener("click", this._close);
+                this.container.removeEventListener("keydown", this.whenKeyPressed);
+                this.spectrumEditor.container.removeEventListener("mousemove", () => this.spectrumEditor.render());
+                this._playButton.removeEventListener("click", this._togglePlay);
+            };
+            this._copySettings = () => {
+                const spectrumCopy = this.spectrumEditor.getSpectrumWave();
+                window.localStorage.setItem("spectrumCopy", JSON.stringify(spectrumCopy.spectrum));
+            };
+            this._pasteSettings = () => {
+                const storedSpectrumWave = JSON.parse(String(window.localStorage.getItem("spectrumCopy")));
+                this.spectrumEditor.setSpectrumWave(storedSpectrumWave);
+            };
+            this.whenKeyPressed = (event) => {
+                if (event.target.tagName != "BUTTON" && event.keyCode == 13) {
+                    this._saveChanges();
+                }
+                else if (event.keyCode == 32) {
+                    this._togglePlay();
+                    event.preventDefault();
+                }
+                else if (event.keyCode == 90) {
+                    this.spectrumEditor.undo();
+                    event.stopPropagation();
+                }
+                else if (event.keyCode == 89) {
+                    this.spectrumEditor.redo();
+                    event.stopPropagation();
+                }
+                else if (event.keyCode == 219) {
+                    this._doc.synth.goToPrevBar();
+                }
+                else if (event.keyCode == 221) {
+                    this._doc.synth.goToNextBar();
+                }
+                else if (event.keyCode >= 49 && event.keyCode <= 57) {
+                    if (event.shiftKey && this._isDrumset) {
+                        this._setDrumSpectrum(event.keyCode - 49);
+                    }
+                }
+                else if (event.keyCode == 48) {
+                    if (event.shiftKey && this._isDrumset) {
+                        this._setDrumSpectrum(9);
+                    }
+                }
+                else if (event.keyCode == 189 || event.keyCode == 173) {
+                    if (event.shiftKey && this._isDrumset) {
+                        this._setDrumSpectrum(10);
+                    }
+                }
+                else if (event.keyCode == 187 || event.keyCode == 61 || event.keyCode == 171) {
+                    if (event.shiftKey && this._isDrumset) {
+                        this._setDrumSpectrum(11);
+                    }
+                }
+            };
+            this._saveChanges = () => {
+                const group = new ChangeGroup();
+                for (let i = 0; i < this.spectrumEditors.length; i++) {
+                    group.append(this.spectrumEditors[i].saveSettings());
+                }
+                this._doc.record(group, true);
+                this._doc.prompt = null;
+            };
+            this._okayButton.addEventListener("click", this._saveChanges);
+            this._cancelButton.addEventListener("click", this._close);
+            this.container.addEventListener("keydown", this.whenKeyPressed);
+            this.copyButton.addEventListener("click", this._copySettings);
+            this.pasteButton.addEventListener("click", this._pasteSettings);
+            this._playButton.addEventListener("click", this._togglePlay);
+            this.container.addEventListener("mousemove", () => {
+                this.spectrumEditor.render();
+                this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(this.spectrumEditor.getSpectrumWave().spectrum);
+            });
+            this.container.addEventListener("mousedown", this.spectrumEditor.render);
+            this.spectrumEditor.container.addEventListener("mousemove", () => {
+                this.spectrumEditor.render();
+                this.spectrumEditors[this._drumsetSpectrumIndex].setSpectrumWave(this.spectrumEditor.getSpectrumWave().spectrum);
+            });
+            this.spectrumEditor.container.addEventListener("mousedown", this.spectrumEditor.render);
+            this.updatePlayButton();
+            if (this._isDrumset) {
+                for (let i = Config.drumCount - 1; i >= 0; i--) {
+                    this.spectrumEditors[i] = new SpectrumEditor(this._doc, Config.drumCount - 1 - i, true);
+                    this.spectrumEditors[i].setSpectrumWave(this._songEditor._drumsetSpectrumEditors[Config.drumCount - 1 - i].getSpectrumWave().spectrum);
+                }
+                let colors = ColorConfig.getChannelColor(this._doc.song, this._doc.channel);
+                for (let i = 0; i < Config.drumCount; i++) {
+                    let newSpectrumButton = HTML.button({ class: "no-underline", style: "max-width: 2em;" }, "" + (i + 1));
+                    this._drumsetButtons.push(newSpectrumButton);
+                    this._drumsetButtonContainer.appendChild(newSpectrumButton);
+                    newSpectrumButton.addEventListener("click", () => { this._setDrumSpectrum(i); });
+                }
+                this._drumsetButtons[Config.drumCount - 1].classList.add("last-button");
+                this._drumsetButtons[0].classList.add("selected-instrument");
+                this._drumsetButtonContainer.style.setProperty("--text-color-lit", colors.primaryNote);
+                this._drumsetButtonContainer.style.setProperty("--text-color-dim", colors.secondaryNote);
+                this._drumsetButtonContainer.style.setProperty("--background-color-lit", colors.primaryChannel);
+                this._drumsetButtonContainer.style.setProperty("--background-color-dim", colors.secondaryChannel);
+                this._drumsetButtonContainer.style.display = "";
+                this.spectrumEditor.container.style.display = "";
+                this.spectrumEditor.setSpectrumWave(this.spectrumEditors[this._drumsetSpectrumIndex].getSpectrumWave().spectrum);
+            }
+            else {
+                this._drumsetButtonContainer.style.display = "none";
+                this.spectrumEditors[0] = this.spectrumEditor;
+            }
+            setTimeout(() => this._playButton.focus());
+            this.spectrumEditor.render();
+        }
+        updatePlayButton() {
+            if (this._doc.synth.playing) {
+                this._playButton.classList.remove("playButton");
+                this._playButton.classList.add("pauseButton");
+                this._playButton.title = "Pause (Space)";
+                this._playButton.innerText = "Pause";
+            }
+            else {
+                this._playButton.classList.remove("pauseButton");
+                this._playButton.classList.add("playButton");
+                this._playButton.title = "Play (Space)";
+                this._playButton.innerText = "Play";
+            }
+        }
+    }
 
-    const { button: button$6, div: div$6, h2: h2$5, input: input$4, p: p$1, a: a$1 } = HTML;
+    const { button: button$7, div: div$7, h2: h2$6, input: input$4, p: p$2, a: a$1 } = HTML;
     let doReload = false;
-    class CustomPrompt {
+    class CustomThemePrompt {
         constructor(_doc, _pattern, _pattern2, _pattern3) {
             this._doc = _doc;
             this._pattern = _pattern;
             this._pattern2 = _pattern2;
             this._pattern3 = _pattern3;
-            this._fileInput = input$4({ type: "file", accept: ".png,.jpg,.jpeg", text: "choose editor background image" });
-            this._fileInput2 = input$4({ type: "file", accept: ".png,.jpg,.jpeg", text: "choose website background image" });
+            this._fileInput = input$4({ type: "file", accept: "image/*", text: "choose editor background image" });
+            this._fileInput2 = input$4({ type: "file", accept: "image/*", text: "choose website background image" });
             this._colorInput = input$4({ type: "text", value: localStorage.getItem("customColors") || `:root {
-		--page-margin: #040410;
-		--editor-background: #040410;
-		--hover-preview: white;
-		--playhead: rgba(255, 255, 255, 0.9);
-		--primary-text: white;
-		--secondary-text: #84859a;
-		--inverted-text: black;
-		--text-selection: rgba(119,68,255,0.99);
-		--box-selection-fill: #044b94;
-		--loop-accent: #74f;
-		--link-accent: #98f;
-		--ui-widget-background: #393e4f;
-		--ui-widget-focus: #6d6886;
-		--pitch-background: #393e4f;
-		--tonic: #725491;
-		--fifth-note: #54547a;
-		--white-piano-key: #eee;
-		--black-piano-key: #666;
-		--white-piano-key-text: #131200;
-		--black-piano-key-text: #fff;
-		--use-color-formula: true;
-		--track-editor-bg-pitch: #393e4f;
-		--track-editor-bg-pitch-dim: #1c1d28;
-		--track-editor-bg-noise: #3d3535;
-		--track-editor-bg-noise-dim: #161313;
-		--track-editor-bg-mod: #283560;
-		--track-editor-bg-mod-dim: #0a101f;
-		--multiplicative-mod-slider: #606c9f;
-		--overwriting-mod-slider: #6850b5;
-		--indicator-primary: #9c64f7;
-		--indicator-secondary: #393e4f;
-		--select2-opt-group: #5d576f;
-		--input-box-outline: #222;
-		--mute-button-normal: #dda85d;
-		--mute-button-mod: #886eae;
-		--mod-label-primary: #282840;
-		--mod-label-secondary-text: rgb(87, 86, 120);
-		--mod-label-primary-text: white;
-		--pitch-secondary-channel-hue: 0;
-		--pitch-secondary-channel-hue-scale: 6.5;
-		--pitch-secondary-channel-sat: 83.3;
-		--pitch-secondary-channel-sat-scale: 0.1;
-		--pitch-secondary-channel-lum: 40;
-		--pitch-secondary-channel-lum-scale: 0.05;
-		--pitch-primary-channel-hue: 0;
-		--pitch-primary-channel-hue-scale: 6.5;
-		--pitch-primary-channel-sat: 100;
-		--pitch-primary-channel-sat-scale: 0.1;
-		--pitch-primary-channel-lum: 67.5;
-		--pitch-primary-channel-lum-scale: 0.05;
-		--pitch-secondary-note-hue: 0;
-		--pitch-secondary-note-hue-scale: 6.5;
-		--pitch-secondary-note-sat: 93.9;
-		--pitch-secondary-note-sat-scale: 0.1;
-		--pitch-secondary-note-lum: 25;
-		--pitch-secondary-note-lum-scale: 0.05;
-		--pitch-primary-note-hue: 0;
-		--pitch-primary-note-hue-scale: 6.5;
-		--pitch-primary-note-sat: 100;
-		--pitch-primary-note-sat-scale: 0.05;
-		--pitch-primary-note-lum: 85.6;
-		--pitch-primary-note-lum-scale: 0.025;
-		--noise-secondary-channel-hue: 0;
-		--noise-secondary-channel-hue-scale: 2;
-		--noise-secondary-channel-sat: 25;
-		--noise-secondary-channel-sat-scale: 0;
-		--noise-secondary-channel-lum: 42;
-		--noise-secondary-channel-lum-scale: 0;
-		--noise-primary-channel-hue: 0;
-		--noise-primary-channel-hue-scale: 2;
-		--noise-primary-channel-sat: 33;
-		--noise-primary-channel-sat-scale: 0;
-		--noise-primary-channel-lum: 63.5;
-		--noise-primary-channel-lum-scale: 0;
-		--noise-secondary-note-hue: 0;
-		--noise-secondary-note-hue-scale: 2;
-		--noise-secondary-note-sat: 33.5;
-		--noise-secondary-note-sat-scale: 0;
-		--noise-secondary-note-lum: 55;
-		--noise-secondary-note-lum-scale: 0;
-		--noise-primary-note-hue: 0;
-		--noise-primary-note-hue-scale: 2;
-		--noise-primary-note-sat: 46.5;
-		--noise-primary-note-sat-scale: 0;
-		--noise-primary-note-lum: 74;
-		--noise-primary-note-lum-scale: 0;
-		--mod-secondary-channel-hue: 192;
-		--mod-secondary-channel-hue-scale: 1.5;
-		--mod-secondary-channel-sat: 88;
-		--mod-secondary-channel-sat-scale: 0;
-		--mod-secondary-channel-lum: 50;
-		--mod-secondary-channel-lum-scale: 0;
-		--mod-primary-channel-hue: 192;
-		--mod-primary-channel-hue-scale: 1.5;
-		--mod-primary-channel-sat: 96;
-		--mod-primary-channel-sat-scale: 0;
-		--mod-primary-channel-lum: 80;
-		--mod-primary-channel-lum-scale: 0;
-		--mod-secondary-note-hue: 192;
-		--mod-secondary-note-hue-scale: 1.5;
-		--mod-secondary-note-sat: 92;
-		--mod-secondary-note-sat-scale: 0;
-		--mod-secondary-note-lum: 45;
-		--mod-secondary-note-lum-scale: 0;
-		--mod-primary-note-hue: 192;
-		--mod-primary-note-hue-scale: 1.5;
-		--mod-primary-note-sat: 96;
-		--mod-primary-note-sat-scale: 0;
-		--mod-primary-note-lum: 85;
-		--mod-primary-note-lum-scale: 0;
-		--disabled-note-primary:    #91879f;
-		--disabled-note-secondary:  #6a677a;
-	}` });
-            this._cancelButton = button$6({ class: "cancelButton" });
-            this._okayButton = button$6({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this._resetButton = button$6({ style: "height: auto; min-height: var(--button-size);" }, "Reset to defaults");
-            this.container = div$6({ class: "prompt noSelection", style: "width: 300px;" }, h2$5("Import"), p$1({ style: "text-align: left; margin: 0.5em 0;" }, "You can upload images to create a custom theme. The first image will become the editor background, and the second image will be tiled across the webpage."), div$6({ style: "text-align: left; margin-top: 0.5em; margin-bottom: 0.5em;" }, "You can find a list of custom themes made by other users on the ", a$1({ target: "_blank", href: "https://docs.google.com/spreadsheets/d/1dGjEcLgJrPwzBExPmwA9pbE_KVQ3jNrnTBrd46d2IKo/edit" }, "custom theme sheet.")), div$6(), p$1({ style: "text-align: left; margin: 0;" }, "Editor Background Image:", this._fileInput), p$1({ style: "text-align: left; margin: 0.5em 0;" }, "Website Background Image:", this._fileInput2), div$6(), p$1({ style: "text-align: left; margin: 0;" }, "Replace the text below with your custom theme data to load it:"), this._colorInput, div$6({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._resetButton), div$6({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+	--page-margin: black;
+	--editor-background: black;
+	--hover-preview: white;
+	--playhead: white;
+	--primary-text: white;
+	--secondary-text: #999;
+	--inverted-text: black;
+	--text-selection: rgba(119,68,255,0.99);
+	--box-selection-fill: rgba(255,255,255,0.2);
+	--loop-accent: #74f;
+	--link-accent: #98f;
+	--ui-widget-background: #444;
+	--ui-widget-focus: #777;
+	--pitch-background: #444;
+	--tonic: #864;
+	--fifth-note: #468;
+	--white-piano-key: #bbb;
+	--black-piano-key: #444;
+	--white-piano-key-text: #131200;
+	--black-piano-key-text: #fff;
+	--use-color-formula: false;
+	--track-editor-bg-pitch: #444;
+	--track-editor-bg-pitch-dim: #333;
+	--track-editor-bg-noise: #444;
+	--track-editor-bg-noise-dim: #333;
+	--track-editor-bg-mod: #234;
+	--track-editor-bg-mod-dim: #123;
+	--multiplicative-mod-slider: #456;
+	--overwriting-mod-slider: #654;
+	--indicator-primary: #74f;
+	--indicator-secondary: #444;
+	--select2-opt-group: #585858;
+	--input-box-outline: #333;
+	--mute-button-normal: #ffa033;
+	--mute-button-mod: #9a6bff;
+	--pitch1-secondary-channel: #0099A1;
+	--pitch1-primary-channel:   #25F3FF;
+	--pitch1-secondary-note:    #00BDC7;
+	--pitch1-primary-note:      #92F9FF;
+	--pitch2-secondary-channel: #A1A100;
+	--pitch2-primary-channel:   #FFFF25;
+	--pitch2-secondary-note:    #C7C700;
+	--pitch2-primary-note:      #FFFF92;
+	--pitch3-secondary-channel: #C75000;
+	--pitch3-primary-channel:   #FF9752;
+	--pitch3-secondary-note:    #FF771C;
+	--pitch3-primary-note:      #FFCDAB;
+	--pitch4-secondary-channel: #00A100;
+	--pitch4-primary-channel:   #50FF50;
+	--pitch4-secondary-note:    #00C700;
+	--pitch4-primary-note:      #A0FFA0;
+	--pitch5-secondary-channel: #D020D0;
+	--pitch5-primary-channel:   #FF90FF;
+	--pitch5-secondary-note:    #E040E0;
+	--pitch5-primary-note:      #FFC0FF;
+	--pitch6-secondary-channel: #7777B0;
+	--pitch6-primary-channel:   #A0A0FF;
+	--pitch6-secondary-note:    #8888D0;
+	--pitch6-primary-note:      #D0D0FF;
+	--pitch7-secondary-channel: #8AA100;
+	--pitch7-primary-channel:   #DEFF25;
+	--pitch7-secondary-note:    #AAC700;
+	--pitch7-primary-note:      #E6FF92;
+	--pitch8-secondary-channel: #DF0019;
+	--pitch8-primary-channel:   #FF98A4;
+	--pitch8-secondary-note:    #FF4E63;
+	--pitch8-primary-note:      #FFB2BB;
+	--pitch9-secondary-channel: #00A170;
+	--pitch9-primary-channel:   #50FFC9;
+	--pitch9-secondary-note:    #00C78A;
+	--pitch9-primary-note:      #83FFD9;
+	--pitch10-secondary-channel:#A11FFF;
+	--pitch10-primary-channel:  #CE8BFF;
+	--pitch10-secondary-note:   #B757FF;
+	--pitch10-primary-note:     #DFACFF;
+	--noise1-secondary-channel: #6F6F6F;
+	--noise1-primary-channel:   #AAAAAA;
+	--noise1-secondary-note:    #A7A7A7;
+	--noise1-primary-note:      #E0E0E0;
+	--noise2-secondary-channel: #996633;
+	--noise2-primary-channel:   #DDAA77;
+	--noise2-secondary-note:    #CC9966;
+	--noise2-primary-note:      #F0D0BB;
+	--noise3-secondary-channel: #4A6D8F;
+	--noise3-primary-channel:   #77AADD;
+	--noise3-secondary-note:    #6F9FCF;
+	--noise3-primary-note:      #BBD7FF;
+	--noise4-secondary-channel: #7A4F9A;
+	--noise4-primary-channel:   #AF82D2;
+	--noise4-secondary-note:    #9E71C1;
+	--noise4-primary-note:      #D4C1EA;
+	--noise5-secondary-channel: #607837;
+	--noise5-primary-channel:   #A2BB77;
+	--noise5-secondary-note:    #91AA66;
+	--noise5-primary-note:      #C5E2B2;
+	--mod1-secondary-channel:   #339955;
+	--mod1-primary-channel:     #77fc55;
+	--mod1-secondary-note:      #77ff8a;
+	--mod1-primary-note:        #cdffee;
+	--mod2-secondary-channel:   #993355;
+	--mod2-primary-channel:     #f04960;
+	--mod2-secondary-note:      #f057a0;
+	--mod2-primary-note:        #ffb8de;
+	--mod3-secondary-channel:   #553399;
+	--mod3-primary-channel:     #8855fc;
+	--mod3-secondary-note:      #aa64ff;
+	--mod3-primary-note:	    #f8ddff;
+	--mod4-secondary-channel:   #a86436;
+	--mod4-primary-channel:     #c8a825;
+	--mod4-secondary-note:      #e8ba46;
+	--mod4-primary-note:        #fff6d3;
+	--mod-label-primary:        #999;
+	--mod-label-secondary-text: #333;
+	--mod-label-primary-text:   black;
+	--disabled-note-primary:    #999;
+	--disabled-note-secondary:  #666; }` });
+            this._cancelButton = button$7({ class: "cancelButton" });
+            this._okayButton = button$7({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this._resetButton = button$7({ style: "height: auto; min-height: var(--button-size);" }, "Reset to defaults");
+            this.container = div$7({ class: "prompt noSelection", style: "width: 300px;" }, h2$6("Import"), p$2({ style: "text-align: left; margin: 0.5em 0;" }, "You can upload images to create a custom theme. The first image will become the editor background, and the second image will be tiled across the webpage."), div$7({ style: "text-align: left; margin-top: 0.5em; margin-bottom: 0.5em;" }, "You can find a list of custom themes made by other users on the ", a$1({ target: "_blank", href: "https://docs.google.com/spreadsheets/d/1dGjEcLgJrPwzBExPmwA9pbE_KVQ3jNrnTBrd46d2IKo/edit" }, "custom theme sheet.")), div$7(), p$2({ style: "text-align: left; margin: 0;" }, "Editor Background Image:", this._fileInput), p$2({ style: "text-align: left; margin: 0.5em 0;" }, "Website Background Image:", this._fileInput2), div$7(), p$2({ style: "text-align: left; margin: 0;" }, "Replace the text below with your custom theme data to load it:"), this._colorInput, div$7({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._resetButton), div$7({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this._close = () => {
                 this._doc.prompt = null;
                 this._doc.undo();
@@ -38372,21 +38386,21 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$5, div: div$5, h2: h2$4, select: select$3, option: option$3 } = HTML;
+    const { button: button$6, div: div$6, h2: h2$5, select: select$4, option: option$4, optgroup: optgroup$1 } = HTML;
     class ThemePrompt {
         constructor(_doc) {
             this._doc = _doc;
-            this._themeSelect = select$3({ style: "width: 100%;" }, option$3({ value: "dark classic" }, "BeepBox Dark"), option$3({ value: "light classic" }, "BeepBox Light"), option$3({ value: "dark competition" }, "BeepBox Competition Dark"), option$3({ value: "jummbox classic" }, "JummBox Dark"), option$3({ value: "jummbox light" }, "Gold Light"), option$3({ value: "forest" }, "Forest"), option$3({ value: "canyon" }, "Canyon"), option$3({ value: "midnight" }, "Midnight"), option$3({ value: "beachcombing" }, "Beachcombing"), option$3({ value: "violet verdant" }, "Violet Verdant"), option$3({ value: "sunset" }, "Sunset"), option$3({ value: "autumn" }, "Autumn"), option$3({ value: "fruit" }, "Shadowfruit"), option$3({ value: "toxic" }, "Toxic"), option$3({ value: "roe" }, "Roe"), option$3({ value: "moonlight" }, "Moonlight"), option$3({ value: "portal" }, "Portal"), option$3({ value: "fusion" }, "Fusion"), option$3({ value: "inverse" }, "Inverse"), option$3({ value: "nebula" }, "Nebula"), option$3({ value: "roe light" }, "Roe Light"), option$3({ value: "amoled dark" }, "High Contrast Dark"), option$3({ value: "energized" }, "Energized"), option$3({ value: "neapolitan" }, "Neapolitan"), option$3({ value: "poly" }, "Poly"), option$3({ value: "blutonium" }, "Blutonium"), option$3({ value: "azur lane" }, "Azur Lane"), option$3({ value: "modbox classic" }, "Modbox"), option$3({ value: "sandbox classic" }, "Sandbox"), option$3({ value: "harrybox" }, "Haileybox"), option$3({ value: "brucebox" }, "Brucebox"), option$3({ value: "shitbox 3.0" }, "Shitbox 1.0/3.0"), option$3({ value: "shitbox 2.0" }, "Shitbox 2.0"), option$3({ value: "nerdbox" }, "NerdBox"), option$3({ value: "zefbox" }, "Zefbox"), option$3({ value: "cardboardbox classic" }, "Cardboardbox"), option$3({ value: "blubox classic" }, "Blubox"), option$3({ value: "dogebox classic" }, "Dogebox"), option$3({ value: "wackybox" }, "Wackybox"), option$3({ value: "todbox dark mode" }, "Todbox Dark Mode"), option$3({ value: "mainbox 1.0" }, "Mainbox"), option$3({ value: "microbox" }, "MicroBox"), option$3({ value: "paandorasbox" }, "PaandorasBox"), option$3({ value: "foxbox" }, "FoxBox"), option$3({ value: "midbox" }, "Midbox"), option$3({ value: "dogebox2" }, "Dogebox2"), option$3({ value: "AbyssBox Classic" }, "AbyssBox Classic"), option$3({ value: "AbyssBox Light" }, "AbyssBox Light"), option$3({ value: "nepbox" }, "Nepbox"), option$3({ value: "custom" }, "Custom"));
-            this._cancelButton = button$5({ class: "cancelButton" });
-            this._okayButton = button$5({ class: "okayButton", style: "width:45%;" }, "Okay");
-            this.container = div$5({ class: "prompt noSelection", style: "width: 220px;" }, h2$4("Set Theme"), div$5({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$5({ class: "selectContainer", style: "width: 100%;" }, this._themeSelect)), div$5({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._themeSelect = select$4({ style: "width: 100%;" }, optgroup$1({ label: "Default Themes" }, option$4({ value: "ultrabox dark" }, "UltraBox"), option$4({ value: "forest" }, "Forest"), option$4({ value: "canyon" }, "Canyon"), option$4({ value: "midnight" }, "Midnight"), option$4({ value: "beachcombing" }, "Beachcombing"), option$4({ value: "violet verdant" }, "Violet Verdant"), option$4({ value: "sunset" }, "Sunset"), option$4({ value: "autumn" }, "Autumn"), option$4({ value: "fruit" }, "Shadowfruit"), option$4({ value: "toxic" }, "Toxic"), option$4({ value: "roe" }, "Roe"), option$4({ value: "moonlight" }, "Moonlight"), option$4({ value: "portal" }, "Portal"), option$4({ value: "fusion" }, "Fusion"), option$4({ value: "inverse" }, "Inverse"), option$4({ value: "nebula" }, "Nebula"), option$4({ value: "roe light" }, "Roe Light"), option$4({ value: "amoled dark" }, "High Contrast Dark"), option$4({ value: "energized" }, "Energized"), option$4({ value: "neapolitan" }, "Neapolitan"), option$4({ value: "poly" }, "Poly"), option$4({ value: "blutonium" }, "Blutonium"), option$4({ value: "slushie" }, "Slushie")), optgroup$1({ label: "Mod Themes" }, option$4({ value: "dark classic" }, "BeepBox Dark"), option$4({ value: "light classic" }, "BeepBox Light"), option$4({ value: "dark competition" }, "BeepBox Competition Dark"), option$4({ value: "jummbox classic" }, "JummBox Dark"), option$4({ value: "modbox classic" }, "Modbox"), option$4({ value: "sandbox classic" }, "Sandbox"), option$4({ value: "harrybox" }, "Haileybox"), option$4({ value: "brucebox" }, "Brucebox"), option$4({ value: "shitbox 3.0" }, "Shitbox 1.0/3.0"), option$4({ value: "shitbox 2.0" }, "Shitbox 2.0"), option$4({ value: "nerdbox" }, "NerdBox"), option$4({ value: "zefbox" }, "Zefbox"), option$4({ value: "cardboardbox classic" }, "Cardboardbox"), option$4({ value: "blubox classic" }, "Blubox"), option$4({ value: "dogebox classic" }, "Dogebox"), option$4({ value: "wackybox" }, "Wackybox"), option$4({ value: "todbox dark mode" }, "Todbox Dark Mode"), option$4({ value: "mainbox 1.0" }, "Mainbox"), option$4({ value: "microbox" }, "MicroBox"), option$4({ value: "paandorasbox" }, "PaandorasBox"), option$4({ value: "foxbox" }, "FoxBox"), option$4({ value: "midbox" }, "Midbox"), option$4({ value: "dogebox2" }, "Dogebox2"), option$4({ value: "abyssbox classic" }, "AbyssBox Classic"), option$4({ value: "abyssbox light" }, "AbyssBox Light"), option$4({ value: "nepbox" }, "Nepbox"), option$4({ value: "slarmoosbox" }, "Slarmoo's Box"), option$4({ value: "axobox" }, "AxoBox"), option$4({ value: "lemmbox dark" }, "LemmBox")), optgroup$1({ label: "Misc" }, option$4({ value: "azur lane" }, "Azur Lane"), option$4({ value: "custom" }, "Custom")));
+            this._cancelButton = button$6({ class: "cancelButton" });
+            this._okayButton = button$6({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$6({ class: "prompt noSelection", style: "width: 220px;" }, h2$5("Set Theme"), div$6({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$6({ class: "selectContainer", style: "width: 100%;" }, this._themeSelect)), div$6({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
             this.lastTheme = window.localStorage.getItem("colorTheme");
             this._close = () => {
                 if (this.lastTheme != null) {
                     ColorConfig.setTheme(this.lastTheme);
                 }
                 else {
-                    ColorConfig.setTheme("dark classic");
+                    ColorConfig.setTheme(ColorConfig.defaultTheme);
                 }
                 this._doc.undo();
             };
@@ -38420,11 +38434,11 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { button: button$4, div: div$4, p, h2: h2$3, h3 } = HTML;
+    const { button: button$5, div: div$5, p: p$1, h2: h2$4, h3 } = HTML;
     class TipPrompt {
         constructor(_doc, type) {
             this._doc = _doc;
-            this._closeButton = button$4({ class: "cancelButton" });
+            this._closeButton = button$5({ class: "cancelButton" });
             this._close = () => {
                 this._doc.undo();
             };
@@ -38435,432 +38449,432 @@ You should be redirected to the song at:<br /><br />
             switch (type) {
                 case "scale":
                     {
-                        message = div$4(h2$3("Scale"), p("This setting limits the available pitches for adding notes. You may think that there's no point in limiting your choices, but the set of pitches you use has a strong influence on the mood and feel of your song, and these scales serve as guides to help you choose appropriate pitches. Don't worry, you can change the scale at any time, so you're not locked into it. Try making little melodies using all the available pitches of a scale to get a sense for how it sounds."), p("The most common scales are major and minor. Assuming your song uses all pitches in the scale and especially \"tonic\" pitches (the purple rows in the pattern editor) then major scales tend to sound more playful or optimistic, whereas minor scales sound more serious or sad."));
+                        message = div$5(h2$4("Scale"), p$1("This setting limits the available pitches for adding notes. You may think that there's no point in limiting your choices, but the set of pitches you use has a strong influence on the mood and feel of your song, and these scales serve as guides to help you choose appropriate pitches. Don't worry, you can change the scale at any time, so you're not locked into it. Try making little melodies using all the available pitches of a scale to get a sense for how it sounds."), p$1("The most common scales are major and minor. Assuming your song uses all pitches in the scale and especially \"tonic\" pitches (the purple rows in the pattern editor) then major scales tend to sound more playful or optimistic, whereas minor scales sound more serious or sad."));
                     }
                     break;
                 case "key":
                     {
-                        message = div$4(h2$3("Song Key"), p("This setting can shift the frequency of every note in your entire song up or down, keeping the \"tonic\" pitches (the brown rows in the pattern editor) aligned with the selected \"key\" pitch."), p("If you've already placed some notes but they don't emphasize \"tonic\" pitches then the selected key isn't very meaningful. You can select the \"Detect Key\" option in the key menu to automatically align the most emphasized notes with \"tonic\" pitches."));
+                        message = div$5(h2$4("Song Key"), p$1("This setting can shift the frequency of every note in your entire song up or down, keeping the \"tonic\" pitches (the brown rows in the pattern editor) aligned with the selected \"key\" pitch."), p$1("If you've already placed some notes but they don't emphasize \"tonic\" pitches then the selected key isn't very meaningful. You can select the \"Detect Key\" option in the key menu to automatically align the most emphasized notes with \"tonic\" pitches."));
                     }
                     break;
                 case "key_octave":
                     {
-                        message = div$4(h2$3("Octave"), p("This setting can shift the \"key\" by an octave, allowing you to use a B- or C+ key."), p(`This goes from ${Config.octaveMin} to ${Config.octaveMax}.`));
+                        message = div$5(h2$4("Octave"), p$1("This setting can shift the \"key\" by an octave, allowing you to use a B- or C+ key."), p$1(`This goes from ${Config.octaveMin} to ${Config.octaveMax}.`));
                     }
                     break;
                 case "tempo":
                     {
-                        message = div$4(h2$3("Song Tempo"), p("This setting controls the speed of your song, measured in beats-per-minute. A \"beat\" is the duration of the little gray rectangles in the pattern editor. (In conventional music notation, a \"quarter note\" is usually equivalent to \"beat\".)"));
+                        message = div$5(h2$4("Song Tempo"), p$1("This setting controls the speed of your song, measured in beats-per-minute. A \"beat\" is the duration of the little gray rectangles in the pattern editor. (In conventional music notation, a \"quarter note\" is usually equivalent to \"beat\".)"));
                     }
                     break;
                 case "reverb":
                     {
-                        message = div$4(h2$3("Reverb"), p("Reverb is like a continuous echo effect. A little bit helps instruments sound more natural. Adding a lot of reverb can add sense of depth or mystery, but too much reverb can kinda \"smear\" sounds so that it's harder to distinguish notes or instruments, especially for lower \"bass\" notes."));
+                        message = div$5(h2$4("Reverb"), p$1("Reverb is like a continuous echo effect. A little bit helps instruments sound more natural. Adding a lot of reverb can add sense of depth or mystery, but too much reverb can kinda \"smear\" sounds so that it's harder to distinguish notes or instruments, especially for lower \"bass\" notes."));
                     }
                     break;
                 case "rhythm":
                     {
-                        message = div$4(h2$3("Rhythm"), p("This setting determines how beats are divided. The pattern editor helps you align notes to fractions of a beat based on this setting."), p("If you've already placed some notes but they don't align with the selected rhythm, you can select the \"Snap Notes To Rhythm\" option in the rhythm menu to force the notes in the currently selected pattern(s) to align with the selected rhythm."));
+                        message = div$5(h2$4("Rhythm"), p$1("This setting determines how beats are divided. The pattern editor helps you align notes to fractions of a beat based on this setting."), p$1("If you've already placed some notes but they don't align with the selected rhythm, you can select the \"Snap Notes To Rhythm\" option in the rhythm menu to force the notes in the currently selected pattern(s) to align with the selected rhythm."));
                     }
                     break;
                 case "instrumentIndex":
                     {
-                        message = div$4(h2$3("Instrument Number"), p("In the \"Channel Settings\" option from UltraBox's \"Edit\" menu, there are a few ways to enable multiple instruments per channel."), p("First, you could enable multiple simultaneous instruments per channel. All of the channel's instruments will play all of the notes in the channel at the same time, and you can click an instrument number to view and edit its settings."), p("Second, you could enable different instruments per pattern. Only one of the instruments will play at any given time, but you can click the instrument number to change which instrument is used for the currently selected pattern(s)."), p("Finally, you can enable them both, in which case you can click an instrument number once to view it, and again to toggle whether the instrument is used for the currently selected pattern(s)."), p("Either way, you can click the + button to add more instruments to a channel, and you can press shift and a number key on your keyboard to select an instrument as if you had clicked the corresponding button here."));
+                        message = div$5(h2$4("Instrument Number"), p$1("In the \"Channel Settings\" option from UltraBox's \"Edit\" menu, there are a few ways to enable multiple instruments per channel."), p$1("First, you could enable multiple simultaneous instruments per channel. All of the channel's instruments will play all of the notes in the channel at the same time, and you can click an instrument number to view and edit its settings."), p$1("Second, you could enable different instruments per pattern. Only one of the instruments will play at any given time, but you can click the instrument number to change which instrument is used for the currently selected pattern(s)."), p$1("Finally, you can enable them both, in which case you can click an instrument number once to view it, and again to toggle whether the instrument is used for the currently selected pattern(s)."), p$1("Either way, you can click the + button to add more instruments to a channel, and you can press shift and a number key on your keyboard to select an instrument as if you had clicked the corresponding button here."));
                     }
                     break;
                 case "instrumentVolume":
                     {
-                        message = div$4(h2$3("Instrument Volume"), p("This setting controls the volume of the selected instrument without affecting the volume of the other instruments. This allows you to balance the loudness of each instrument relative to each other."), p("Please be careful when using volume settings above 0. This indicates amplification and too much of that can trip the audio limiter built into this tool. This can lead to your song sounding muffled if overused. But when used carefully, amplification can be a powerful tool!"));
+                        message = div$5(h2$4("Instrument Volume"), p$1("This setting controls the volume of the selected instrument without affecting the volume of the other instruments. This allows you to balance the loudness of each instrument relative to each other."), p$1("Please be careful when using volume settings above 0. This indicates amplification and too much of that can trip the audio limiter built into this tool. This can lead to your song sounding muffled if overused. But when used carefully, amplification can be a powerful tool!"));
                     }
                     break;
                 case "pan":
                     {
-                        message = div$4(h2$3("Instrument Panning"), p("If you're listening through headphones or some other stereo sound system, this controls the position of the instrument and where the sound is coming from, ranging from left to right."), p("As a suggestion, composers often put lead melodies, drums, and basses in the center, and spread other instruments toward either side. If too many instruments seem like they're coming from the same place, it can feel crowded and harder to distinguish individual sounds, especially if they cover a similar pitch range."));
+                        message = div$5(h2$4("Instrument Panning"), p$1("If you're listening through headphones or some other stereo sound system, this controls the position of the instrument and where the sound is coming from, ranging from left to right."), p$1("As a suggestion, composers often put lead melodies, drums, and basses in the center, and spread other instruments toward either side. If too many instruments seem like they're coming from the same place, it can feel crowded and harder to distinguish individual sounds, especially if they cover a similar pitch range."));
                     }
                     break;
                 case "panDelay":
                     {
-                        message = div$4(h2$3("Stereo Delay"), p("When panning, a slight delay is often added between the left and right ear to help make a sound feel more 'directional'. For example, in the real world your left ear will hear a sound coming from the left just slightly before the right ear."), p("This setting controls how much delay is added. When this is set to minimum, panning only affects the volume of the left/right ear without changing the delay. This can help to get a more 'uniform' feeling sound, which can be desirable for making 8-bit music."));
+                        message = div$5(h2$4("Stereo Delay"), p$1("When panning, a slight delay is often added between the left and right ear to help make a sound feel more 'directional'. For example, in the real world your left ear will hear a sound coming from the left just slightly before the right ear."), p$1("This setting controls how much delay is added. When this is set to minimum, panning only affects the volume of the left/right ear without changing the delay. This can help to get a more 'uniform' feeling sound, which can be desirable for making 8-bit music."));
                     }
                     break;
                 case "arpeggioSpeed":
                     {
-                        message = div$4(h2$3("Arpeggio Speed"), p("This setting affects how fast your chord will 'arpeggiate', or cycle between notes. With a fast arpeggio speed it will sound rapid-fire, with a slow speed you can hear each note one after another."));
+                        message = div$5(h2$4("Arpeggio Speed"), p$1("This setting affects how fast your chord will 'arpeggiate', or cycle between notes. With a fast arpeggio speed it will sound rapid-fire, with a slow speed you can hear each note one after another."));
                     }
                     break;
                 case "twoNoteArpeggio":
                     {
-                        message = div$4(h2$3("Faster Two-Note Arpeggio"), p("This setting makes arpeggios with only two notes in them happen twice as fast. Arpeggios with more notes in them are unaffected."));
+                        message = div$5(h2$4("Faster Two-Note Arpeggio"), p$1("This setting makes arpeggios with only two notes in them happen twice as fast. Arpeggios with more notes in them are unaffected."));
                     }
                     break;
                 case "detune":
                     {
-                        message = div$4(h2$3("Detune"), p("This setting can be used to finely control the pitch of your instrument. It is in units of 'cents', 100 of which equal a pitch shift of one semitone."), p("Careful - you can quickly get very dissonant sounding songs by using this setting."));
+                        message = div$5(h2$4("Detune"), p$1("This setting can be used to finely control the pitch of your instrument. It is in units of 'cents', 100 of which equal a pitch shift of one semitone."), p$1("Careful - you can quickly get very dissonant sounding songs by using this setting."));
                     }
                     break;
                 case "instrumentType":
                     {
-                        message = div$4(h2$3("Instrument Type"), p("UltraBox comes with many instrument presets, try them out! You can also create your own custom instruments!"), p("There are also options for copying and pasting instrument settings and for generating random instruments at the top of the instrument type menu."));
+                        message = div$5(h2$4("Instrument Type"), p$1("UltraBox comes with many instrument presets, try them out! You can also create your own custom instruments!"), p$1("There are also buttons for copying and pasting instruments at the bottom of the instrument settings tab, and for generating random instruments in the \"Randomize\" category in the instrument type menu."));
                     }
                     break;
                 case "eqFilter":
                     {
-                        message = div$4(h2$3("EQ Filter"), p("Filters are a way of emphasizing or diminishing different parts of a sound. Musical notes have a fundamental (base) frequency, but the sound of a musical note also has parts at higher frequencies and filters can adjust the volume of each of these parts based on their frequency."), p("Click in the filter editor to insert, delete, or drag a filter control point. The horizontal position of the point determines which frequencies it affects, and the vertical position determines how the volume is affected at that frequency."), p("Insert a new point on the left side of the filter editor to add a \"high-pass\" filter point, which additionally reduces the volume of lower frequencies, or insert a new point on the right side to add a \"low-pass\" filter point which reduces the volume of higher frequencies."), p("You can also enable a \"Note Filter\" as an effect. EQ and note filters are mostly the same, but have different purposes. EQ filters are for overall adjustments, whereas note filters are for dynamic control and can be moved with envelopes. Note filters also change how the distortion effect sounds."));
+                        message = div$5(h2$4("EQ Filter"), p$1("Filters are a way of emphasizing or diminishing different parts of a sound. Musical notes have a fundamental (base) frequency, but the sound of a musical note also has parts at higher frequencies and filters can adjust the volume of each of these parts based on their frequency."), p$1("Click in the filter editor to insert, delete, or drag a filter control point. The horizontal position of the point determines which frequencies it affects, and the vertical position determines how the volume is affected at that frequency."), p$1("Insert a new point on the left side of the filter editor to add a \"high-pass\" filter point, which additionally reduces the volume of lower frequencies, or insert a new point on the right side to add a \"low-pass\" filter point which reduces the volume of higher frequencies."), p$1("You can also enable a \"Note Filter\" as an effect. EQ and note filters are mostly the same, but have different purposes. EQ filters are for overall adjustments, whereas note filters are for dynamic control and can be moved with envelopes. Note filters also change how the distortion effect sounds."));
                     }
                     break;
                 case "noteFilter":
                     {
-                        message = div$4(h2$3("Note Filter"), p("Note filters are mostly the same as EQ filters, but have a different purpose. EQ filters are for overall adjustments, whereas note filters are for dynamic control and can be moved with envelopes. Note filters also change how the distortion effect sounds."), p("Filters are a way of emphasizing or diminishing different parts of a sound. Musical notes have a fundamental (base) frequency, but the sound of a musical note also has parts at higher frequencies and filters can adjust the volume of each of these parts based on their frequency."), p("Click in the filter editor to insert, delete, or drag a filter control point. The horizontal position of the point determines which frequencies it affects, and the vertical position determines how the volume is affected at that frequency."), p("Insert a new point on the left side of the filter editor to add a \"high-pass\" filter point, which additionally reduces the volume of lower frequencies, or insert a new point on the right side to add a \"low-pass\" filter point which reduces the volume of higher frequencies."));
+                        message = div$5(h2$4("Note Filter"), p$1("Note filters are mostly the same as EQ filters, but have a different purpose. EQ filters are for overall adjustments, whereas note filters are for dynamic control and can be moved with envelopes. Note filters also change how the distortion effect sounds."), p$1("Filters are a way of emphasizing or diminishing different parts of a sound. Musical notes have a fundamental (base) frequency, but the sound of a musical note also has parts at higher frequencies and filters can adjust the volume of each of these parts based on their frequency."), p$1("Click in the filter editor to insert, delete, or drag a filter control point. The horizontal position of the point determines which frequencies it affects, and the vertical position determines how the volume is affected at that frequency."), p$1("Insert a new point on the left side of the filter editor to add a \"high-pass\" filter point, which additionally reduces the volume of lower frequencies, or insert a new point on the right side to add a \"low-pass\" filter point which reduces the volume of higher frequencies."));
                     }
                     break;
                 case "fadeInOut":
                     {
-                        message = div$4(h2$3("Fade In/Out"), p("This setting controls how long it takes for notes to reach full volume at the beginning or decay to silence at the end."), p("An instant fade-in sounds like instruments that are played by hitting or plucking, whereas slower fade-ins sound like instruments that are played by blowing air."), p("You can also make the fade-out start before the note ends to leave a gap before the next note starts, or after the note ends to allow the sound of the end of the note to overlap with the start of the next note."));
+                        message = div$5(h2$4("Fade In/Out"), p$1("This setting controls how long it takes for notes to reach full volume at the beginning or decay to silence at the end."), p$1("An instant fade-in sounds like instruments that are played by hitting or plucking, whereas slower fade-ins sound like instruments that are played by blowing air."), p$1("You can also make the fade-out start before the note ends to leave a gap before the next note starts, or after the note ends to allow the sound of the end of the note to overlap with the start of the next note."));
                     }
                     break;
                 case "transition":
                     {
-                        message = div$4(h2$3("Transition"), p("Usually, when one note ends at the same time another begins, the old note will fade out and the new note will fade in based on the fade in/out settings, but this setting can override that, connecting the end of one note to the beginning of the next."), p("The \"interrupt\" transition makes the wave suddenly change from the old note's frequency to the new note's frequency without any fading, but still restarts envelopes at the beginning of the new note. The \"continue\" transition is similar but it doesn't even restart envelopes, and can be used to make each of the notes in a chord start or stop at different times!"), p("The \"slide\" transition makes the pitch shift quickly but not instantaneously from the old note's frequency to the new note's frequency, and softly restarts envelopes. The \"slide in pattern\" transition is the same except it doesn't connect the last note in a pattern to the first note in the next pattern."));
+                        message = div$5(h2$4("Transition"), p$1("Usually, when one note ends at the same time another begins, the old note will fade out and the new note will fade in based on the fade in/out settings, but this setting can override that, connecting the end of one note to the beginning of the next."), p$1("The \"interrupt\" transition makes the wave suddenly change from the old note's frequency to the new note's frequency without any fading, but still restarts envelopes at the beginning of the new note. The \"continue\" transition is similar but it doesn't even restart envelopes, and can be used to make each of the notes in a chord start or stop at different times!"), p$1("The \"slide\" transition makes the pitch shift quickly but not instantaneously from the old note's frequency to the new note's frequency, and softly restarts envelopes. The \"slide in pattern\" transition is the same except it doesn't connect the last note in a pattern to the first note in the next pattern."));
                     }
                     break;
                 case "chipWave":
                     {
-                        message = div$4(h2$3("Chip Wave"), p("UltraBox comes with some sound waves based on classic electronic sound chips, as well as several unique waves. This is the basic source of the sound of the instrument, which is modified by the other instrument settings."));
+                        message = div$5(h2$4("Chip Wave"), p$1("UltraBox comes with some sound waves based on classic electronic sound chips, as well as several unique waves. This is the basic source of the sound of the instrument, which is modified by the other instrument settings."));
                     }
                     break;
                 case "chipNoise":
                     {
-                        message = div$4(h2$3("Noise"), p("UltraBox comes with several basic noise sounds. These do not have any distinct musical pitch, and can be used like drums to create beats and emphasize your song's rhythm."));
+                        message = div$5(h2$4("Noise"), p$1("UltraBox comes with several basic noise sounds. These do not have any distinct musical pitch, and can be used like drums to create beats and emphasize your song's rhythm."));
                     }
                     break;
                 case "supersawDynamism":
                     {
-                        message = div$4(h2$3("Supersaw Dynamism"), p("A supersaw is a combination of many sawtooth waves, and this setting controls the contribution of extra sawtooth waves."), p("At the low end of the slider, only the first wave is contributing to the sound, which sounds like an ordinary static sawtooth wave. At the maximum setting, all of the waves are contributing equally and the resulting tone can randomly shift depending on how the waves line up with each other, similar to the \"unison\" and \"chorus\" settings."));
+                        message = div$5(h2$4("Supersaw Dynamism"), p$1("A supersaw is a combination of many sawtooth waves, and this setting controls the contribution of extra sawtooth waves."), p$1("At the low end of the slider, only the first wave is contributing to the sound, which sounds like an ordinary static sawtooth wave. At the maximum setting, all of the waves are contributing equally and the resulting tone can randomly shift depending on how the waves line up with each other, similar to the \"unison\" and \"chorus\" settings."));
                     }
                     break;
                 case "supersawSpread":
                     {
-                        message = div$4(h2$3("Supersaw Spread"), p("A supersaw is a combination of many sawtooth waves, and this setting controls the distance between their frequencies. The dynamism setting must be used for the extra waves to have any effect."), p("At the low end of the spread slider, all of the voices have the same frequency but random phase, resulting in a different sound every time a note starts. In the middle, the waves all have slightly different frequencies that shift in and out of phase over time similar to the \"unison\" and \"chorus\" settings, creating a classic supersaw sound. At the extreme end, the frequencies are so far apart they sound dissonant."));
+                        message = div$5(h2$4("Supersaw Spread"), p$1("A supersaw is a combination of many sawtooth waves, and this setting controls the distance between their frequencies. The dynamism setting must be used for the extra waves to have any effect."), p$1("At the low end of the spread slider, all of the voices have the same frequency but random phase, resulting in a different sound every time a note starts. In the middle, the waves all have slightly different frequencies that shift in and out of phase over time similar to the \"unison\" and \"chorus\" settings, creating a classic supersaw sound. At the extreme end, the frequencies are so far apart they sound dissonant."));
                     }
                     break;
                 case "supersawShape":
                     {
-                        message = div$4(h2$3("Supersaw Shape"), p("This supersaw instrument includes an option to change the shape of the waves from sawtooth waves to pulse waves. Use this setting to morph between the two shapes."), p("When a pulse wave shape is used, you can also control the pulse width with a separate setting."));
+                        message = div$5(h2$4("Supersaw Shape"), p$1("This supersaw instrument includes an option to change the shape of the waves from sawtooth waves to pulse waves. Use this setting to morph between the two shapes."), p$1("When a pulse wave shape is used, you can also control the pulse width with a separate setting."));
                     }
                     break;
                 case "pulseWidth":
                     {
-                        message = div$4(h2$3("Pulse Wave Width"), p("This setting controls the shape and sound of a pulse wave. At the minimum width, it sounds light and buzzy. At the maximum width, it is shaped like a classic square wave."));
+                        message = div$5(h2$4("Pulse Wave Width"), p$1("This setting controls the shape and sound of a pulse wave. At the minimum width, it sounds light and buzzy. At the maximum width, it is shaped like a classic square wave."));
                     }
                     break;
                 case "unison":
                     {
-                        message = div$4(h2$3("Unison"), p("This instrument can play two identical waves at different frequencies. When two waves play at slightly different frequencies, they move in and out of phase with each other over time as different parts of the waves line up. This creates a dynamic, shifting sound. Pianos are a common example of this kind of sound, because each piano key strikes multiple strings that are tuned to slightly different frequencies."), p("The distance between two frequencies is called an \"interval\", and this setting controls how large it is. If the interval is too wide, then the waves may sound out-of-tune and \"dissonant\". However, if the interval is even larger, then the two frequencies can even be distinct pitches."));
+                        message = div$5(h2$4("Unison"), p$1("This instrument can play two identical waves at different frequencies. When two waves play at slightly different frequencies, they move in and out of phase with each other over time as different parts of the waves line up. This creates a dynamic, shifting sound. Pianos are a common example of this kind of sound, because each piano key strikes multiple strings that are tuned to slightly different frequencies."), p$1("The distance between two frequencies is called an \"interval\", and this setting controls how large it is. If the interval is too wide, then the waves may sound out-of-tune and \"dissonant\". However, if the interval is even larger, then the two frequencies can even be distinct pitches."));
                     }
                     break;
                 case "chords":
                     {
-                        message = div$4(h2$3("Chords"), p("When multiple different notes occur at the same time, this is called a chord. Chords can be created in UltraBox's pattern editor by adding notes above or below another note."), p("This setting determines how chords are played. The standard option is \"simultaneous\" which starts playing all of the pitches in a chord at the same instant. The \"strum\" option is similar, but plays the notes starting at slightly different times. The \"arpeggio\" option is used in \"chiptune\" style music and plays a single tone that rapidly alternates between all of the pitches in the chord."), p("Some UltraBox instruments have an option called \"custom interval\" which uses the chord notes to control the interval between the waves of a single tone. This can create strange sound effects when combined with FM modulators."));
+                        message = div$5(h2$4("Chords"), p$1("When multiple different notes occur at the same time, this is called a chord. Chords can be created in UltraBox's pattern editor by adding notes above or below another note."), p$1("This setting determines how chords are played. The standard option is \"simultaneous\" which starts playing all of the pitches in a chord at the same instant. The \"strum\" option is similar, but plays the notes starting at slightly different times. The \"arpeggio\" option is used in \"chiptune\" style music and plays a single tone that rapidly alternates between all of the pitches in the chord."), p$1("Some UltraBox instruments have an option called \"custom interval\" which uses the chord notes to control the interval between the waves of a single tone. This can create strange sound effects when combined with FM modulators."));
                     }
                     break;
                 case "vibrato":
                     {
-                        message = div$4(h2$3("Vibrato"), p("This setting causes the frequency of a note to wobble slightly. Singers and violinists often use vibrato."));
+                        message = div$5(h2$4("Vibrato"), p$1("This setting causes the frequency of a note to wobble slightly. Singers and violinists often use vibrato."));
                     }
                     break;
                 case "vibratoDepth":
                     {
-                        message = div$4(h2$3("Vibrato Depth"), p("This setting affects the depth of your instrument's vibrato, making the wobbling effect sound stronger or weaker."));
+                        message = div$5(h2$4("Vibrato Depth"), p$1("This setting affects the depth of your instrument's vibrato, making the wobbling effect sound stronger or weaker."));
                     }
                     break;
                 case "vibratoDelay":
                     {
-                        message = div$4(h2$3("Vibrato Delay"), p("This setting changes when vibrato starts to kick in after a note is played. Vibrato is most common for long held notes and less common in short notes, so this can help you achieve that effect."));
+                        message = div$5(h2$4("Vibrato Delay"), p$1("This setting changes when vibrato starts to kick in after a note is played. Vibrato is most common for long held notes and less common in short notes, so this can help you achieve that effect."));
                     }
                     break;
                 case "vibratoSpeed":
                     {
-                        message = div$4(h2$3("Vibrato Speed"), p("This setting determines how fast the vibrato's up-and-down wobble effect will happen for your instrument."));
+                        message = div$5(h2$4("Vibrato Speed"), p$1("This setting determines how fast the vibrato's up-and-down wobble effect will happen for your instrument."));
                     }
                     break;
                 case "vibratoType":
                     {
-                        message = div$4(h2$3("Vibrato Type"), p("This determines the way vibrato causes your instrument's pitch to wobble. The normal type is smooth up and down, the shaky type is chaotic."));
+                        message = div$5(h2$4("Vibrato Type"), p$1("This determines the way vibrato causes your instrument's pitch to wobble. The normal type is smooth up and down, the shaky type is chaotic."));
                     }
                     break;
                 case "algorithm":
                     {
-                        message = div$4(h2$3("FM Algorithm"), p('FM Synthesis is a mysterious but powerful technique for crafting sounds, popularized by Yamaha keyboards and the Sega Genesis/Mega Drive. It may seem confusing, but try playing around with the options until you get a feel for it, or check out some of the preset examples!'), p('This FM synthesizer uses up to four waves, numbered 1, 2, 3, and 4. Each wave may have its own frequency and volume.'), p('There are two kinds of waves: "carrier" waves play a tone out loud, but "modulator" waves distort other waves instead. Wave 1 is always a carrier and plays a tone, but other waves may distort it. The "Algorithm" setting determines which waves are modulators, and which other waves those modulators distort. For example, "1←2" means that wave 2 modulates wave 1, and wave 1 plays out loud.'));
+                        message = div$5(h2$4("FM Algorithm"), p$1('FM Synthesis is a mysterious but powerful technique for crafting sounds, popularized by Yamaha keyboards and the Sega Genesis/Mega Drive. It may seem confusing, but try playing around with the options until you get a feel for it, or check out some of the preset examples!'), p$1('This FM synthesizer uses up to four waves, numbered 1, 2, 3, and 4. Each wave may have its own frequency and volume.'), p$1('There are two kinds of waves: "carrier" waves play a tone out loud, but "modulator" waves distort other waves instead. Wave 1 is always a carrier and plays a tone, but other waves may distort it. The "Algorithm" setting determines which waves are modulators, and which other waves those modulators distort. For example, "1←2" means that wave 2 modulates wave 1, and wave 1 plays out loud.'));
                     }
                     break;
                 case "feedbackType":
                     {
-                        message = div$4(h2$3("Feedback Type"), p('Modulators distort in one direction (like 1←2), but you can also use the feedback setting to make any wave distort in the opposite direction (1→2), or even itself (1⟲).'));
+                        message = div$5(h2$4("Feedback Type"), p$1('Modulators distort in one direction (like 1←2), but you can also use the feedback setting to make any wave distort in the opposite direction (1→2), or even itself (1⟲).'));
                     }
                     break;
                 case "feedbackVolume":
                     {
-                        message = div$4(h2$3("Feedback Distortion"), p("This setting controls the amount of feedback distortion based on the feedback type setting."));
+                        message = div$5(h2$4("Feedback Distortion"), p$1("This setting controls the amount of feedback distortion based on the feedback type setting."));
                     }
                     break;
                 case "operatorFrequency":
                     {
-                        message = div$4(h2$3("Operator Frequency"), p('This setting controls the frequency of an individual FM wave, relative to the fundamental frequency of the note. The multiplier 1× is the same as the fundamental frequency, whereas 2x would be an octave (12 semitones) above it. The frequencies with a "~" are slightly detuned and shift in and out of phase over time compared to the other frequencies.'), p('Try different combinations of a "carrier" wave and a "modulator" wave with different frequencies to get a feel for how they sound together.'));
+                        message = div$5(h2$4("Operator Frequency"), p$1('This setting controls the frequency of an individual FM wave, relative to the fundamental frequency of the note. The multiplier 1× is the same as the fundamental frequency, whereas 2x would be an octave (12 semitones) above it. The frequencies with a "~" are slightly detuned and shift in and out of phase over time compared to the other frequencies.'), p$1('Try different combinations of a "carrier" wave and a "modulator" wave with different frequencies to get a feel for how they sound together.'));
                     }
                     break;
                 case "operatorVolume":
                     {
-                        message = div$4(h2$3("Operator Volume"), p("This setting controls the volume of \"carrier\" waves, or the amount of distortion that \"modulator\" waves apply to other waves."));
+                        message = div$5(h2$4("Operator Volume"), p$1("This setting controls the volume of \"carrier\" waves, or the amount of distortion that \"modulator\" waves apply to other waves."));
                     }
                     break;
                 case "spectrum":
                     {
-                        message = div$4(h2$3("Spectrum"), p("This setting allows you to draw your own noise spectrum! This is good for making drum sounds."), p("If you only use certain frequencies and a soft fade in/out, it's also possible to make howling wind sounds or even musical wind instruments."), p("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."));
+                        message = div$5(h2$4("Spectrum"), p$1("This setting allows you to draw your own noise spectrum! This is good for making drum sounds."), p$1("If you only use certain frequencies and a soft fade in/out, it's also possible to make howling wind sounds or even musical wind instruments."), p$1("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."));
                     }
                     break;
                 case "harmonics":
                     {
-                        message = div$4(h2$3("Harmonics"), p("This setting allows you to design your own sound wave! Most musical waves are actually a combination of sine waves at certain frequencies, and this lets you control the volume of each sine wave individually."), p("The left side of the harmonics editor controls the sine wave volumes at lower frequencies, and the right side controls higher frequencies."));
+                        message = div$5(h2$4("Harmonics"), p$1("This setting allows you to design your own sound wave! Most musical waves are actually a combination of sine waves at certain frequencies, and this lets you control the volume of each sine wave individually."), p$1("The left side of the harmonics editor controls the sine wave volumes at lower frequencies, and the right side controls higher frequencies."));
                     }
                     break;
                 case "effects":
                     {
-                        message = div$4(h2$3("Effects"), p("UltraBox has many different kinds of special effects you can add to instruments. You can turn on multiple effects at once, and they can be configured individually. Try them all out!"));
+                        message = div$5(h2$4("Effects"), p$1("UltraBox has many different kinds of special effects you can add to instruments. You can turn on multiple effects at once, and they can be configured individually. Try them all out!"));
                     }
                     break;
                 case "drumsetEnvelope":
                     {
-                        message = div$4(h2$3("Drumset Envelope"), p("This drumset comes with a low-pass filter, and this setting can dynamically change the low-pass filter frequency over time. Each row in the pattern editor can have a different envelope shape."));
+                        message = div$5(h2$4("Drumset Envelope"), p$1("This drumset comes with a low-pass filter, and this setting can dynamically change the low-pass filter frequency over time. Each row in the pattern editor can have a different envelope shape."));
                     }
                     break;
                 case "drumsetSpectrum":
                     {
-                        message = div$4(h2$3("Drumset Spectrum"), p("This setting allows you to draw your own noise spectrum! This is good for making drumsets. Each row in the pattern editor gets its own spectrum."), p("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."));
+                        message = div$5(h2$4("Drumset Spectrum"), p$1("This setting allows you to draw your own noise spectrum! This is good for making drumsets. Each row in the pattern editor gets its own spectrum."), p$1("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."));
                     }
                     break;
                 case "chorus":
                     {
-                        message = div$4(h2$3("Chorus"), p("The chorus effect combines multiple copies of the instrument's sound and adds a bit of vibrato to simulate an ensemble of instruments or voices. Drag the slider to control how much chorus is added."));
+                        message = div$5(h2$4("Chorus"), p$1("The chorus effect combines multiple copies of the instrument's sound and adds a bit of vibrato to simulate an ensemble of instruments or voices. Drag the slider to control how much chorus is added."));
                     }
                     break;
                 case "echoSustain":
                     {
-                        message = div$4(h2$3("Echo Volume"), p("The echo effect repeats the instrument's sound after a delay. Each echo is a little bit quieter than the last, and this setting controls how much quieter."));
+                        message = div$5(h2$4("Echo Volume"), p$1("The echo effect repeats the instrument's sound after a delay. Each echo is a little bit quieter than the last, and this setting controls how much quieter."));
                     }
                     break;
                 case "echoDelay":
                     {
-                        message = div$4(h2$3("Echo Delay"), p("The echo effect repeats the instrument's sound after a delay, and this setting controls how long the delay is."));
+                        message = div$5(h2$4("Echo Delay"), p$1("The echo effect repeats the instrument's sound after a delay, and this setting controls how long the delay is."));
                     }
                     break;
                 case "pitchShift":
                     {
-                        message = div$4(h2$3("Pitch Shift"), p("This setting makes instruments play higher or lower pitches than the ones displayed in the pattern editor. Be careful that you don't confuse yourself!"), p("You can combine this with envelopes to bend pitch over time, or play multiple simultaneous instruments with different pitch shifts for interesting layered sounds."), p("The intervals created by this setting are in \"just intonation\" which means they stay in phase with the original pitch instead of shifting in and out of phase over time. If you want the shifting, add the detune effect!"));
+                        message = div$5(h2$4("Pitch Shift"), p$1("This setting makes instruments play higher or lower pitches than the ones displayed in the pattern editor. Be careful that you don't confuse yourself!"), p$1("You can combine this with envelopes to bend pitch over time, or play multiple simultaneous instruments with different pitch shifts for interesting layered sounds."), p$1("The intervals created by this setting are in \"just intonation\" which means they stay in phase with the original pitch instead of shifting in and out of phase over time. If you want the shifting, add the detune effect!"));
                     }
                     break;
                 case "detune":
                     {
-                        message = div$4(h2$3("Detune"), p("This setting slightly adjusts the frequency of notes played by the instrument. You can use a little bit to add a pleasing shifting sound similar to the \"unison\" feature when combined with other instruments. If you use too much, then the instrument may sound unpleasantly out-of-tune."));
+                        message = div$5(h2$4("Detune"), p$1("This setting slightly adjusts the frequency of notes played by the instrument. You can use a little bit to add a pleasing shifting sound similar to the \"unison\" feature when combined with other instruments. If you use too much, then the instrument may sound unpleasantly out-of-tune."));
                     }
                     break;
                 case "distortion":
                     {
-                        message = div$4(h2$3("Distortion"), p("This is the famous electric guitar effect! However, there are some things to be aware of."), p("First, most chords don't sound right when combined with heavy distortion. The only chords commonly used with distorted electric guitars are \"power chords\" which consist of a root note, a \"fifth\" note above that, and/or any octaves of those two notes."), p("Second, the distortion sound depends a lot on filtering. In particular, I recommend enabling the note filter effect, and adding both high-pass and low-pass points to the note filter. (Note filters are applied first, then distortion which transforms the sound based on that filtering, then the EQ filter is applied last.)"), p("Finally, I recommend adjusting the fade-out setting to allow the end of each note to overlap a little bit with the beginning of the next, but not too much!"));
+                        message = div$5(h2$4("Distortion"), p$1("This is the famous electric guitar effect! However, there are some things to be aware of."), p$1("First, most chords don't sound right when combined with heavy distortion. The only chords commonly used with distorted electric guitars are \"power chords\" which consist of a root note, a \"fifth\" note above that, and/or any octaves of those two notes."), p$1("Second, the distortion sound depends a lot on filtering. In particular, I recommend enabling the note filter effect, and adding both high-pass and low-pass points to the note filter. (Note filters are applied first, then distortion which transforms the sound based on that filtering, then the EQ filter is applied last.)"), p$1("Finally, I recommend adjusting the fade-out setting to allow the end of each note to overlap a little bit with the beginning of the next, but not too much!"));
                     }
                     break;
                 case "bitcrusherQuantization":
                     {
-                        message = div$4(h2$3("Bitcrusher Quantization"), p("This effect makes stuff sounds harsher, artificial, and \"low quality\", which is great if that's what you're going for!"));
+                        message = div$5(h2$4("Bitcrusher Quantization"), p$1("This effect makes stuff sounds harsher, artificial, and \"low quality\", which is great if that's what you're going for!"));
                     }
                     break;
                 case "bitcrusherFreq":
                     {
-                        message = div$4(h2$3("Frequency Quantization"), p("The bitcrusher effect comes with an additional frequency quantization effect! This is a fun one to play with, especially when combined with the note filter effect."), p("Every other notch on this slider is aligned with the currently selected key of the song, and the in-between notches are aligned with the tritones of the key."));
+                        message = div$5(h2$4("Frequency Quantization"), p$1("The bitcrusher effect comes with an additional frequency quantization effect! This is a fun one to play with, especially when combined with the note filter effect."), p$1("Every other notch on this slider is aligned with the currently selected key of the song, and the in-between notches are aligned with the tritones of the key."));
                     }
                     break;
                 case "envelopes":
                     {
-                        message = div$4(h2$3("Envelopes"), p("Envelopes are a way to dynamically adjust various other settings over time, usually based on how long the note lasts. Press the + button to add an envelope, then use the menus below to select which setting to control and the curve of the envelope. Try different combinations to see how they sound!"), p("Most envelope curves restart from the beginning every time a new note plays. The \"note size\" option is based on the note width as drawn in the pattern editor."), p("Envelope curves move in the range from 0 to 1 (or vice versa), where 0 means as quiet as possible and 1 is the same as the corresponding position selected in the instrument settings above. If multiple envelopes are targetting the same setting, they are multiplied before applying to the setting."));
+                        message = div$5(h2$4("Envelopes"), p$1("Envelopes are a way to dynamically adjust various other settings over time, usually based on how long the note lasts. Press the + button to add an envelope, then use the menus below to select which setting to control and the curve of the envelope. Try different combinations to see how they sound!"), p$1("Most envelope curves restart from the beginning every time a new note plays. The \"note size\" option is based on the note width as drawn in the pattern editor."), p$1("Envelope curves move in the range from 0 to 1 (or vice versa), where 0 means as quiet as possible and 1 is the same as the corresponding position selected in the instrument settings above. If multiple envelopes are targetting the same setting, they are multiplied before applying to the setting."));
                     }
                     break;
                 case "discreteEnvelope":
                     {
-                        message = div$4(h2$3("Use Discrete Envelopes?"), p("Envelopes are usually interpolated, meaning they change continuously and smoothly. This setting, when ticked, makes envelopes not interpolate. It's a small difference, but can be helpful for some chip noises, and it's most noticeable with the 'blip' transitions."));
+                        message = div$5(h2$4("Use Discrete Envelopes?"), p$1("Envelopes are usually interpolated, meaning they change continuously and smoothly. This setting, when ticked, makes envelopes not interpolate. It's a small difference, but can be helpful for some chip noises, and it's most noticeable with the 'blip' transitions."));
                     }
                     break;
                 case "envelopeSpeed":
                     {
-                        message = div$4(h2$3("Envelope Speed"), p("This setting controls the speed of ALL envelopes for the instrument. Each envelope 'plays' at a certain speed, and this slider can scale it to play faster or slower. Use this to fine-tune your tremolo or how fast something decays to get just the right effect."), p("Note that, while this setting is limited in the sense that it controls all envelopes at once, you can still achieve a variety of outcomes by trying combinations of modes of each envelope type, which typically differ only in speed."));
+                        message = div$5(h2$4("Envelope Speed"), p$1("This setting controls the speed of ALL envelopes for the instrument. Each envelope 'plays' at a certain speed, and this slider can scale it to play faster or slower. Use this to fine-tune your tremolo or how fast something decays to get just the right effect."), p$1("Note that, while this setting is limited in the sense that it controls all envelopes at once, you can still achieve a variety of outcomes by trying combinations of modes of each envelope type, which typically differ only in speed."));
                     }
                     break;
                 case "usedInstrument":
                     {
-                        message = div$4(h3("'Is this instrument used somewhere else?'"), p("This indicator will light up when the instrument you're currently looking at is used in another place in your song (outside the selection)."), p("This can be useful when you're not sure if you've used the instrument before and making edits carelessly could change other parts of the song."));
+                        message = div$5(h3("'Is this instrument used somewhere else?'"), p$1("This indicator will light up when the instrument you're currently looking at is used in another place in your song (outside the selection)."), p$1("This can be useful when you're not sure if you've used the instrument before and making edits carelessly could change other parts of the song."));
                     }
                     break;
                 case "usedPattern":
                     {
-                        message = div$4(h3("'Is this pattern used somewhere else?'"), p("This indicator will light up when the pattern you're currently looking at is used in another place in your song (outside the selection)."), p("This can be useful when you're not sure if you've used the pattern before and making edits carelessly could change other parts of the song."));
+                        message = div$5(h3("'Is this pattern used somewhere else?'"), p$1("This indicator will light up when the pattern you're currently looking at is used in another place in your song (outside the selection)."), p$1("This can be useful when you're not sure if you've used the pattern before and making edits carelessly could change other parts of the song."));
                     }
                     break;
                 case "modChannel":
                     {
-                        message = div$4(h2$3("Modulator Channel"), p("Modulators can be used to change settings in your song automatically over time. This technique is also known as automation."), p("This setting controls which channel the modulators will take effect for. If you choose 'Song', you can change song-wide settings too!"));
+                        message = div$5(h2$4("Modulator Channel"), p$1("Modulators can be used to change settings in your song automatically over time. This technique is also known as automation."), p$1("This setting controls which channel the modulators will take effect for. If you choose 'Song', you can change song-wide settings too!"));
                     }
                     break;
                 case "modInstrument":
                     {
-                        message = div$4(h2$3("Modulator Instrument"), p("Modulators can be used to change settings in your song automatically over time. This technique is also known as automation."), p("This setting controls which instrument your modulator will apply to within the given channel you've chosen."), p("If you choose 'all', every instrument in the channel will be affected. If you choose 'active', just the current ones used in this pattern will be instead."), p("Note that with 'all' or 'active', effects will only be applied to instruments that the effect is applicable on. For example if an instrument does not have panning effects, modulating panning will not affect it."));
+                        message = div$5(h2$4("Modulator Instrument"), p$1("Modulators can be used to change settings in your song automatically over time. This technique is also known as automation."), p$1("This setting controls which instrument your modulator will apply to within the given channel you've chosen."), p$1("If you choose 'all', every instrument in the channel will be affected. If you choose 'active', just the current ones used in this pattern will be instead."), p$1("Note that with 'all' or 'active', effects will only be applied to instruments that the effect is applicable on. For example if an instrument does not have panning effects, modulating panning will not affect it."));
                     }
                     break;
                 case "modSet":
                     {
-                        message = div$4(h2$3("Modulator Setting"), p("This is the parameter that you want to change with this modulator. For example, if you set this to 'Tempo', you can speed up or slow down your song by laying notes in the pattern editor."), p("Note that you'll see different options if your channel is set to 'Song' versus a channel number. With 'Song', you'll see song-wide settings such as tempo. With a channel, you'll see specific instrument settings. Adding more effects to the instrument causes modulators for them to be available, so be sure to experiment!"), p("Most modulators behave as you'd expect and work just as if you were moving their associated slider. Click the '?' when you have a setting selected to get more info about it!"));
+                        message = div$5(h2$4("Modulator Setting"), p$1("This is the parameter that you want to change with this modulator. For example, if you set this to 'Tempo', you can speed up or slow down your song by laying notes in the pattern editor."), p$1("Note that you'll see different options if your channel is set to 'Song' versus a channel number. With 'Song', you'll see song-wide settings such as tempo. With a channel, you'll see specific instrument settings. Adding more effects to the instrument causes modulators for them to be available, so be sure to experiment!"), p$1("Most modulators behave as you'd expect and work just as if you were moving their associated slider. Click the '?' when you have a setting selected to get more info about it!"));
                     }
                     break;
                 case "modFilter":
                     {
-                        message = div$4(h2$3("Filter Target"), p("This setting specifies which parameter of your targeted filter you would like to change."), p("With the 'morph' setting, the note value for your modulator represents the number of a subfilter to 'morph' into over time. For example, dragging a note from 0 to 7 will morph from your main filter to the 7th subfilter. To change how your subfilters are set up, click the '+' button on the target filter."), p("With a Dot setting, you can fine-tune the exact location of every dot on your filter graph. Note that this is extremely intensive if you want to modulate all dots - a morph is better in that case - but this can come in handy for small adjustments."));
+                        message = div$5(h2$4("Filter Target"), p$1("This setting specifies which parameter of your targeted filter you would like to change."), p$1("With the 'morph' setting, the note value for your modulator represents the number of a subfilter to 'morph' into over time. For example, dragging a note from 0 to 7 will morph from your main filter to the 7th subfilter. To change how your subfilters are set up, click the '+' button on the target filter."), p$1("With a Dot setting, you can fine-tune the exact location of every dot on your filter graph. Note that this is extremely intensive if you want to modulate all dots - a morph is better in that case - but this can come in handy for small adjustments."));
                     }
                     break;
                 case "transitionBar":
                     {
-                        message = div$4(h2$3("Tie Notes Over Bars"), p("With this option ticked, notes won't transition across bars if you put notes with the same pitches at the start of the next bar. Instead they will 'tie over' and sound like one long note."));
+                        message = div$5(h2$4("Tie Notes Over Bars"), p$1("With this option ticked, notes won't transition across bars if you put notes with the same pitches at the start of the next bar. Instead they will 'tie over' and sound like one long note."));
                     }
                     break;
                 case "clicklessTransition":
                     {
-                        message = div$4(h2$3("Clickless Transition"), p("Sometimes, seamless and other transition types can make audible 'clicks' when changing between notes. Ticking this option will cause those clicks to be silenced as much as possible."));
+                        message = div$5(h2$4("Clickless Transition"), p$1("Sometimes, seamless and other transition types can make audible 'clicks' when changing between notes. Ticking this option will cause those clicks to be silenced as much as possible."));
                     }
                     break;
                 case "aliases":
                     {
-                        message = div$4(h2$3("Aliasing"), p("UltraBox applies a technique called 'anti-aliasing' to instruments normally to help them sound cleaner even at high frequencies and low sample rates."), p("When this setting is ticked that technique is disabled, so you may hear strange audio artifacts especially at high pitches and when bending notes. However, this can lend a grungy sound to an instrument that could be desirable."));
+                        message = div$5(h2$4("Aliasing"), p$1("UltraBox applies a technique called 'anti-aliasing' to instruments normally to help them sound cleaner even at high frequencies and low sample rates."), p$1("When this setting is ticked that technique is disabled, so you may hear strange audio artifacts especially at high pitches and when bending notes. However, this can lend a grungy sound to an instrument that could be desirable."));
                     }
                     break;
                 case "operatorWaveform":
                     {
-                        message = div$4(h2$3("Operator Waveform"), p('This setting controls the what kind of sound wave an individual FM wave uses.'), p('By defualt the FM synth uses sinewaves.'));
+                        message = div$5(h2$4("Operator Waveform"), p$1('This setting controls the what kind of sound wave an individual FM wave uses.'), p$1('By defualt the FM synth uses sinewaves.'));
                     }
                     break;
                 case "filterType":
                     {
-                        message = div$4(h2$3("Filter Type"), p('Toggling these buttons lets you choose between a simple filter interface with two sliders, or the more advanced filter graph.'), p('The two-slider version controls a single low-pass filter and was used in legacy versions. It is not as powerful, but if you feel overwhelmed you can start with this.'), p('Note that switching from the simple interface to the advanced interface will convert your current settings, so you can also use it as a basis for later tweaking.'));
+                        message = div$5(h2$4("Filter Type"), p$1('Toggling these buttons lets you choose between a simple filter interface with two sliders, or the more advanced filter graph.'), p$1('The two-slider version controls a single low-pass filter and was used in legacy versions. It is not as powerful, but if you feel overwhelmed you can start with this.'), p$1('Note that switching from the simple interface to the advanced interface will convert your current settings, so you can also use it as a basis for later tweaking.'));
                     }
                     break;
                 case "filterCutoff":
                     {
-                        message = div$4(h2$3("Low-Pass Filter Cutoff Frequency"), p("The lowest setting feels \"muffled\" or \"dark\", and the highest setting feels \"harsh\" or \"bright\"."), p("Most sounds include a range of frequencies from low to high. UltraBox instruments have a filter that allows the lowest frequencies to pass through at full volume, but can reduce the volume of the higher frequencies that are above a cutoff frequency. This setting controls the cutoff frequency and thus the range of higher frequencies that are reduced."), p("This cutoff setting also determines which frequency resonates when the resonance peak setting is used."));
+                        message = div$5(h2$4("Low-Pass Filter Cutoff Frequency"), p$1("The lowest setting feels \"muffled\" or \"dark\", and the highest setting feels \"harsh\" or \"bright\"."), p$1("Most sounds include a range of frequencies from low to high. UltraBox instruments have a filter that allows the lowest frequencies to pass through at full volume, but can reduce the volume of the higher frequencies that are above a cutoff frequency. This setting controls the cutoff frequency and thus the range of higher frequencies that are reduced."), p$1("This cutoff setting also determines which frequency resonates when the resonance peak setting is used."));
                     }
                     break;
                 case "filterResonance":
                     {
-                        message = div$4(h2$3("Low-Pass Filter Resonance Peak"), p("Increasing this setting emphasizes a narrow range of frequencies, based on the position of the filter cutoff setting. This can be used to imitate the resonant bodies of acoustic instruments and other interesting effects."), p("The filter preserves the volume of frequencies that are below the cutoff frequency, and reduces the volume of frequencies that are above the cutoff. If this setting is used, the filter also increases the volume of frequencies that are near the cutoff."));
+                        message = div$5(h2$4("Low-Pass Filter Resonance Peak"), p$1("Increasing this setting emphasizes a narrow range of frequencies, based on the position of the filter cutoff setting. This can be used to imitate the resonant bodies of acoustic instruments and other interesting effects."), p$1("The filter preserves the volume of frequencies that are below the cutoff frequency, and reduces the volume of frequencies that are above the cutoff. If this setting is used, the filter also increases the volume of frequencies that are near the cutoff."));
                     }
                     break;
                 case "loopControls":
                     {
-                        message = div$4(h2$3("Loop Controls"), p("This enables the use of parameters that control how a chip wave should repeat."));
+                        message = div$5(h2$4("Loop Controls"), p$1("This enables the use of parameters that control how a chip wave should repeat."));
                     }
                     break;
                 case "loopMode":
                     {
-                        message = div$4(h2$3("Loop Mode"), p("This sets the way the chip wave loops when its ends are reached."), p("The \"Loop\" mode is the default: when the end of the loop is reached, it will jump back to the starting point of the loop."), p("The \"Ping-Pong\" mode starts playing the chip wave backwards when the end of the loop is reached. Once it reaches the start of the loop, it will start playing forwards again, endlessly going back and forth."), p("The \"Play Once\" mode stops the chip wave once the end is reached (or the start of the loop, if it's playing backwards)."), p("The \"Play Loop Once\" mode stops the chip wave once the end of the loop is reached (or the start of the loop, if it's playing backwards)."));
+                        message = div$5(h2$4("Loop Mode"), p$1("This sets the way the chip wave loops when its ends are reached."), p$1("The \"Loop\" mode is the default: when the end of the loop is reached, it will jump back to the starting point of the loop."), p$1("The \"Ping-Pong\" mode starts playing the chip wave backwards when the end of the loop is reached. Once it reaches the start of the loop, it will start playing forwards again, endlessly going back and forth."), p$1("The \"Play Once\" mode stops the chip wave once the end is reached (or the start of the loop, if it's playing backwards)."), p$1("The \"Play Loop Once\" mode stops the chip wave once the end of the loop is reached (or the start of the loop, if it's playing backwards)."));
                     }
                     break;
                 case "loopStart":
                     {
-                        message = div$4(h2$3("Loop Start Point"), p("This specifies where the loop region of the chip wave starts. It's measured in \"samples\", or rather, it refers to a point on a waveform."), p("Be careful with tiny loop sizes (especially combined with high pitches), they may re-introduce aliasing even if the \"Aliasing\" checkbox is unchecked."));
+                        message = div$5(h2$4("Loop Start Point"), p$1("This specifies where the loop region of the chip wave starts. It's measured in \"samples\", or rather, it refers to a point on a waveform."), p$1("Be careful with tiny loop sizes (especially combined with high pitches), they may re-introduce aliasing even if the \"Aliasing\" checkbox is unchecked."));
                     }
                     break;
                 case "loopEnd":
                     {
-                        message = div$4(h2$3("Loop End Point"), p("This specifies where the loop region of the chip wave ends. It's measured in \"samples\", or rather, it refers to a point on a waveform."), p("The button next to the input box sets this to end of the chip wave."), p("Be careful with tiny loop sizes (especially combined with high pitches), they may re-introduce aliasing even if the \"Aliasing\" checkbox is unchecked."));
+                        message = div$5(h2$4("Loop End Point"), p$1("This specifies where the loop region of the chip wave ends. It's measured in \"samples\", or rather, it refers to a point on a waveform."), p$1("The button next to the input box sets this to end of the chip wave."), p$1("Be careful with tiny loop sizes (especially combined with high pitches), they may re-introduce aliasing even if the \"Aliasing\" checkbox is unchecked."));
                     }
                     break;
                 case "offset":
                     {
-                        message = div$4(h2$3("Offset"), p("This specifies where the chip wave should start playing from. You can use this to chop up a large sample, to say, turn a drum loop into a drum kit! It's measured in \"samples\", or rather, it refers to a point on a waveform."));
+                        message = div$5(h2$4("Offset"), p$1("This specifies where the chip wave should start playing from. You can use this to chop up a large sample, to say, turn a drum loop into a drum kit! It's measured in \"samples\", or rather, it refers to a point on a waveform."));
                     }
                     break;
                 case "backwards":
                     {
-                        message = div$4(h2$3("Backwards"), p("When set, the chip wave will start playing backwards. After checking this, you may want to adjust the offset to start from a different point that makes sense for this mode."));
+                        message = div$5(h2$4("Backwards"), p$1("When set, the chip wave will start playing backwards. After checking this, you may want to adjust the offset to start from a different point that makes sense for this mode."));
                     }
                     break;
                 case "decimalOffset":
                     {
-                        message = div$4(h2$3("Decimal Offset"), p("The decimal offset is subtracted from the pulse width value, enabling the use of numbers such as 12.5 or 6.25. This could be useful if you're trying to recreate the sound of old soundchips."));
+                        message = div$5(h2$4("Decimal Offset"), p$1("The decimal offset is subtracted from the pulse width value, enabling the use of numbers such as 12.5 or 6.25. This could be useful if you're trying to recreate the sound of old soundchips."));
                     }
                     break;
                 case "unisonVoices":
                     {
-                        message = div$4(h2$3("Unison Voices"), p("This setting controls how many voices there are in a unison. Unisons such as \"none\" or \"detune\" use 1 voice, while most other unisons use 2 voices."));
+                        message = div$5(h2$4("Unison Voices"), p$1("This setting controls how many voices there are in a unison. Unisons such as \"none\" or \"detune\" use 1 voice, while most other unisons use 2 voices."));
                     }
                     break;
                 case "unisonSpread":
                     {
-                        message = div$4(h2$3("Unison Spread"), p("This setting controls the distance between the two voices, in semitones. A small amount of spread causes the voice's waves to shift in and out from each other, causing a shimmering effect. Larger spread will cause the voices to act like separate notes."), p("This setting will only work correctly with two voices."));
+                        message = div$5(h2$4("Unison Spread"), p$1("This setting controls the distance between the two voices, in semitones. A small amount of spread causes the voice's waves to shift in and out from each other, causing a shimmering effect. Larger spread will cause the voices to act like separate notes."));
                     }
                     break;
                 case "unisonOffset":
                     {
-                        message = div$4(h2$3("Unison Offset"), p("This setting controls the detune applied to BOTH voices, in semitones."));
+                        message = div$5(h2$4("Unison Offset"), p$1("This setting controls the detune applied to BOTH voices, in semitones."));
                     }
                     break;
                 case "unisonExpression":
                     {
-                        message = div$4(h2$3("Unison Expression"), p("This setting controls the unison volume. Use this if the unison makes your instrument too loud in comparison to other instruments."));
+                        message = div$5(h2$4("Unison Volume"), p$1("This setting controls the unison volume. Use this if the unison makes your instrument too loud in comparison to other instruments."), p$1("If this is set to a negative value, it will invert the wave!"));
                     }
                     break;
                 case "unisonSign":
                     {
-                        message = div$4(h2$3("Unison Sign"), p("This setting is a volume multiplier applied to the second voice. This setting will only work correctly with two voices."));
+                        message = div$5(h2$4("Unison Sign"), p$1("This setting is a volume multiplier applied to the second voice. This setting will only work correctly with two voices."));
                     }
                     break;
                 case "corruptionDomains":
                     {
-                        message = div$4(h2$3("Domains"), p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas which called Domains. Each one also have extra options to customize the corruption. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"), p("When you access BariBox™ for the very first time, it will automatically corrupt the song once and with some corruption options toggled on. This is so that everyone accessing a BariBox™ link for the first time will get a personalized experience. Why? Funny."), p("💡 Did you know? With Channel Muting enabled in Preferences, you can mute a channel to keep it from getting corrupted!"));
+                        message = div$5(h2$4("Domains"), p$1("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas which called Domains. Each one also have extra options to customize the corruption. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"), p$1("When you access BariBox™ for the very first time, it will automatically corrupt the song once and with some corruption options toggled on. This is so that everyone accessing a BariBox™ link for the first time will get a personalized experience. Why? Funny."), p$1("💡 Did you know? With Channel Muting enabled in Preferences, you can mute a channel to keep it from getting corrupted!"));
                     }
                     break;
                 case "corruptionNotes":
                     {
-                        message = div$4(h2$3("Note"), p("When set, every note will get a new random value. It won't affect mod channels though."));
+                        message = div$5(h2$4("Note"), p$1("When set, every note will get a new random value. It won't affect mod channels though."));
                     }
                     break;
                 case "corruptionKeepPitch":
                     {
-                        message = div$4(h2$3("Keep Pitch"), p("If set, the new value will be based on a shuffled piano which makes the song a bit recognizable even when it gets corrupted. If not, the new value will be completely random."));
+                        message = div$5(h2$4("Keep Pitch"), p$1("If set, the new value will be based on a shuffled piano which makes the song a bit recognizable even when it gets corrupted. If not, the new value will be completely random."));
                     }
                     break;
                 case "corruptionStayOnScale":
                     {
-                        message = div$4(h2$3("Stay on Scale"), p("If set, the new note value will snap to the currently selected scale as if it were moved up by one pitch. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that wouldn't be funny so why would you do that?"));
+                        message = div$5(h2$4("Stay on Scale"), p$1("If set, the new note value will snap to the currently selected scale as if it were moved up by one pitch. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that wouldn't be funny so why would you do that?"));
                     }
                     break;
                 case "corruptionPatterns":
                     {
-                        message = div$4(h2$3("Patterns"), p("When set, all bars in the song will get a new value for its pattern. This also applies for mod channels."));
+                        message = div$5(h2$4("Patterns"), p$1("When set, all bars in the song will get a new value for its pattern. This also applies for mod channels."));
                     }
                     break;
                 case "corruptionEmptyPatterns":
                     {
-                        message = div$4(h2$3("Unused Patterns"), p("If set, the new value for the pattern could be of an unused, noteless pattern. Otherwise the new value will be from a used pattern."));
+                        message = div$5(h2$4("Unused Patterns"), p$1("If set, the new value for the pattern could be of an unused, noteless pattern. Otherwise the new value will be from a used pattern."));
                     }
                     break;
                 case "corruptionInstruments":
                     {
-                        message = div$4(h2$3("Instruments"), p("Basically a more simplified but chaotic version of the Random Generated Instrument. It won't change the instrument Type, only the properties selected in the options below."), p("If you activate Volume, I think it goes without saying that ⚠ VOLUME WARNING!"));
+                        message = div$5(h2$4("Instruments"), p$1("Basically a more simplified but chaotic version of the Random Generated Instrument. It won't change the instrument Type, only the properties selected in the options below."), p$1("If you activate Volume, I think it goes without saying that ⚠ VOLUME WARNING!"));
                     }
                     break;
                 case "corruptionLayout":
                     {
-                        message = div$4(h2$3("⚠ Layout ⚠"), p("Congrats, you have unlocked the secret Layout Domain!"), p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticeable at first so try corrupting a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."));
+                        message = div$5(h2$4("⚠ Layout ⚠"), p$1("Congrats, you have unlocked the secret Layout Domain!"), p$1("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticeable at first so try corrupting a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."));
                     }
                     break;
                 case "corruptionLayoutAuto":
                     {
-                        message = div$4(h2$3("Auto-corrupt"), p("Once it starts, it won't stop until it has consumed the entirety of BeepBox. Except for the description part because the hotdog.png protects that area."));
+                        message = div$5(h2$4("Auto-corrupt"), p$1("Once it starts, it won't stop until it has consumed the entirety of BeepBox. Except for the description part because the hotdog.png protects that area."));
                     }
                     break;
                 default:
@@ -38869,20 +38883,20 @@ You should be redirected to the song at:<br /><br />
                         let modulator = _doc.song.channels[_doc.channel].instruments[_doc.getCurrentInstrument()].modulators[modNum];
                         let pList = [];
                         for (let s = 0; s < Config.modulators[modulator].promptDesc.length; s++) {
-                            pList.push(p(Config.modulators[modulator].promptDesc[s]
+                            pList.push(p$1(Config.modulators[modulator].promptDesc[s]
                                 .replace("$LO", "" + Config.modulators[modulator].convertRealFactor)
                                 .replace("$MID", "" + (Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol / 2))
                                 .replace("$HI", "" + (Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol))));
                         }
                         pList[pList.length - 1].style.setProperty("color", "var(--secondary-text)");
-                        message = div$4(h2$3(Config.modulators[modulator].promptName), pList);
+                        message = div$5(h2$4(Config.modulators[modulator].promptName), pList);
                         break;
                     }
                     else {
                         throw new Error("Unhandled TipPrompt type: " + type);
                     }
             }
-            this.container = div$4({ class: "prompt", style: "width: 300px;" }, message, this._closeButton);
+            this.container = div$5({ class: "prompt", style: "width: 300px;" }, message, this._closeButton);
             setTimeout(() => this._closeButton.focus());
             this._closeButton.addEventListener("click", this._close);
         }
@@ -39231,8 +39245,8 @@ You should be redirected to the song at:<br /><br />
             const editorHeight = this._doc.song.getChannelCount() * ChannelRow.patternHeight;
             if (this._renderedEditorHeight != editorHeight) {
                 this._renderedEditorHeight = editorHeight;
-                this._svg.setAttribute("height", "" + editorHeight + Config.barEditorHeight);
-                this._playhead.setAttribute("height", "" + editorHeight + Config.barEditorHeight);
+                this._svg.setAttribute("height", "" + (editorHeight + Config.barEditorHeight));
+                this._playhead.setAttribute("height", "" + (editorHeight + Config.barEditorHeight));
                 this.container.style.height = (editorHeight + Config.barEditorHeight) + "px";
             }
             this._select.style.display = this._touchMode ? "" : "none";
@@ -39250,7 +39264,7 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    class oscilascopeCanvas {
+    class oscilloscopeCanvas {
         constructor(canvas, scale = 1) {
             this.canvas = canvas;
             this.scale = scale;
@@ -39259,7 +39273,7 @@ You should be redirected to the song at:<br /><br />
                     var ctx = canvas.getContext("2d");
                     ctx.fillStyle = ColorConfig.getComputed("--editor-background");
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-L") !== "" ? ColorConfig.getComputed("--oscilloscope-line-L") : ColorConfig.getComputed("--primary-text");
+                    ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-L");
                     for (let i = directlinkL.length - 1; i >= directlinkL.length - 1 - (canvas.width / scale); i--) {
                         let x = i - (directlinkL.length - 1) + (canvas.width / scale);
                         let yl = (directlinkL[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2));
@@ -39267,7 +39281,7 @@ You should be redirected to the song at:<br /><br />
                         if (x == 0)
                             break;
                     }
-                    ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-R") !== "" ? ColorConfig.getComputed("--oscilloscope-line-R") : ColorConfig.getComputed("--text-selection");
+                    ctx.fillStyle = ColorConfig.getComputed("--oscilloscope-line-R");
                     for (let i = directlinkR.length - 1; i >= directlinkR.length - 1 - (canvas.width / scale); i--) {
                         let x = i - (directlinkR.length - 1) + (canvas.width / scale);
                         let yr = (directlinkR[i] * (canvas.height / scale / 2) + (canvas.height / scale / 2));
@@ -39277,11 +39291,11 @@ You should be redirected to the song at:<br /><br />
                     }
                 }
             };
-            events.listen("oscillascopeUpdate", this._EventUpdateCanvas);
+            events.listen("oscilloscopeUpdate", this._EventUpdateCanvas);
         }
     }
 
-    const { div: div$3, input: input$3, button: button$3, h2: h2$2, select: select$2, option: option$2, canvas: canvas$1 } = HTML;
+    const { div: div$4, input: input$3, button: button$4, h2: h2$3, select: select$3, option: option$3, canvas: canvas$1 } = HTML;
     const defaultShapeFunction = (cnv, ctx, x, y, w, h) => {
         ctx.fillRect(x, y, w, h);
     };
@@ -39525,22 +39539,22 @@ You should be redirected to the song at:<br /><br />
             this._waveformContext = null;
             this._overlayCanvas = canvas$1({ width: this._waveformCanvasWidth, height: this._waveformCanvasHeight, style: "cursor: default; position: absolute; top: 0; left: 0; width: 100%;" });
             this._overlayContext = null;
-            this._waveformContainer = div$3({ style: `position: relative; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; width: 100%; outline: 1px solid ${ColorConfig.uiWidgetBackground};` }, this._waveformCanvas, this._overlayCanvas);
+            this._waveformContainer = div$4({ style: `position: relative; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; width: 100%; outline: 1px solid ${ColorConfig.uiWidgetBackground};` }, this._waveformCanvas, this._overlayCanvas);
             this._viewportOffsetSlider = input$3({ style: "width: 100%; flex-grow: 1; margin: 0;", type: "range", min: "0", max: "1", value: "0", step: "0.00001" });
-            this._zoomInButton = button$3({ type: "button", title: "Zoom In", style: "height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "20", height: "20", viewBox: "-10 -10 20 20", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.circle({ cx: -1, cy: -1, r: 6, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }), SVG.path({ stroke: ColorConfig.primaryText, "stroke-width": 2, d: "M 3 3 L 7 7 M -1 -4 L -1 2 M -4 -1 L 2 -1", fill: "none" })));
-            this._zoomOutButton = button$3({ type: "button", title: "Zoom Out", style: "height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "20", height: "20", viewBox: "-10 -10 20 20", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.circle({ cx: -1, cy: -1, r: 6, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }), SVG.path({ stroke: ColorConfig.primaryText, "stroke-width": 2, d: "M 3 3 L 7 7 M -4 -1 L 2 -1", fill: "none" })));
-            this._zoom100Button = button$3({ type: "button", title: "Zoom 100%", style: "height: var(--button-size); margin-left: 0.5em;" }, "100%");
-            this._loopModeSelect = select$2({ style: "width: 100%; flex-grow: 1; margin-left: 0.5em;" }, option$2({ value: 0 }, "Loop"), option$2({ value: 1 }, "Ping-Pong"), option$2({ value: 2 }, "Play Once"), option$2({ value: 3 }, "Play Loop Once"));
+            this._zoomInButton = button$4({ type: "button", title: "Zoom In", style: "height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "20", height: "20", viewBox: "-10 -10 20 20", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.circle({ cx: -1, cy: -1, r: 6, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }), SVG.path({ stroke: ColorConfig.primaryText, "stroke-width": 2, d: "M 3 3 L 7 7 M -1 -4 L -1 2 M -4 -1 L 2 -1", fill: "none" })));
+            this._zoomOutButton = button$4({ type: "button", title: "Zoom Out", style: "height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "20", height: "20", viewBox: "-10 -10 20 20", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.circle({ cx: -1, cy: -1, r: 6, "stroke-width": 2, stroke: ColorConfig.primaryText, fill: "none" }), SVG.path({ stroke: ColorConfig.primaryText, "stroke-width": 2, d: "M 3 3 L 7 7 M -4 -1 L 2 -1", fill: "none" })));
+            this._zoom100Button = button$4({ type: "button", title: "Zoom 100%", style: "height: var(--button-size); margin-left: 0.5em;" }, "100%");
+            this._loopModeSelect = select$3({ style: "width: 100%; flex-grow: 1; margin-left: 0.5em;" }, option$3({ value: 0 }, "Loop"), option$3({ value: 1 }, "Ping-Pong"), option$3({ value: 2 }, "Play Once"), option$3({ value: 3 }, "Play Loop Once"));
             this._startOffsetStepper = input$3({ style: "flex-grow: 1; margin-left: 1em; width: 100%;", type: "number", value: this._chipWaveStartOffset, min: "0", step: "1" });
             this._loopStartStepper = input$3({ style: "flex-grow: 1; margin-left: 1em; width: 100%;", type: "number", value: this._chipWaveLoopStart, min: "0", step: "1" });
             this._loopEndStepper = input$3({ style: "flex-grow: 1; margin-left: 1em; width: 100%;", type: "number", value: this._chipWaveLoopEnd, min: "0", step: "1" });
             this._playBackwardsBox = input$3({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: auto; margin-right: auto;" });
-            this._playSongButton = button$3({ style: "width: 55%;", type: "button" });
-            this._cancelButton = button$3({ class: "cancelButton" });
-            this._okayButton = button$3({ class: "okayButton", style: "width: 25%;" }, "Okay");
-            this._sampleIsLoadingMessage = div$3({ style: "margin-bottom: 0.5em; display: none;" }, "Sample is loading");
-            this._loopControlsContainer = div$3(div$3({ style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$3({ style: `width: 100%; margin-bottom: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};` }, "You can also zoom by dragging horizontally on the waveform.")), this._startOffsetHandle.canvas, this._waveformContainer, this._loopStartHandle.canvas, this._loopEndHandle.canvas, div$3({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, this._viewportOffsetSlider, this._zoomInButton, this._zoomOutButton, this._zoom100Button), div$3({ style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$3({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$3({ style: `flex-shrink: 0; text-align: right: color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop Mode"), this._loopModeSelect), div$3({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$3({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Offset"), this._startOffsetStepper), div$3({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$3({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop Start"), this._loopStartStepper), div$3({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$3({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop End"), this._loopEndStepper), div$3({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$3({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Backwards"), this._playBackwardsBox), div$3({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em; justify-content: center;" }, this._playSongButton)));
-            this.container = div$3({ class: "prompt noSelection", style: "width: 500px;" }, div$3(h2$2({ style: "margin-bottom: 0.5em;" }, "Loop Controls"), this._sampleIsLoadingMessage, this._loopControlsContainer, div$3({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton)), this._cancelButton);
+            this._playSongButton = button$4({ style: "width: 55%;", type: "button" });
+            this._cancelButton = button$4({ class: "cancelButton" });
+            this._okayButton = button$4({ class: "okayButton", style: "width: 25%;" }, "Okay");
+            this._sampleIsLoadingMessage = div$4({ style: "margin-bottom: 0.5em; display: none;" }, "Sample is loading");
+            this._loopControlsContainer = div$4(div$4({ style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$4({ style: `width: 100%; margin-bottom: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};` }, "You can also zoom by dragging horizontally on the waveform.")), this._startOffsetHandle.canvas, this._waveformContainer, this._loopStartHandle.canvas, this._loopEndHandle.canvas, div$4({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, this._viewportOffsetSlider, this._zoomInButton, this._zoomOutButton, this._zoom100Button), div$4({ style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$4({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$4({ style: `flex-shrink: 0; text-align: right: color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop Mode"), this._loopModeSelect), div$4({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$4({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Offset"), this._startOffsetStepper), div$4({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$4({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop Start"), this._loopStartStepper), div$4({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$4({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Loop End"), this._loopEndStepper), div$4({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" }, div$4({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;` }, "Backwards"), this._playBackwardsBox), div$4({ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em; justify-content: center;" }, this._playSongButton)));
+            this.container = div$4({ class: "prompt noSelection", style: "width: 500px;" }, div$4(h2$3({ style: "margin-bottom: 0.5em;" }, "Loop Controls"), this._sampleIsLoadingMessage, this._loopControlsContainer, div$4({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton)), this._cancelButton);
             this.gotMouseUp = false;
             this._waveformSampleLookup = (x) => {
                 const n = this._waveformDataLength;
@@ -40057,16 +40071,16 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { div: div$2, h2: h2$1, span: span$2, input: input$2, button: button$2 } = HTML;
+    const { div: div$3, h2: h2$2, span: span$2, input: input$2, button: button$3 } = HTML;
     class SampleLoadingStatusPrompt {
         constructor(_doc) {
             this._intervalDuration = 2000;
             this._interval = null;
             this._renderedWhenAllHaveStoppedChanging = false;
-            this._cancelButton = button$2({ class: "cancelButton" });
-            this._statusesContainer = div$2();
-            this._noSamplesMessage = div$2({ style: "margin-top: 0.5em; display: none;" }, "There's no custom samples in this song.");
-            this.container = div$2({ class: "prompt noSelection", style: "width: 350px;" }, div$2(h2$1("Sample Loading Status"), div$2({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 0.5em;" }, this._noSamplesMessage, div$2({ style: "width: 100%; max-height: 350px; overflow-y: scroll;" }, this._statusesContainer))), this._cancelButton);
+            this._cancelButton = button$3({ class: "cancelButton" });
+            this._statusesContainer = div$3();
+            this._noSamplesMessage = div$3({ style: "margin-top: 0.5em; display: none;" }, "There's no custom samples in this song.");
+            this.container = div$3({ class: "prompt noSelection", style: "width: 350px;" }, div$3(h2$2("Sample Loading Status"), div$3({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 0.5em;" }, this._noSamplesMessage, div$3({ style: "width: 100%; max-height: 350px; overflow-y: scroll;" }, this._statusesContainer))), this._cancelButton);
             this._close = () => {
                 this._doc.prompt = null;
                 this._doc.undo();
@@ -40111,11 +40125,11 @@ You should be redirected to the song at:<br /><br />
                     const urlDisplay = input$2({ style: `margin-left: 0.5em; color: ${ColorConfig.primaryText}; background-color: ${ColorConfig.editorBackground}; width: 100%; border: 1px solid ${ColorConfig.uiWidgetBackground}; -webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none;`, value: url, title: url, disabled: true });
                     const loadingStatusColor = loadingStatus === "loaded" ? ColorConfig.indicatorPrimary : ColorConfig.secondaryText;
                     const loadingStatusDisplay = span$2({ style: `margin-left: 0.5em; color: ${loadingStatusColor}` }, loadingStatus);
-                    const chipWaveElement = div$2({ style: `padding: 0.6em; margin: 0.4em; border: 1px solid ${ColorConfig.uiWidgetBackground}; border-radius: 4px;` }, div$2({
+                    const chipWaveElement = div$3({ style: `padding: 0.6em; margin: 0.4em; border: 1px solid ${ColorConfig.uiWidgetBackground}; border-radius: 4px;` }, div$3({
                         class: "add-sample-prompt-sample-name",
                         style: `margin-bottom: 0.5em; color: ${ColorConfig.secondaryText}; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;`,
                         title: sampleName,
-                    }, sampleName), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$2({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "URL"), urlDisplay), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$2({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Status"), loadingStatusDisplay));
+                    }, sampleName), div$3({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$3({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "URL"), urlDisplay), div$3({ style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;" }, div$3({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Status"), loadingStatusDisplay));
                     this._statusesContainer.appendChild(chipWaveElement);
                 }
                 if (allHaveStoppedChanging) {
@@ -40129,29 +40143,29 @@ You should be redirected to the song at:<br /><br />
         }
     }
 
-    const { div: div$1, input: input$1, button: button$1, a, code, textarea, details, summary, span: span$1, ul, li, select: select$1, option: option$1, h2 } = HTML;
+    const { div: div$2, input: input$1, button: button$2, a, code, textarea, details, summary, span: span$1, ul, li, select: select$2, option: option$2, h2: h2$1, p } = HTML;
     class AddSamplesPrompt {
         constructor(_doc) {
             this._maxSamples = 64;
             this._entries = [];
             this._entryOptionsDisplayStates = {};
-            this._cancelButton = button$1({ class: "cancelButton" });
-            this._okayButton = button$1({ class: "okayButton", style: "width: 45%;" }, "Okay");
-            this._addSampleButton = button$1({ style: "height: auto; min-height: var(--button-size);" }, "Add sample");
-            this._entryContainer = div$1();
-            this._addMultipleSamplesButton = button$1({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, "Add multiple samples");
-            this._addSamplesAreaBottom = div$1({ style: "margin-top: 0.5em;" }, this._addSampleButton, this._addMultipleSamplesButton);
-            this._instructionsLink = a({ href: "#" }, "Here's more information and some instructions on how to use custom samples in UltraBox.");
-            this._description = div$1(div$1({ style: "margin-bottom: 0.5em; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text;" }, "In order to use the old UltraBox samples, you should add ", code("legacySamples"), " as an URL. You can also use ", code("nintariboxSamples"), " and ", code("marioPaintboxSamples"), " for more built-in sample packs."), div$1({ style: "margin-bottom: 0.5em;" }, "The order of these samples is important - if you change it you'll break your song!"), div$1({ style: "margin-bottom: 0.5em;" }, this._instructionsLink));
-            this._closeInstructionsButton = button$1({ style: "height: auto; min-height: var(--button-size); width: 100%;" }, "Close instructions");
-            this._instructionsArea = div$1({ style: "display: none; margin-top: 0; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text; overflow-y: auto;" }, h2("Add Samples"), div$1({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "In UltraBox, custom samples are loaded from arbitrary URLs."), div$1({ style: `margin-top: 0.5em; margin-bottom: 0.5em; color: ${ColorConfig.secondaryText};` }, "(Technically, the web server behind the URL needs to support ", a({ href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS", target: "_blank", }, "CORS"), ", but you don't need to know about that: ", " the sample just won't load if that's not the case)"), div$1({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, details(summary("Why arbitrary URLs?"), a({ href: "https://pandoras-box-archive.neptendo.repl.co/" }, "A certain BeepBox mod"), " did this with one central server, but it went down, taking down", " the samples with it, though thankfully it got archived.", " This is always an issue with servers: it may run out of space,", " stop working, and so on. With arbitrary URLs, you can always ", " change them to different ones if they stop working.")), div$1({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "As for where to upload your samples, here are some suggestions:", ul({ style: "text-align: left;" }, li(a({ href: "https://filegarden.com" }, "File Garden")), li(a({ href: "https://catbox.moe/" }, "Catbox")), li(a({ href: "https://www.dropbox.com" }, "Dropbox"), " (domain needs to be ", code("https://dl.dropboxusercontent.com"), ")"))), div$1({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "Static website hosting services may also work (such as ", a({ href: "https://pages.github.com" }, "GitHub Pages"), ")", " but those require a bit more setup."), div$1({ style: "margin-top: 0.5em; margin-bottom: 1em;" }, "Finally, if have a soundfont you'd like to get samples from, consider using this ", a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"), "."), div$1({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between; margin-top: 0.5em;" }, this._closeInstructionsButton));
-            this._addSamplesArea = div$1({ style: "overflow-y: auto;" }, h2("Add Samples"), div$1({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 0.5em;" }, this._description, div$1({ style: "width: 100%; max-height: 450px; overflow-y: scroll;" }, this._entryContainer), this._addSamplesAreaBottom), div$1({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton));
+            this._cancelButton = button$2({ class: "cancelButton" });
+            this._okayButton = button$2({ class: "okayButton", style: "width: 45%;" }, "Okay");
+            this._addSampleButton = button$2({ style: "height: auto; min-height: var(--button-size);" }, "Add sample");
+            this._entryContainer = div$2();
+            this._addMultipleSamplesButton = button$2({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, "Add multiple samples");
+            this._addSamplesAreaBottom = div$2({ style: "margin-top: 0.5em;" }, this._addSampleButton, this._addMultipleSamplesButton);
+            this._instructionsLink = a({ href: "#", style: "color:var(--loop-accent, red); font-weight:bold;" }, "> Click Here for instructions on adding samples <");
+            this._description = div$2(div$2({ style: "margin-bottom: 0.5em; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text;" }, "In order to use the old UltraBox samples, you should add ", code("legacySamples"), " for the PaandorasBox Samples.", p({}), "You can also use ", code("nintariboxSamples"), " and ", code("marioPaintboxSamples"), " for more built-in sample packs."), div$2({ style: "margin-bottom: 0.5em;" }, "The order of these samples is important - if you change their order or remove them you'll break your song!"), div$2({ style: "margin-bottom: 0.5em; font-size: 17px;" }, this._instructionsLink));
+            this._closeInstructionsButton = button$2({ style: "height: auto; min-height: var(--button-size); width: 100%;" }, "Close instructions");
+            this._instructionsArea = div$2({ style: "display: none; margin-top: 0; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; cursor: text; overflow-y: auto;" }, h2$1("Add Samples"), div$2({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "In UltraBox, custom samples are loaded from arbitrary URLs."), div$2({ style: `margin-top: 0.5em; margin-bottom: 0.5em; color: ${ColorConfig.secondaryText};` }, "(Technically, the web server behind the URL needs to support ", a({ href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS", target: "_blank", }, "CORS"), ", but you don't need to know about that: ", " the sample just won't load if that's not the case)"), div$2({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, details(summary("Why arbitrary URLs?"), a({ href: "https://pandoras-box-archive.neptendo.repl.co/" }, "A certain BeepBox mod"), " did this with one central server, but it went down, taking down", " the samples with it, though thankfully it got archived.", " This is always an issue with servers: it may run out of space,", " stop working, and so on. With arbitrary URLs, you can always ", " change them to different ones if they stop working."), p({}), "Simply go and upload your samples to a website we suggest down below, once you do that you can copy that URL and paste it into the text input you can find after pressing the 'Add Sample' button.", "You know the sample works once you see the name of the sample appear above the text input! Then just press 'Okay' and your sample will appear! To use samples just change your instrument to a chip wave instrument type and scroll down until you find the samples."), div$2({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "As for where to upload your samples, here are some suggestions:", ul({ style: "text-align: left;" }, li(a({ href: "https://filegarden.com" }, "File Garden")), li(a({ href: "https://www.dropbox.com" }, "Dropbox"), " (domain needs to be ", code("https://dl.dropboxusercontent.com"), ")"))), div$2({ style: "margin-top: 0.5em; margin-bottom: 0.5em;" }, "Static website hosting services may also work (such as ", a({ href: "https://pages.github.com" }, "GitHub Pages"), ")", " but those require a bit more setup."), div$2({ style: "margin-top: 0.5em; margin-bottom: 1em;" }, "Finally, if have a soundfont you'd like to get samples from, consider using this ", a({ href: "./sample_extractor.html", target: "_blank" }, "sample extractor"), "."), div$2({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between; margin-top: 0.5em;" }, this._closeInstructionsButton));
+            this._addSamplesArea = div$2({ style: "overflow-y: auto;" }, h2$1("Add Samples"), div$2({ style: "display: flex; flex-direction: column; align-items: center; margin-bottom: 0.5em;" }, this._description, div$2({ style: "width: 100%; max-height: 450px; overflow-y: scroll;" }, this._entryContainer), this._addSamplesAreaBottom), div$2({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton));
             this._bulkAddTextarea = textarea({
                 style: "width: 100%; height: 100%; resize: none; box-sizing: border-box;",
             });
-            this._bulkAddConfirmButton = button$1({ style: "height: auto; min-height: var(--button-size); width: 100%;" }, "Add");
-            this._bulkAddArea = div$1({ style: "display: none; overflow-y: auto;" }, h2({ style: "margin-bottom: 0.5em;" }, "Add Multiple Samples"), div$1({ style: "display: flex; flex-direction: column; align-items: center;" }, div$1(`Add one URL per line. Remember that you can only have ${this._maxSamples} samples!`), div$1({ style: `color: ${ColorConfig.secondaryText}` }, "(This supports the syntax used to store samples in the song URLs as well)"), div$1({ style: "width: 100%; height: 250px; margin-top: 0.5em; margin-bottom: 0.5em;" }, this._bulkAddTextarea)), div$1({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._bulkAddConfirmButton));
-            this.container = div$1({ class: "prompt noSelection", style: "width: 450px; max-height: calc(100% - 100px);" }, this._addSamplesArea, this._bulkAddArea, this._instructionsArea, this._cancelButton);
+            this._bulkAddConfirmButton = button$2({ style: "height: auto; min-height: var(--button-size); width: 100%;" }, "Add");
+            this._bulkAddArea = div$2({ style: "display: none; overflow-y: auto;" }, h2$1({ style: "margin-bottom: 0.5em;" }, "Add Multiple Samples"), div$2({ style: "display: flex; flex-direction: column; align-items: center;" }, div$2(`Add one URL per line. Remember that you can only have ${this._maxSamples} samples!`), div$2({ style: `color: ${ColorConfig.secondaryText}` }, "(This supports the syntax used to store samples in the song URLs as well)"), div$2({ style: "width: 100%; height: 250px; margin-top: 0.5em; margin-bottom: 0.5em;" }, this._bulkAddTextarea)), div$2({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._bulkAddConfirmButton));
+            this.container = div$2({ class: "prompt noSelection", style: "width: 450px; max-height: calc(100% - 100px);" }, this._addSamplesArea, this._bulkAddArea, this._instructionsArea, this._cancelButton);
             this.cleanUp = () => {
                 while (this._entryContainer.firstChild !== null) {
                     this._entryContainer.removeChild(this._entryContainer.firstChild);
@@ -40622,7 +40636,7 @@ You should be redirected to the song at:<br /><br />
                     const chipWaveLoopStartStepper = input$1({ style: "flex-grow: 1; margin-left: 1em; width: 100%;", type: "number", value: "" + (entry.chipWaveLoopStart != null ? entry.chipWaveLoopStart : ""), min: "0", step: "1" });
                     const chipWaveLoopEndStepper = input$1({ style: "flex-grow: 1; margin-left: 1em; width: 100%;", type: "number", value: "" + (entry.chipWaveLoopEnd != null ? entry.chipWaveLoopEnd : ""), min: "0", step: "1" });
                     const chipWaveStartOffsetStepper = input$1({ style: "flex-grow: 1; margin-left: 1em; width: 100%;", type: "number", value: "" + (entry.chipWaveStartOffset != null ? entry.chipWaveStartOffset : ""), min: "0", step: "1" });
-                    const chipWaveLoopModeSelect = select$1({ style: "width: 100%; flex-grow: 1; margin-left: 0.5em;" }, option$1({ value: -1 }, ""), option$1({ value: 0 }, "Loop"), option$1({ value: 1 }, "Ping-Pong"), option$1({ value: 2 }, "Play Once"), option$1({ value: 3 }, "Play Loop Once"));
+                    const chipWaveLoopModeSelect = select$2({ style: "width: 100%; flex-grow: 1; margin-left: 0.5em;" }, option$2({ value: -1 }, ""), option$2({ value: 0 }, "Loop"), option$2({ value: 1 }, "Ping-Pong"), option$2({ value: 2 }, "Play Once"), option$2({ value: 3 }, "Play Loop Once"));
                     if (entry.chipWaveLoopMode != null) {
                         chipWaveLoopModeSelect.value = "" + entry.chipWaveLoopMode;
                     }
@@ -40630,11 +40644,11 @@ You should be redirected to the song at:<br /><br />
                     chipWavePlayBackwardsBox.checked = entry.chipWavePlayBackwards;
                     const sampleName = this._getSampleName(entry);
                     percussionBox.checked = entry.percussion;
-                    const copyLinkPresetButton = button$1({ style: "height: auto; min-height: var(--button-size);", title: "For use with \"Add multiple samples\"" }, "Copy link preset");
-                    const removeButton = button$1({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, "Remove");
-                    const moveUpButton = button$1({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "16", height: "16", viewBox: "-13 -14 26 26", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.path({ d: "M -6 6 L 0 -6 L 6 6 z", fill: ColorConfig.primaryText })));
-                    const moveDownButton = button$1({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "16", height: "16", viewBox: "-13 -14 26 26", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.path({ d: "M -6 -6 L 6 -6 L 0 6 z", fill: ColorConfig.primaryText })));
-                    const optionsContainer = details({ open: optionsVisible, style: "margin-bottom: 2em; margin-top: 1em;" }, summary({ style: "margin-bottom: 1em;" }, "Options"), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `flex-shrink: 0; :text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "What rate to resample to" }, "Sample rate")), sampleRateStepper), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `text-align: right; color: ${ColorConfig.primaryText}; flex-shrink: 0;` }, span$1({ title: "Pitch where the sample is played as-is" }, "Root key")), rootKeyDisplay, rootKeyStepper), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;" }, div$1({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Percussion (pitch doesn't change with key)"), percussionBox), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Loop Start\" loop control option of the preset created for this sample" }, "Loop Start")), chipWaveLoopStartStepper), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Loop End\" loop control option of the preset created for this sample" }, "Loop End")), chipWaveLoopEndStepper), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Offset\" loop control option of the preset created for this sample" }, "Sample Start Offset")), chipWaveStartOffsetStepper), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Loop Mode\" loop control option of the preset created for this sample" }, "Loop Mode")), chipWaveLoopModeSelect), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Backwards\" loop control option of the preset created for this sample" }, "Backwards")), chipWavePlayBackwardsBox));
+                    const copyLinkPresetButton = button$2({ style: "height: auto; min-height: var(--button-size);", title: "For use with \"Add multiple samples\"" }, "Copy link preset");
+                    const removeButton = button$2({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, "Remove");
+                    const moveUpButton = button$2({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "16", height: "16", viewBox: "-13 -14 26 26", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.path({ d: "M -6 6 L 0 -6 L 6 6 z", fill: ColorConfig.primaryText })));
+                    const moveDownButton = button$2({ style: "height: auto; min-height: var(--button-size); margin-left: 0.5em;" }, SVG.svg({ width: "16", height: "16", viewBox: "-13 -14 26 26", "pointer-events": "none", style: "width: 100%; height: 100%;" }, SVG.path({ d: "M -6 -6 L 6 -6 L 0 6 z", fill: ColorConfig.primaryText })));
+                    const optionsContainer = details({ open: optionsVisible, style: "margin-bottom: 2em; margin-top: 1em;" }, summary({ style: "margin-bottom: 1em;" }, "Options"), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `flex-shrink: 0; :text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "What rate to resample to" }, "Sample rate")), sampleRateStepper), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `text-align: right; color: ${ColorConfig.primaryText}; flex-shrink: 0;` }, span$1({ title: "Pitch where the sample is played as-is" }, "Root key")), rootKeyDisplay, rootKeyStepper), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;" }, div$2({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "Percussion (pitch doesn't change with key)"), percussionBox), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Loop Start\" loop control option of the preset created for this sample" }, "Loop Start")), chipWaveLoopStartStepper), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Loop End\" loop control option of the preset created for this sample" }, "Loop End")), chipWaveLoopEndStepper), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Offset\" loop control option of the preset created for this sample" }, "Sample Start Offset")), chipWaveStartOffsetStepper), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Loop Mode\" loop control option of the preset created for this sample" }, "Loop Mode")), chipWaveLoopModeSelect), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};` }, span$1({ title: "Applies to the \"Backwards\" loop control option of the preset created for this sample" }, "Backwards")), chipWavePlayBackwardsBox));
                     urlInput.dataset.index = "" + entryIndex;
                     sampleRateStepper.dataset.index = "" + entryIndex;
                     rootKeyStepper.dataset.index = "" + entryIndex;
@@ -40649,18 +40663,18 @@ You should be redirected to the song at:<br /><br />
                     moveUpButton.dataset.index = "" + entryIndex;
                     moveDownButton.dataset.index = "" + entryIndex;
                     optionsContainer.dataset.index = "" + entryIndex;
-                    const bottomButtons = div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, copyLinkPresetButton, removeButton);
+                    const bottomButtons = div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;" }, copyLinkPresetButton, removeButton);
                     if (canMoveUp) {
                         bottomButtons.appendChild(moveUpButton);
                     }
                     if (canMoveDown) {
                         bottomButtons.appendChild(moveDownButton);
                     }
-                    const entryElement = div$1({ style: `padding: 0.6em; margin: 0.4em; border: 1px solid ${ColorConfig.uiWidgetBackground}; border-radius: 4px;` }, div$1({
+                    const entryElement = div$2({ style: `padding: 0.6em; margin: 0.4em; border: 1px solid ${ColorConfig.uiWidgetBackground}; border-radius: 4px;` }, div$2({
                         class: "add-sample-prompt-sample-name",
                         style: `margin-bottom: 0.5em; color: ${ColorConfig.secondaryText}; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;`,
                         title: sampleName,
-                    }, sampleName), div$1({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$1({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "URL"), urlInput), optionsContainer, bottomButtons);
+                    }, sampleName), div$2({ style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end; margin-bottom: 0.5em;" }, div$2({ style: `text-align: right; color: ${ColorConfig.primaryText};` }, "URL"), urlInput), optionsContainer, bottomButtons);
                     optionsContainer.addEventListener("toggle", this._whenOptionsAreToggled);
                     urlInput.addEventListener("change", this._whenURLChanges);
                     sampleRateStepper.addEventListener("change", this._whenSampleRateChanges);
@@ -40719,6 +40733,42 @@ You should be redirected to the song at:<br /><br />
             this.container.focus({ preventScroll: true });
             if (!succeeded)
                 window.prompt("Copy this:", text);
+        }
+    }
+
+    const { button: button$1, div: div$1, h2, select: select$1, option: option$1 } = HTML;
+    class ShortenerConfigPrompt {
+        constructor(_doc) {
+            this._doc = _doc;
+            this._shortenerStrategySelect = select$1({ style: "width: 100%;" }, option$1({ value: "tinyurl" }, "tinyurl.com"), option$1({ value: "isgd" }, "is.gd"));
+            this._cancelButton = button$1({ class: "cancelButton" });
+            this._okayButton = button$1({ class: "okayButton", style: "width:45%;" }, "Okay");
+            this.container = div$1({ class: "prompt noSelection", style: "width: 250px;" }, h2("Configure Shortener"), div$1({ style: "display: flex; flex-direction: row; align-items: center; height: 2em; justify-content: flex-end;" }, div$1({ class: "selectContainer", style: "width: 100%;" }, this._shortenerStrategySelect)), div$1({ style: "display: flex; flex-direction: row-reverse; justify-content: space-between;" }, this._okayButton), this._cancelButton);
+            this._close = () => {
+                this._doc.undo();
+            };
+            this.cleanUp = () => {
+                this._okayButton.removeEventListener("click", this._saveChanges);
+                this._cancelButton.removeEventListener("click", this._close);
+                this.container.removeEventListener("keydown", this._whenKeyPressed);
+            };
+            this._whenKeyPressed = (event) => {
+                if (event.target.tagName != "BUTTON" && event.keyCode == 13) {
+                    this._saveChanges();
+                }
+            };
+            this._saveChanges = () => {
+                window.localStorage.setItem("shortenerStrategySelect", this._shortenerStrategySelect.value);
+                this._doc.prompt = null;
+                this._doc.undo();
+            };
+            const lastStrategy = window.localStorage.getItem("shortenerStrategySelect");
+            if (lastStrategy != null) {
+                this._shortenerStrategySelect.value = lastStrategy;
+            }
+            this._okayButton.addEventListener("click", this._saveChanges);
+            this._cancelButton.addEventListener("click", this._close);
+            this.container.addEventListener("keydown", this._whenKeyPressed);
         }
     }
 
@@ -41120,7 +41170,6 @@ You should be redirected to the song at:<br /><br />
                                     this.lookUpArray[i] = [this.drawArray.length - (testPos[0] + 1), testPos[1]];
                                     break;
                                 }
-                                console.log(testPos[1]);
                             }
                         }
                         else {
@@ -41432,12 +41481,12 @@ You should be redirected to the song at:<br /><br />
             this._defs = SVG.defs({}, this._gradient);
             this._volumeBarContainer = SVG.svg({ style: `touch-action: none; overflow: visible; margin: auto; max-width: 20vw;`, width: "160px", height: "100%", preserveAspectRatio: "none", viewBox: "0 0 160 12" }, this._defs, this._outVolumeBarBg, this._outVolumeBar, this._outVolumeCap);
             this._volumeBarBox = div({ class: "playback-volume-bar", style: "height: 12px; align-self: center;" }, this._volumeBarContainer);
-            this._fileMenu = select({ style: "width: 100%;" }, option({ selected: true, disabled: true, hidden: false }, "File"), option({ value: "new" }, "+ New Blank Song (⇧`)"), option({ value: "import" }, "↑ Import Song... (" + EditorConfig.ctrlSymbol + "O)"), option({ value: "export" }, "↓ Export Song... (" + EditorConfig.ctrlSymbol + "S)"), option({ value: "copyUrl" }, "⎘ Copy Song URL"), option({ value: "shareUrl" }, "⤳ Share Song URL"), option({ value: "shortenUrl" }, "… Shorten Song URL"), option({ value: "viewPlayer" }, "▶ View in Song Player (⇧P)"), option({ value: "copyEmbed" }, "⎘ Copy HTML Embed Code"), option({ value: "songRecovery" }, "⚠ Recover Recent Song... (`)"));
+            this._fileMenu = select({ style: "width: 100%;" }, option({ selected: true, disabled: true, hidden: false }, "File"), option({ value: "new" }, "+ New Blank Song (⇧`)"), option({ value: "import" }, "↑ Import Song... (" + EditorConfig.ctrlSymbol + "O)"), option({ value: "export" }, "↓ Export Song... (" + EditorConfig.ctrlSymbol + "S)"), option({ value: "copyUrl" }, "⎘ Copy Song URL"), option({ value: "shareUrl" }, "⤳ Share Song URL"), option({ value: "configureShortener" }, "🛠 Customize Url Shortener..."), option({ value: "shortenUrl" }, "… Shorten Song URL"), option({ value: "viewPlayer" }, "▶ View in Song Player (⇧P)"), option({ value: "copyEmbed" }, "⎘ Copy HTML Embed Code"), option({ value: "songRecovery" }, "⚠ Recover Recent Song... (`)"));
             this._editMenu = select({ style: "width: 100%;" }, option({ selected: true, disabled: true, hidden: false }, "Edit"), option({ value: "undo" }, "Undo (Z)"), option({ value: "redo" }, "Redo (Y)"), option({ value: "copy" }, "Copy Pattern (C)"), option({ value: "pasteNotes" }, "Paste Pattern Notes (V)"), option({ value: "pasteNumbers" }, "Paste Pattern Numbers (" + EditorConfig.ctrlSymbol + "⇧V)"), option({ value: "insertBars" }, "Insert Bar (⏎)"), option({ value: "deleteBars" }, "Delete Selected Bars (⌫)"), option({ value: "insertChannel" }, "Insert Channel (" + EditorConfig.ctrlSymbol + "⏎)"), option({ value: "deleteChannel" }, "Delete Selected Channels (" + EditorConfig.ctrlSymbol + "⌫)"), option({ value: "selectChannel" }, "Select Channel (⇧A)"), option({ value: "selectAll" }, "Select All (A)"), option({ value: "duplicatePatterns" }, "Duplicate Reused Patterns (D)"), option({ value: "transposeUp" }, "Move Notes Up (+ or ⇧+)"), option({ value: "transposeDown" }, "Move Notes Down (- or ⇧-)"), option({ value: "moveNotesSideways" }, "Move All Notes Sideways... (W)"), option({ value: "generateEuclideanRhythm" }, "Generate Euclidean Rhythm... (E)"), option({ value: "beatsPerBar" }, "Change Beats Per Bar... (⇧B)"), option({ value: "barCount" }, "Change Song Length... (L)"), option({ value: "channelSettings" }, "Channel Settings... (Q)"), option({ value: "limiterSettings" }, "Limiter Settings... (⇧L)"), option({ value: "addExternal" }, "Add Custom Samples... (⇧Q)"));
-            this._optionsMenu = select({ style: "width: 100%;" }, option({ selected: true, disabled: true, hidden: false }, "Preferences"), optgroup({ label: "Technical" }, option({ value: "autoPlay" }, "Auto Play on Load"), option({ value: "autoFollow" }, "Auto Follow Playhead"), option({ value: "enableNotePreview" }, "Hear Added Notes"), option({ value: "notesOutsideScale" }, "Place Notes Out of Scale"), option({ value: "setDefaultScale" }, "Set Current Scale as Default"), option({ value: "alwaysFineNoteVol" }, "Always Fine Note Volume"), option({ value: "enableChannelMuting" }, "Enable Channel Muting"), option({ value: "instrumentCopyPaste" }, "Enable Copy/Paste Buttons"), option({ value: "instrumentImportExport" }, "Enable Import/Export Buttons"), option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"), option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"), option({ value: "recordingSetup" }, "Note Recording...")), optgroup({ label: "Appearance" }, option({ value: "showFifth" }, 'Highlight "Fifth" Note'), option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played"), option({ value: "instrumentButtonsAtTop" }, "Instrument Buttons at Top"), option({ value: "showChannels" }, "Show All Channels"), option({ value: "showScrollBar" }, "Show Octave Scroll Bar"), option({ value: "showLetters" }, "Show Piano Keys"), option({ value: "displayVolumeBar" }, "Show Playback Volume"), option({ value: "showOscilloscope" }, "Show Oscilloscope"), option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"), option({ value: "showDescription" }, "Show Description"), option({ value: "layout" }, "Set Layout..."), option({ value: "colorTheme" }, "Set Theme..."), option({ value: "customTheme" }, "Custom Theme...")));
+            this._optionsMenu = select({ style: "width: 100%;" }, option({ selected: true, disabled: true, hidden: false }, "Preferences"), optgroup({ label: "Technical" }, option({ value: "autoPlay" }, "Auto Play on Load"), option({ value: "autoFollow" }, "Auto Follow Playhead"), option({ value: "enableNotePreview" }, "Hear Added Notes"), option({ value: "notesOutsideScale" }, "Place Notes Out of Scale"), option({ value: "setDefaultScale" }, "Set Current Scale as Default"), option({ value: "alwaysFineNoteVol" }, "Always Fine Note Volume"), option({ value: "enableChannelMuting" }, "Enable Channel Muting"), option({ value: "instrumentCopyPaste" }, "Enable Copy/Paste Buttons"), option({ value: "instrumentImportExport" }, "Enable Import/Export Buttons"), option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"), option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"), option({ value: "recordingSetup" }, "Note Recording...")), optgroup({ label: "Appearance" }, option({ value: "showFifth" }, 'Highlight "Fifth" Note'), option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played"), option({ value: "instrumentButtonsAtTop" }, "Instrument Buttons at Top"), option({ value: "frostedGlassBackground" }, "Frosted Glass Prompt Backdrop"), option({ value: "showChannels" }, "Show All Channels"), option({ value: "showScrollBar" }, "Show Octave Scroll Bar"), option({ value: "showInstrumentScrollbars" }, "Show Intsrument Scrollbars"), option({ value: "showLetters" }, "Show Piano Keys"), option({ value: "displayVolumeBar" }, "Show Playback Volume"), option({ value: "showOscilloscope" }, "Show Oscilloscope"), option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"), option({ value: "showDescription" }, "Show Description"), option({ value: "layout" }, "Set Layout..."), option({ value: "colorTheme" }, "Set Theme..."), option({ value: "customTheme" }, "Custom Theme...")));
             this._scaleSelect = buildOptions(select(), Config.scales.map(scale => scale.name));
             this._keySelect = buildOptions(select(), Config.keys.map(key => key.name).reverse());
-            this._octaveStepper = input({ type: "number", min: Config.octaveMin, max: Config.octaveMax, value: "0" });
+            this._octaveStepper = input({ style: "width: 59.5%;", type: "number", min: Config.octaveMin, max: Config.octaveMax, value: "0" });
             this._tempoSlider = new Slider(input({ style: "margin: 0; vertical-align: middle;", type: "range", min: "1", max: "500", value: "160", step: "1" }), this._doc, (oldValue, newValue) => new ChangeTempo(this._doc, oldValue, newValue), false);
             this._tempoStepper = input({ style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", type: "number", step: "1" });
             this._chorusSlider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.chorusRange - 1, value: "0", step: "1" }), this._doc, (oldValue, newValue) => new ChangeChorus(this._doc, oldValue, newValue), false);
@@ -41523,11 +41572,11 @@ You should be redirected to the song at:<br /><br />
             this._supersawShapeSlider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.supersawShapeMax, value: "0", step: "1" }), this._doc, (oldValue, newValue) => new ChangeSupersawShape(this._doc, oldValue, newValue), false);
             this._supersawShapeRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("supersawShape"), style: "overflow: clip;" }, "Saw↔Pulse:"), this._supersawShapeSlider.container);
             this._pulseWidthSlider = new Slider(input({ style: "margin: 0;", type: "range", min: "1", max: Config.pulseWidthRange, value: "1", step: "1" }), this._doc, (oldValue, newValue) => new ChangePulseWidth(this._doc, oldValue, newValue), false);
-            this._pulseWidthDropdown = button({ style: "margin-right:10px; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(5) }, "▼");
-            this._pwmSliderInputBox = input({ style: "width: 4em; font-size: 80%;", id: "pwmSliderInputBox", type: "number", step: "1", min: "1", max: Config.pulseWidthRange, value: "1" });
-            this._pulseWidthRow = div({ class: "selectRow" }, div({}, span({ class: "tip", tabindex: "0", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("pulseWidth") }, "Pulse", div, "Width:"), div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._pwmSliderInputBox)), this._pulseWidthDropdown, this._pulseWidthSlider.container);
-            this._decimalOffsetSlider = new Slider(input({ style: "margin: 0; transform: scaleX(-1);", type: "range", min: "0", max: "99", value: "0", step: "1" }), this._doc, (oldValue, newValue) => new ChangeDecimalOffset(this._doc, oldValue, newValue), false);
-            this._decimalOffsetRow = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("decimalOffset") }, "‣ Offset:"), this._decimalOffsetSlider.container);
+            this._pulseWidthDropdown = button({ style: "margin-left:53px; position: absolute; margin-top: 15px; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(5) }, "▼");
+            this._pwmSliderInputBox = input({ style: "width: 4em; font-size: 70%;", id: "pwmSliderInputBox", type: "number", step: "1", min: "1", max: Config.pulseWidthRange, value: "1" });
+            this._pulseWidthRow = div({ class: "selectRow" }, div({}, span({ class: "tip", tabindex: "0", style: "height:1em; font-size: smaller; white-space: nowrap;", onclick: () => this._openPrompt("pulseWidth") }, "Pulse Width:"), div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._pwmSliderInputBox)), this._pulseWidthDropdown, this._pulseWidthSlider.container);
+            this._decimalOffsetSlider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: "99", value: "0", step: "1" }), this._doc, (oldValue, newValue) => new ChangeDecimalOffset(this._doc, oldValue, 99 - newValue), false);
+            this._decimalOffsetRow = div({ class: "selectRow dropFader" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("decimalOffset") }, "‣ Offset:"), this._decimalOffsetSlider.container);
             this._pulseWidthDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this._decimalOffsetRow);
             this._pitchShiftSlider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.pitchShiftRange - 1, value: "0", step: "1" }), this._doc, (oldValue, newValue) => new ChangePitchShift(this._doc, oldValue, newValue), true);
             this._pitchShiftTonicMarkers = [div({ class: "pitchShiftMarker", style: { color: ColorConfig.tonic } }), div({ class: "pitchShiftMarker", style: { color: ColorConfig.tonic, left: "50%" } }), div({ class: "pitchShiftMarker", style: { color: ColorConfig.tonic, left: "100%" } })];
@@ -41551,17 +41600,17 @@ You should be redirected to the song at:<br /><br />
             this._unisonDropdown = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(6) }, "▼");
             this._unisonSelect = buildOptions(select(), Config.unisons.map(unison => unison.name));
             this._unisonSelectRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("unison") }, "Unison:"), this._unisonDropdown, div({ class: "selectContainer", style: "width: 61.5%;" }, this._unisonSelect));
-            this._unisonVoicesInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonVoicesInputBox", type: "number", step: "1", min: 1, max: 2, value: 1 });
-            this._unisonVoicesRow = div({ class: "selectRow" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonVoices") }, "‣ Voices: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonVoicesInputBox)));
-            this._unisonSpreadInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonSpreadInputBox", type: "number", step: "0.001", min: -96, max: 96, value: 0.0 });
-            this._unisonSpreadRow = div({ class: "selectRow" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonSpread") }, "‣ Spread: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonSpreadInputBox)));
-            this._unisonOffsetInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonOffsetInputBox", type: "number", step: "0.001", min: -96, max: 96, value: 0.0 });
-            this._unisonOffsetRow = div({ class: "selectRow" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonOffset") }, "‣ Offset: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonOffsetInputBox)));
-            this._unisonExpressionInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonExpressionInputBox", type: "number", step: "0.001", min: -2, max: 2, value: 1.4 });
-            this._unisonExpressionRow = div({ class: "selectRow" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonExpression") }, "‣ Expression: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonExpressionInputBox)));
-            this._unisonSignInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonSignInputBox", type: "number", step: "0.001", min: -2, max: 2, value: 1.0 });
-            this._unisonSignRow = div({ class: "selectRow" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonSign") }, "‣ Sign: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonSignInputBox)));
-            this._unisonDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this._unisonVoicesRow, this._unisonSpreadRow, this._unisonOffsetRow, this._unisonExpressionRow, this._unisonSignRow);
+            this._unisonVoicesInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonVoicesInputBox", type: "number", step: "1", min: Config.unisonVoicesMin, max: Config.unisonVoicesMax, value: 1 });
+            this._unisonVoicesRow = div({ class: "selectRow dropFader" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonVoices") }, "‣ Voices: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonVoicesInputBox)));
+            this._unisonSpreadInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonSpreadInputBox", type: "number", step: "0.001", min: Config.unisonSpreadMin, max: Config.unisonSpreadMax, value: 0.0 });
+            this._unisonSpreadRow = div({ class: "selectRow dropFader" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonSpread") }, "‣ Spread: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonSpreadInputBox)));
+            this._unisonOffsetInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonOffsetInputBox", type: "number", step: "0.001", min: Config.unisonOffsetMin, max: Config.unisonOffsetMax, value: 0.0 });
+            this._unisonOffsetRow = div({ class: "selectRow dropFader" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonOffset") }, "‣ Offset: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonOffsetInputBox)));
+            this._unisonExpressionInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonExpressionInputBox", type: "number", step: "0.001", min: Config.unisonExpressionMin, max: Config.unisonExpressionMax, value: 1.4 });
+            this._unisonExpressionRow = div({ class: "selectRow dropFader" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonExpression") }, "‣ Volume: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonExpressionInputBox)));
+            this._unisonSignInputBox = input({ style: "width: 150%; height: 1.5em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", id: "unisonSignInputBox", type: "number", step: "0.001", min: Config.unisonSignMin, max: Config.unisonSignMax, value: 1.0 });
+            this._unisonSignRow = div({ class: "selectRow dropFader" }, div({}, span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("unisonSign") }, "‣ Sign: "), div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._unisonSignInputBox)));
+            this._unisonDropdownGroup = div({ class: "editor-controls", style: "display: none; gap: 3px; margin-bottom: 0.5em;" }, this._unisonVoicesRow, this._unisonSpreadRow, this._unisonOffsetRow, this._unisonExpressionRow, this._unisonSignRow);
             this._chordSelect = buildOptions(select(), Config.chords.map(chord => chord.name));
             this._chordDropdown = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(2) }, "▼");
             this._chordSelectRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("chords") }, "Chords:"), this._chordDropdown, div({ class: "selectContainer" }, this._chordSelect));
@@ -41588,9 +41637,11 @@ You should be redirected to the song at:<br /><br />
             this._feedbackTypeSelect = buildOptions(select(), Config.feedbacks.map(feedback => feedback.name));
             this._feedbackRow1 = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("feedbackType") }, "Feedback:"), div({ class: "selectContainer" }, this._feedbackTypeSelect));
             this._spectrumEditor = new SpectrumEditor(this._doc, null);
-            this._spectrumRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("spectrum") }, "Spectrum:"), this._spectrumEditor.container);
+            this._spectrumZoom = button({ style: "margin-left:0em; padding-left:0.2em; height:1.5em; max-width: 12px;", onclick: () => this._openPrompt("spectrumSettings") }, "+");
+            this._spectrumRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("spectrum"), style: "font-size: smaller" }, "Spectrum:"), this._spectrumZoom, this._spectrumEditor.container);
             this._harmonicsEditor = new HarmonicsEditor(this._doc);
-            this._harmonicsRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("harmonics") }, "Harmonics:"), this._harmonicsEditor.container);
+            this._harmonicsZoom = button({ style: "padding-left:0.2em; height:1.5em; max-width: 12px;", onclick: () => this._openPrompt("harmonicsSettings") }, "+");
+            this._harmonicsRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("harmonics"), style: "font-size: smaller" }, "Harmonics:"), this._harmonicsZoom, this._harmonicsEditor.container);
             this._envelopeEditor = new EnvelopeEditor(this._doc);
             this._discreteEnvelopeBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
             this._discreteEnvelopeRow = div({ class: "selectRow dropFader" }, span({ class: "tip", style: "margin-left:4px;", onclick: () => this._openPrompt("discreteEnvelope") }, "‣ Discrete:"), this._discreteEnvelopeBox);
@@ -41600,10 +41651,11 @@ You should be redirected to the song at:<br /><br />
             this._envelopeDropdownGroup = div({ class: "editor-controls", style: "display: none;" }, this._discreteEnvelopeRow, this._envelopeSpeedRow);
             this._envelopeDropdown = button({ style: "margin-left:0em; margin-right: 1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(7) }, "▼");
             this._drumsetGroup = div({ class: "editor-controls" });
+            this._drumsetZoom = button({ style: "margin-left:0em; padding-left:0.3em; margin-right:0.5em; height:1.5em; max-width: 16px;", onclick: () => this._openPrompt("drumsetSettings") }, "+");
             this._modulatorGroup = div({ class: "editor-controls" });
             this._feedback6OpTypeSelect = buildOptions(select(), Config.feedbacks6Op.map(feedback => feedback.name));
             this._feedback6OpRow1 = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("feedbackType") }, "Feedback:"), div({ class: "selectContainer" }, this._feedback6OpTypeSelect));
-            this._algorithmCanvasSwitch = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: (e) => this._toggleAlgorithmCanvas(e) }, "F");
+            this._algorithmCanvasSwitch = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: (e) => this._toggleAlgorithmCanvas(e) }, "A");
             this._customAlgorithmCanvas = new CustomAlgorythmCanvas(canvas({ width: 144, height: 144, style: "border:2px solid " + ColorConfig.uiWidgetBackground, id: "customAlgorithmCanvas" }), this._doc, (newArray, carry, mode) => new ChangeCustomAlgorythmorFeedback(this._doc, newArray, carry, mode));
             this._algorithm6OpSelect = buildOptions(select(), Config.algorithms6Op.map(algorithm => algorithm.name));
             this._algorithm6OpSelectRow = div(div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("algorithm") }, "Algorithm: "), div({ class: "selectContainer" }, this._algorithm6OpSelect)), div({ style: "height:144px; display:flex; flex-direction: row; align-items:center; justify-content:center;" }, div({ style: "display:block; width:10px; margin-right: 0.2em" }, this._algorithmCanvasSwitch), div({ style: "width:144px; height:144px;" }, this._customAlgorithmCanvas.canvas)));
@@ -41632,7 +41684,7 @@ You should be redirected to the song at:<br /><br />
                     SVG.path({ d: "M200-120v-40h560v40H200Zm185.384-150.769v-271.539H254.615L480-840l224.616 297.692h-130.77v271.539H385.384Zm40.001-40h108.461v-272.308h88.308L480-774.615 337.077-583.077h88.308v272.308ZM480-583.077Z", fill: "currentColor" }),
                 ]),
             ]);
-            this._globalOscscope = new oscilascopeCanvas(canvas({ width: 144, height: 32, style: `border: 2px solid ${ColorConfig.uiWidgetBackground}; position: static;`, id: "oscilascopeAll" }), 1);
+            this._globalOscscope = new oscilloscopeCanvas(canvas({ width: 144, height: 32, style: `border: 2px solid ${ColorConfig.uiWidgetBackground}; position: static;`, id: "oscilloscopeAll" }), 1);
             this._globalOscscopeContainer = div({ style: "height: 38px; margin-left: auto; margin-right: auto;" }, this._globalOscscope.canvas);
             this._customWaveDrawCanvas = new CustomChipCanvas(canvas({ width: 128, height: 52, style: "border:2px solid " + ColorConfig.uiWidgetBackground, id: "customWaveDrawCanvas" }), this._doc, (newArray) => new ChangeCustomWave(this._doc, newArray));
             this._customWavePresetDrop = buildHeaderedOptions("Load Preset", select({ style: "width: 50%; height:1.5em; text-align: center; text-align-last: center;" }), Config.chipWaves.map(wave => wave.name));
@@ -41661,6 +41713,7 @@ You should be redirected to the song at:<br /><br />
                 SVG.path({ d: "M150 65 c0 -8 -7 -15 -15 -15 -8 0 -15 -4 -15 -10 0 -14 23 -13 38 2 15 15 16 38 2 38 -5 0 -10 -7 -10 -15z" })
             ]);
             this._promptContainer = div({ class: "promptContainer", style: "display: none;" });
+            this._promptContainerBG = div({ class: "promptContainerBG", style: "display: none; height: 100%; width: 100%; position: fixed; z-index: 99; overflow-x: hidden; pointer-events: none;" });
             this._zoomInButton = button({ class: "zoomInButton", type: "button", title: "Zoom In" });
             this._zoomOutButton = button({ class: "zoomOutButton", type: "button", title: "Zoom Out" });
             this._patternEditorRow = div({ style: "flex: 1; height: 100%; display: flex; overflow: hidden; justify-content: center;" }, this._patternEditorPrev.container, this._patternEditor.container, this._patternEditorNext.container);
@@ -41765,6 +41818,7 @@ You should be redirected to the song at:<br /><br />
                 this._sampleLoadingStatusContainer.style.display = this._doc.prefs.showSampleLoadingStatus ? "" : "none";
                 this._instrumentCopyGroup.style.display = this._doc.prefs.instrumentCopyPaste ? "" : "none";
                 this._instrumentExportGroup.style.display = this._doc.prefs.instrumentImportExport ? "" : "none";
+                this._instrumentSettingsArea.style.scrollbarWidth = this._doc.prefs.showInstrumentScrollbars ? "" : "none";
                 if (document.getElementById('text-content'))
                     document.getElementById('text-content').style.display = this._doc.prefs.showDescription ? "" : "none";
                 if (this._doc.getFullScreen()) {
@@ -41774,6 +41828,15 @@ You should be redirected to the song at:<br /><br />
                     const maxBeatWidth = this._patternEditorRow.clientWidth / (this._doc.song.beatsPerBar + 2);
                     const beatWidth = Math.max(minBeatWidth, Math.min(maxBeatWidth, targetBeatWidth));
                     const patternEditorWidth = beatWidth * this._doc.song.beatsPerBar;
+                    const beepboxEditorContainer = document.getElementById("beepboxEditorContainer");
+                    if (this._doc.prefs.showDescription == false) {
+                        beepboxEditorContainer.style.paddingBottom = "0";
+                        beepboxEditorContainer.style.borderStyle = "none";
+                    }
+                    else {
+                        beepboxEditorContainer.style.paddingBottom = "";
+                        beepboxEditorContainer.style.borderStyle = "";
+                    }
                     this._patternEditorPrev.container.style.width = patternEditorWidth + "px";
                     this._patternEditor.container.style.width = patternEditorWidth + "px";
                     this._patternEditorNext.container.style.width = patternEditorWidth + "px";
@@ -41798,8 +41861,9 @@ You should be redirected to the song at:<br /><br />
                     this._zoomOutButton.style.display = "none";
                 }
                 this._patternEditor.render();
-                const textOnIcon = ColorConfig.getComputed("--text-enabled-icon") !== "" ? ColorConfig.getComputed("--text-enabled-icon") : "✓ ";
-                const textOffIcon = ColorConfig.getComputed("--text-disabled-icon") !== "" ? ColorConfig.getComputed("--text-disabled-icon") : "　";
+                const textOnIcon = ColorConfig.getComputed("--text-enabled-icon");
+                const textOffIcon = ColorConfig.getComputed("--text-disabled-icon");
+                const textSpacingIcon = ColorConfig.getComputed("--text-spacing-icon");
                 const optionCommands = [
                     "Technical",
                     (prefs.autoPlay ? textOnIcon : textOffIcon) + "Auto Play on Load",
@@ -41813,33 +41877,35 @@ You should be redirected to the song at:<br /><br />
                     (prefs.instrumentImportExport ? textOnIcon : textOffIcon) + "Enable Import/Export Buttons",
                     (prefs.displayBrowserUrl ? textOnIcon : textOffIcon) + "Enable Song Data in URL",
                     (prefs.closePromptByClickoff ? textOnIcon : textOffIcon) + "Close Prompts on Click Off",
-                    "　Note Recording...",
-                    "Appearance",
+                    textSpacingIcon + "Note Recording...",
+                    textSpacingIcon + "Appearance",
                     (prefs.showFifth ? textOnIcon : textOffIcon) + 'Highlight "Fifth" Note',
                     (prefs.notesFlashWhenPlayed ? textOnIcon : textOffIcon) + "Notes Flash When Played",
                     (prefs.instrumentButtonsAtTop ? textOnIcon : textOffIcon) + "Instrument Buttons at Top",
+                    (prefs.frostedGlassBackground ? textOnIcon : textOffIcon) + "Frosted Glass Prompt Backdrop",
                     (prefs.showChannels ? textOnIcon : textOffIcon) + "Show All Channels",
                     (prefs.showScrollBar ? textOnIcon : textOffIcon) + "Show Octave Scroll Bar",
+                    (prefs.showInstrumentScrollbars ? textOnIcon : textOffIcon) + "Show Instrument Scrollbars",
                     (prefs.showLetters ? textOnIcon : textOffIcon) + "Show Piano Keys",
                     (prefs.displayVolumeBar ? textOnIcon : textOffIcon) + "Show Playback Volume",
                     (prefs.showOscilloscope ? textOnIcon : textOffIcon) + "Show Oscilloscope",
                     (prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
                     (prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
-                    "　Set Layout...",
-                    "　Set Theme...",
-                    "　Custom Theme...",
+                    textSpacingIcon + "Set Layout...",
+                    textSpacingIcon + "Set Theme...",
+                    textSpacingIcon + "Custom Theme...",
                 ];
                 const technicalOptionGroup = this._optionsMenu.children[1];
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < technicalOptionGroup.children.length; i++) {
                     const option = technicalOptionGroup.children[i];
                     if (option.textContent != optionCommands[i + 1])
                         option.textContent = optionCommands[i + 1];
                 }
                 const appearanceOptionGroup = this._optionsMenu.children[2];
-                for (let i = 0; i < 13; i++) {
+                for (let i = 0; i < appearanceOptionGroup.children.length; i++) {
                     const option = appearanceOptionGroup.children[i];
-                    if (option.textContent != optionCommands[i + 14])
-                        option.textContent = optionCommands[i + 14];
+                    if (option.textContent != optionCommands[i + technicalOptionGroup.children.length + 2])
+                        option.textContent = optionCommands[i + technicalOptionGroup.children.length + 2];
                 }
                 const channel = this._doc.song.channels[this._doc.channel];
                 const instrumentIndex = this._doc.getCurrentInstrument();
@@ -42063,8 +42129,8 @@ You should be redirected to the song at:<br /><br />
                         this._pulseWidthRow.style.display = "";
                         this._pulseWidthSlider.input.title = prettyNumber(instrument.pulseWidth) + "%";
                         this._pulseWidthSlider.updateValue(instrument.pulseWidth);
-                        this._decimalOffsetSlider.input.title = (Number(prettyNumber(instrument.decimalOffset)) / 100) <= 0 ? "none" : "-" + (Number(prettyNumber(instrument.decimalOffset)) / 100) + "%";
-                        this._decimalOffsetSlider.updateValue(instrument.decimalOffset);
+                        this._decimalOffsetSlider.input.title = instrument.decimalOffset / 100 <= 0 ? "none" : "-" + prettyNumber(instrument.decimalOffset / 100) + "%";
+                        this._decimalOffsetSlider.updateValue(99 - instrument.decimalOffset);
                         this._pulseWidthDropdownGroup.style.display = (this._openPulseWidthDropdown ? "" : "none");
                     }
                     else {
@@ -42279,7 +42345,7 @@ You should be redirected to the song at:<br /><br />
                     else {
                         this._reverbRow.style.display = "none";
                     }
-                    if (instrument.type == 0 || instrument.type == 9 || instrument.type == 5 || instrument.type == 7) {
+                    if (instrument.type == 0 || instrument.type == 9 || instrument.type == 5 || instrument.type == 7 || instrument.type == 3 || instrument.type == 6 || instrument.type == 2) {
                         this._unisonSelectRow.style.display = "";
                         setSelectedValue(this._unisonSelect, instrument.unison);
                         this._unisonVoicesInputBox.value = instrument.unisonVoices + "";
@@ -42487,7 +42553,7 @@ You should be redirected to the song at:<br /><br />
                                 settingList.push("mix volume");
                                 let tgtInstrumentTypes = [];
                                 let anyInstrumentAdvancedEQ = false, anyInstrumentSimpleEQ = false, anyInstrumentAdvancedNote = false, anyInstrumentSimpleNote = false, anyInstrumentArps = false, anyInstrumentPitchShifts = false, anyInstrumentDetunes = false, anyInstrumentVibratos = false, anyInstrumentNoteFilters = false, anyInstrumentDistorts = false, anyInstrumentBitcrushes = false, anyInstrumentPans = false, anyInstrumentChorus = false, anyInstrumentEchoes = false, anyInstrumentReverbs = false, anyInstrumentHasEnvelopes = false;
-                                let allInstrumentNoteFilters = true, allInstrumentDetunes = true, allInstrumentVibratos = true, allInstrumentDistorts = true, allInstrumentBitcrushes = true, allInstrumentPans = true, allInstrumentChorus = true, allInstrumentEchoes = true, allInstrumentReverbs = true;
+                                let allInstrumentPitchShifts = true, allInstrumentNoteFilters = true, allInstrumentDetunes = true, allInstrumentVibratos = true, allInstrumentDistorts = true, allInstrumentBitcrushes = true, allInstrumentPans = true, allInstrumentChorus = true, allInstrumentEchoes = true, allInstrumentReverbs = true;
                                 let instrumentCandidates = [];
                                 if (modInstrument >= channel.instruments.length) {
                                     for (let i = 0; i < channel.instruments.length; i++) {
@@ -42510,6 +42576,9 @@ You should be redirected to the song at:<br /><br />
                                     }
                                     if (effectsIncludePitchShift(channel.instruments[instrumentIndex].effects)) {
                                         anyInstrumentPitchShifts = true;
+                                    }
+                                    else {
+                                        allInstrumentPitchShifts = false;
                                     }
                                     if (effectsIncludeDetune(channel.instruments[instrumentIndex].effects)) {
                                         anyInstrumentDetunes = true;
@@ -42614,6 +42683,9 @@ You should be redirected to the song at:<br /><br />
                                 }
                                 if (anyInstrumentPitchShifts) {
                                     settingList.push("pitch shift");
+                                }
+                                if (!allInstrumentPitchShifts) {
+                                    unusedSettingList.push("+ pitch shift");
                                 }
                                 if (anyInstrumentDetunes) {
                                     settingList.push("detune");
@@ -43065,7 +43137,7 @@ You should be redirected to the song at:<br /><br />
                         else if (canPlayNotes)
                             break;
                         if (needControlForShortcuts == (event.ctrlKey || event.metaKey) && event.shiftKey) {
-                            location.href = "player/#song=" + this._doc.song.toBase64String();
+                            location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + this._doc.song.toBase64String();
                             event.preventDefault();
                         }
                         break;
@@ -43165,7 +43237,14 @@ You should be redirected to the song at:<br /><br />
                         this._doc.synth.loopBarStart = -1;
                         this._doc.synth.loopBarEnd = -1;
                         this._loopEditor.setLoopAt(this._doc.synth.loopBarStart, this._doc.synth.loopBarEnd);
-                        if (event.ctrlKey || event.metaKey) {
+                        if (event.shiftKey && !event.ctrlKey) {
+                            const minusWidth = this._doc.selection.boxSelectionWidth;
+                            this._doc.bar -= minusWidth;
+                            this._doc.selection.boxSelectionX0 -= minusWidth;
+                            this._doc.selection.boxSelectionX1 -= minusWidth;
+                            this._doc.selection.insertBars();
+                        }
+                        else if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
                             this._doc.selection.insertChannel();
                         }
                         else {
@@ -43215,13 +43294,27 @@ You should be redirected to the song at:<br /><br />
                         }
                         else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
                             this._openPrompt("generateEuclideanRhythm");
+                            event.preventDefault();
                             break;
                         }
                         break;
                     case 70:
                         if (canPlayNotes)
                             break;
-                        if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
+                        if (event.shiftKey) {
+                            this._doc.synth.loopBarStart = -1;
+                            this._doc.synth.loopBarEnd = -1;
+                            this._loopEditor.setLoopAt(this._doc.synth.loopBarStart, this._doc.synth.loopBarEnd);
+                            this._doc.synth.goToBar(this._doc.song.loopStart);
+                            this._doc.synth.snapToBar();
+                            this._doc.synth.initModFilters(this._doc.song);
+                            this._doc.synth.computeLatestModValues();
+                            if (this._doc.prefs.autoFollow) {
+                                this._doc.selection.setChannelBar(this._doc.channel, Math.floor(this._doc.synth.playhead));
+                            }
+                            event.preventDefault();
+                        }
+                        else if (needControlForShortcuts == (event.ctrlKey || event.metaKey)) {
                             this._doc.synth.loopBarStart = -1;
                             this._doc.synth.loopBarEnd = -1;
                             this._loopEditor.setLoopAt(this._doc.synth.loopBarStart, this._doc.synth.loopBarEnd);
@@ -43743,6 +43836,7 @@ You should be redirected to the song at:<br /><br />
                 const instrument = channel.instruments[this._doc.getCurrentInstrument()];
                 const instrumentCopy = instrument.toJsonObject();
                 instrumentCopy["isDrum"] = this._doc.song.getChannelIsNoise(this._doc.channel);
+                instrumentCopy["isMod"] = this._doc.song.getChannelIsMod(this._doc.channel);
                 window.localStorage.setItem("instrumentCopy", JSON.stringify(instrumentCopy));
                 this.refocusStage();
             };
@@ -43750,7 +43844,7 @@ You should be redirected to the song at:<br /><br />
                 const channel = this._doc.song.channels[this._doc.channel];
                 const instrument = channel.instruments[this._doc.getCurrentInstrument()];
                 const instrumentCopy = JSON.parse(String(window.localStorage.getItem("instrumentCopy")));
-                if (instrumentCopy != null && instrumentCopy["isDrum"] == this._doc.song.getChannelIsNoise(this._doc.channel)) {
+                if (instrumentCopy != null && instrumentCopy["isDrum"] == this._doc.song.getChannelIsNoise(this._doc.channel) && instrumentCopy["isMod"] == this._doc.song.getChannelIsMod(this._doc.channel)) {
                     this._doc.record(new ChangePasteInstrument(this._doc, instrument, instrumentCopy));
                 }
                 this.refocusStage();
@@ -44066,10 +44160,17 @@ You should be redirected to the song at:<br /><br />
                         navigator.share({ url: new URL("#" + this._doc.song.toBase64String(), location.href).href });
                         break;
                     case "shortenUrl":
-                        window.open("https://tinyurl.com/api-create.php?url=" + encodeURIComponent(new URL("#" + this._doc.song.toBase64String(), location.href).href));
+                        let shortenerStrategy = "https://tinyurl.com/api-create.php?url=";
+                        const localShortenerStrategy = window.localStorage.getItem("shortenerStrategySelect");
+                        if (localShortenerStrategy == "isgd")
+                            shortenerStrategy = "https://is.gd/create.php?format=simple&url=";
+                        window.open(shortenerStrategy + encodeURIComponent(new URL("#" + this._doc.song.toBase64String(), location.href).href));
+                        break;
+                    case "configureShortener":
+                        this._openPrompt("configureShortener");
                         break;
                     case "viewPlayer":
-                        location.href = "player/#song=" + this._doc.song.toBase64String();
+                        location.href = "player/" + (OFFLINE ? "index.html" : "") + "#song=" + this._doc.song.toBase64String();
                         break;
                     case "copyEmbed":
                         this._copyTextToClipboard(`<iframe width="384" height="60" style="border: none;" src="${new URL("player/#song=" + this._doc.song.toBase64String(), location.href).href}"></iframe>`);
@@ -44201,7 +44302,7 @@ You should be redirected to the song at:<br /><br />
                         this._openPrompt("theme");
                         break;
                     case "customTheme":
-                        this._openPrompt("custom");
+                        this._openPrompt("customTheme");
                         break;
                     case "recordingSetup":
                         this._openPrompt("recordingSetup");
@@ -44211,6 +44312,9 @@ You should be redirected to the song at:<br /><br />
                         break;
                     case "showDescription":
                         this._doc.prefs.showDescription = !this._doc.prefs.showDescription;
+                        break;
+                    case "showInstrumentScrollbars":
+                        this._doc.prefs.showInstrumentScrollbars = !this._doc.prefs.showInstrumentScrollbars;
                         break;
                     case "showSampleLoadingStatus":
                         this._doc.prefs.showSampleLoadingStatus = !this._doc.prefs.showSampleLoadingStatus;
@@ -44226,6 +44330,9 @@ You should be redirected to the song at:<br /><br />
                         break;
                     case "instrumentButtonsAtTop":
                         this._doc.prefs.instrumentButtonsAtTop = !this._doc.prefs.instrumentButtonsAtTop;
+                        break;
+                    case "frostedGlassBackground":
+                        this._doc.prefs.frostedGlassBackground = !this._doc.prefs.frostedGlassBackground;
                         break;
                 }
                 this._optionsMenu.selectedIndex = 0;
@@ -44340,7 +44447,7 @@ You should be redirected to the song at:<br /><br />
                     this._doc.record(new ChangeOperatorFrequency(this._doc, operatorIndex, frequencySelect.selectedIndex));
                 });
             }
-            this._drumsetGroup.appendChild(div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("drumsetEnvelope") }, "Envelope:"), span({ class: "tip", onclick: () => this._openPrompt("drumsetSpectrum") }, "Spectrum:")));
+            this._drumsetGroup.appendChild(div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("drumsetEnvelope") }, "Envelope:"), span({ class: "tip", onclick: () => this._openPrompt("drumsetSpectrum") }, "Spectrum:"), this._drumsetZoom));
             for (let i = Config.drumCount - 1; i >= 0; i--) {
                 const drumIndex = i;
                 const spectrumEditor = new SpectrumEditor(this._doc, drumIndex);
@@ -44512,11 +44619,11 @@ You should be redirected to the song at:<br /><br />
             this._panSliderInputBox.addEventListener("input", () => { this._doc.record(new ChangePan(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].pan, Math.min(100.0, Math.max(0.0, Math.round(+this._panSliderInputBox.value))))); });
             this._pwmSliderInputBox.addEventListener("input", () => { this._doc.record(new ChangePulseWidth(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].pulseWidth, Math.min(Config.pulseWidthRange, Math.max(1.0, Math.round(+this._pwmSliderInputBox.value))))); });
             this._detuneSliderInputBox.addEventListener("input", () => { this._doc.record(new ChangeDetune(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].detune, Math.min(Config.detuneMax - Config.detuneCenter, Math.max(Config.detuneMin - Config.detuneCenter, Math.round(+this._detuneSliderInputBox.value))))); });
-            this._unisonVoicesInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonVoices(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonVoices, Math.min(2.0, Math.max(1.0, Math.round(+this._unisonVoicesInputBox.value))))); });
-            this._unisonSpreadInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonSpread(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonSpread, Math.min(96.0, Math.max(-96.0, +this._unisonSpreadInputBox.value)))); });
-            this._unisonOffsetInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonOffset(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonOffset, Math.min(96.0, Math.max(-96.0, +this._unisonOffsetInputBox.value)))); });
-            this._unisonExpressionInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonExpression(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonExpression, Math.min(2.0, Math.max(-2.0, +this._unisonExpressionInputBox.value)))); });
-            this._unisonSignInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonSign(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonSign, Math.min(2.0, Math.max(-2.0, +this._unisonSignInputBox.value)))); });
+            this._unisonVoicesInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonVoices(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonVoices, Math.min(Config.unisonVoicesMax, Math.max(Config.unisonVoicesMin, Math.round(+this._unisonVoicesInputBox.value))))); });
+            this._unisonSpreadInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonSpread(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonSpread, Math.min(Config.unisonSpreadMax, Math.max(Config.unisonSpreadMin, +this._unisonSpreadInputBox.value)))); });
+            this._unisonOffsetInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonOffset(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonOffset, Math.min(Config.unisonOffsetMax, Math.max(Config.unisonOffsetMin, +this._unisonOffsetInputBox.value)))); });
+            this._unisonExpressionInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonExpression(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonExpression, Math.min(Config.unisonExpressionMax, Math.max(Config.unisonExpressionMin, +this._unisonExpressionInputBox.value)))); });
+            this._unisonSignInputBox.addEventListener("input", () => { this._doc.record(new ChangeUnisonSign(this._doc, this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()].unisonSign, Math.min(Config.unisonSignMax, Math.max(Config.unisonSignMin, +this._unisonSignInputBox.value)))); });
             this._customWaveDraw.addEventListener("input", () => { this._doc.record(new ChangeCustomWave(this._doc, this._customWaveDrawCanvas.newArray)); });
             this._twoNoteArpBox.addEventListener("input", () => { this._doc.record(new ChangeFastTwoNoteArp(this._doc, this._twoNoteArpBox.checked)); });
             this._clicklessTransitionBox.addEventListener("input", () => { this._doc.record(new ChangeClicklessTransition(this._doc, this._clicklessTransitionBox.checked)); });
@@ -44553,12 +44660,12 @@ You should be redirected to the song at:<br /><br />
         _toggleAlgorithmCanvas(e) {
             if (this._customAlgorithmCanvas.mode != "feedback") {
                 this._customAlgorithmCanvas.mode = "feedback";
-                e.target.textContent = "A";
+                e.target.textContent = "F";
                 this._algorithmCanvasSwitch.value = "feedback";
             }
             else {
                 this._customAlgorithmCanvas.mode = "algorithm";
-                e.target.textContent = "F";
+                e.target.textContent = "A";
             }
             this._customAlgorithmCanvas.redrawCanvas();
         }
@@ -44674,6 +44781,9 @@ You should be redirected to the song at:<br /><br />
                     function updateModSlider(editor, slider, setting, channel, instrument) {
                         if (editor._doc.synth.isModActive(setting, channel, instrument)) {
                             let currentVal = (editor._doc.synth.getModValue(setting, channel, instrument, false) - Config.modulators[setting].convertRealFactor) / Config.modulators[setting].maxRawVol;
+                            if (Config.modulators[setting].invertSliderIndicator == true) {
+                                currentVal = 1 - currentVal;
+                            }
                             if (currentVal != editor._modSliderValues[setting]) {
                                 editor._modSliderValues[setting] = currentVal;
                                 slider.container.style.setProperty("--mod-position", (currentVal * 96.0 + 2.0) + "%");
@@ -44808,10 +44918,11 @@ You should be redirected to the song at:<br /><br />
                 return;
             this._currentPromptName = promptName;
             if (this.prompt) {
-                if (this._wasPlaying && !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt)) {
+                if (this._wasPlaying && !(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomScalePrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt)) {
                     this._doc.performance.play();
                 }
                 this._wasPlaying = false;
+                this._promptContainerBG.style.display = "none";
                 this._promptContainer.style.display = "none";
                 this._promptContainer.removeChild(this.prompt.container);
                 this.prompt.cleanUp();
@@ -44856,6 +44967,15 @@ You should be redirected to the song at:<br /><br />
                     case "customNoteFilterSettings":
                         this.prompt = new CustomFilterPrompt(this._doc, this, true);
                         break;
+                    case "harmonicsSettings":
+                        this.prompt = new HarmonicsEditorPrompt(this._doc, this);
+                        break;
+                    case "spectrumSettings":
+                        this.prompt = new SpectrumEditorPrompt(this._doc, this, false);
+                        break;
+                    case "drumsetSettings":
+                        this.prompt = new SpectrumEditorPrompt(this._doc, this, true);
+                        break;
                     case "theme":
                         this.prompt = new ThemePrompt(this._doc);
                         break;
@@ -44880,8 +45000,8 @@ You should be redirected to the song at:<br /><br />
                     case "generateEuclideanRhythm":
                         this.prompt = new EuclideanRhythmPrompt(this._doc);
                         break;
-                    case "custom":
-                        this.prompt = new CustomPrompt(this._doc, this._patternEditor, this._trackArea, document.getElementById("beepboxEditorContainer"));
+                    case "customTheme":
+                        this.prompt = new CustomThemePrompt(this._doc, this._patternEditor, this._trackArea, document.getElementById("beepboxEditorContainer"));
                         break;
                     case "visualLoopControls":
                         this.prompt = new VisualLoopControlsPrompt(this._doc, this);
@@ -44889,17 +45009,33 @@ You should be redirected to the song at:<br /><br />
                     case "sampleLoadingStatus":
                         this.prompt = new SampleLoadingStatusPrompt(this._doc);
                         break;
+                    case "configureShortener":
+                        this.prompt = new ShortenerConfigPrompt(this._doc);
+                        break;
                     default:
                         this.prompt = new TipPrompt(this._doc, promptName);
                         break;
                 }
                 if (this.prompt) {
-                    if (!(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt)) {
+                    if (!(this.prompt instanceof TipPrompt || this.prompt instanceof LimiterPrompt || this.prompt instanceof CustomChipPrompt || this.prompt instanceof CustomFilterPrompt || this.prompt instanceof VisualLoopControlsPrompt || this.prompt instanceof SustainPrompt || this.prompt instanceof HarmonicsEditorPrompt || this.prompt instanceof SpectrumEditorPrompt)) {
                         this._wasPlaying = this._doc.synth.playing;
                         this._doc.performance.pause();
                     }
                     this._promptContainer.style.display = "";
+                    if (this._doc.prefs.frostedGlassBackground == true) {
+                        this._promptContainerBG.style.display = "";
+                        this._promptContainerBG.style.backgroundColor = "rgba(0,0,0, 0)";
+                        this._promptContainerBG.style.backdropFilter = "brightness(0.9) blur(14px)";
+                        this._promptContainerBG.style.opacity = "1";
+                    }
+                    else {
+                        this._promptContainerBG.style.display = "";
+                        this._promptContainerBG.style.backgroundColor = "var(--editor-background)";
+                        this._promptContainerBG.style.backdropFilter = "";
+                        this._promptContainerBG.style.opacity = "0.5";
+                    }
                     this._promptContainer.appendChild(this.prompt.container);
+                    document.body.appendChild(this._promptContainerBG);
                 }
             }
         }
@@ -46419,11 +46555,11 @@ You should be redirected to the song at:<br /><br />
             this.showChannels = window.localStorage.getItem("showChannels") == "true";
             this.showScrollBar = window.localStorage.getItem("showScrollBar") != "false";
             this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") == "true";
-            this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") == "true";
+            this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") != "false";
             this.instrumentCopyPaste = window.localStorage.getItem("instrumentCopyPaste") != "false";
             this.instrumentImportExport = window.localStorage.getItem("instrumentImportExport") == "true";
             this.instrumentButtonsAtTop = window.localStorage.getItem("instrumentButtonsAtTop") == "true";
-            this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") == "true";
+            this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") != "false";
             this.displayBrowserUrl = window.localStorage.getItem("displayBrowserUrl") != "false";
             this.pressControlForShortcuts = window.localStorage.getItem("pressControlForShortcuts") == "true";
             this.enableMidi = window.localStorage.getItem("enableMidi") != "false";
@@ -46433,14 +46569,16 @@ You should be redirected to the song at:<br /><br />
             this.metronomeCountIn = window.localStorage.getItem("metronomeCountIn") != "false";
             this.metronomeWhileRecording = window.localStorage.getItem("metronomeWhileRecording") != "false";
             this.notesFlashWhenPlayed = window.localStorage.getItem("notesFlashWhenPlayed") == "true";
-            this.showOscilloscope = window.localStorage.getItem("showOscilloscope") != "false";
+            this.showOscilloscope = window.localStorage.getItem("showOscilloscope") == "true";
             this.showSampleLoadingStatus = window.localStorage.getItem("showSampleLoadingStatus") != "false";
             this.showDescription = window.localStorage.getItem("showDescription") != "false";
+            this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") == "true";
             this.closePromptByClickoff = window.localStorage.getItem("closePromptByClickoff") == "true";
-            this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "wickiHayden";
+            this.frostedGlassBackground = window.localStorage.getItem("frostedGlassBackground") == "true";
+            this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "pianoTransposingC";
             this.bassOffset = (+window.localStorage.getItem("bassOffset")) || 0;
             this.layout = window.localStorage.getItem("layout") || "small";
-            this.colorTheme = window.localStorage.getItem("colorTheme") || "dark classic";
+            this.colorTheme = window.localStorage.getItem("colorTheme") || ColorConfig.defaultTheme;
             this.customTheme = window.localStorage.getItem("customTheme");
             this.customTheme2 = window.localStorage.getItem("customTheme2");
             this.visibleOctaves = (window.localStorage.getItem("visibleOctaves") >>> 0) || Preferences.defaultVisibleOctaves;
@@ -46483,7 +46621,9 @@ You should be redirected to the song at:<br /><br />
             window.localStorage.setItem("showOscilloscope", this.showOscilloscope ? "true" : "false");
             window.localStorage.setItem("showSampleLoadingStatus", this.showSampleLoadingStatus ? "true" : "false");
             window.localStorage.setItem("showDescription", this.showDescription ? "true" : "false");
+            window.localStorage.setItem("showInstrumentScrollbars", this.showInstrumentScrollbars ? "true" : "false");
             window.localStorage.setItem("closePromptByClickoff", this.closePromptByClickoff ? "true" : "false");
+            window.localStorage.setItem("frostedGlassBackground", this.frostedGlassBackground ? "true" : "false");
             window.localStorage.setItem("keyboardLayout", this.keyboardLayout);
             window.localStorage.setItem("bassOffset", String(this.bassOffset));
             window.localStorage.setItem("layout", this.layout);
@@ -46590,7 +46730,7 @@ You should be redirected to the song at:<br /><br />
                 this._sequenceNumber = state.sequenceNumber;
                 this.prompt = state.prompt;
                 try {
-                    new ChangeSong(this, window.location.hash);
+                    new ChangeSong(this, this._getHash());
                 }
                 catch (error) {
                     errorAlert(error);
